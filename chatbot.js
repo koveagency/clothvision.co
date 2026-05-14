@@ -1,17 +1,38 @@
 (function () {
   const API_URL = '/api/chat'; 
   let isVoiceInput = false;
+  let recognition;
+
+  // 1. Configuração do Reconhecimento de Voz (Ouvir)
+  if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    recognition = new SpeechRecognition();
+    recognition.lang = 'pt-PT';
+    recognition.continuous = false;
+
+    recognition.onresult = (event) => {
+      const text = event.results[0][0].transcript;
+      document.getElementById('chatInput').value = text;
+      isVoiceInput = true;
+      sendMsg(text);
+      document.getElementById('micBtn').classList.remove('listening');
+    };
+
+    recognition.onerror = () => {
+      document.getElementById('micBtn').classList.remove('listening');
+    };
+  }
 
   const css = `
   #clvsn-chat-btn{ position:fixed;bottom:32px;right:32px;z-index:8888; width:56px;height:56px;border-radius:50%; background:#00b5f8; display:flex;align-items:center;justify-content:center; cursor:pointer;box-shadow:0 8px 24px rgba(0,181,248,.5); transition:transform .2s; border:none; outline:none; }
   #clvsn-chat-btn:hover{transform:scale(1.1)}
   #clvsn-chat-btn svg{width:26px;height:26px;fill:#001627}
-  #clvsn-chat-panel{ position:fixed;bottom:100px;right:32px;z-index:8889; width:380px;max-height:600px; background:#001627; border:1px solid rgba(0,181,248,.15); border-radius:24px;overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.8); display:none; flex-direction:column; }
+  #clvsn-chat-panel{ position:fixed;bottom:100px;right:32px;z-index:8889; width:380px;max-height:600px; background:#001627; border:1px solid rgba(0,181,248,.15); border-radius:24px;overflow:hidden; box-shadow:0 24px 60px rgba(0,0,0,.8); display:none; flex-direction:column; font-family: sans-serif; }
   #clvsn-chat-panel.open{display:flex;}
   .chat-header{ padding:20px 24px; background:rgba(0,43,73,.6); border-bottom:1px solid rgba(0,181,248,.08); display:flex;align-items:center;justify-content:space-between; }
-  .chat-avatar{ width:36px;height:36px;border-radius:50%; background:#00b5f8; display:flex;align-items:center;justify-content:center; }
+  .chat-avatar{ width:36px;height:36px;border-radius:50%; background:#00b5f8; display:flex;align-items:center;justify-content:center; font-weight:bold; color:#001627; }
   .chat-messages{ flex:1;overflow-y:auto;padding:20px 16px; display:flex;flex-direction:column;gap:12px; height: 350px; }
-  .msg-bubble{ padding:10px 14px;border-radius:16px; font-size:13px;line-height:1.55; }
+  .msg-bubble{ padding:10px 14px;border-radius:16px; font-size:13px;line-height:1.55; max-width: 85%; }
   .msg.bot .msg-bubble{ background:rgba(0,43,73,.6); color:#f0f4f8; border-bottom-left-radius:4px; align-self: flex-start; }
   .msg.user .msg-bubble{ background:#00b5f8; color:#001627; font-weight:500; border-bottom-right-radius:4px; }
   .msg.user { align-self: flex-end; }
@@ -19,7 +40,7 @@
   .chat-input{ flex:1;background:rgba(0,43,73,.4);border:1px solid rgba(0,181,248,.1); border-radius:100px;padding:10px 16px; color:#f0f4f8; outline:none; height:40px; resize:none; }
   #micBtn { background:none; border:none; cursor:pointer; padding:5px; display:flex; align-items:center; justify-content:center; }
   #micBtn svg { width:20px; height:20px; fill: #00b5f8; }
-  #micBtn.listening svg { fill: #ff4757; }
+  #micBtn.listening svg { fill: #ff4757; filter: drop-shadow(0 0 5px #ff4757); }
   `;
 
   const style = document.createElement('style');
@@ -53,6 +74,18 @@
     </div>`;
   document.body.appendChild(panel);
 
+  // 2. Função para o Oscar Falar
+  function speak(text) {
+    if ('speechSynthesis' in window) {
+      // Cancela qualquer fala anterior
+      window.speechSynthesis.cancel();
+      const ut = new SpeechSynthesisUtterance(text);
+      ut.lang = 'pt-PT';
+      ut.rate = 1.0;
+      window.speechSynthesis.speak(ut);
+    }
+  }
+
   async function sendMsg(text) {
     if (!text.trim()) return;
     const msgs = document.getElementById('chatMessages');
@@ -63,7 +96,6 @@
     document.getElementById('chatInput').value = '';
 
     try {
-      // 'cache: no-store' obriga a API a dar sempre uma resposta nova
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -74,13 +106,12 @@
       const data = await res.json();
       const bDiv = document.createElement('div');
       bDiv.className = 'msg bot';
-      bDiv.innerHTML = `<div class="msg-bubble">${data.reply || 'Erro na resposta.'}</div>`;
+      bDiv.innerHTML = `<div class="msg-bubble">${data.reply || 'Estou com dificuldades em processar isso.'}</div>`;
       msgs.appendChild(bDiv);
       
+      // Se o utilizador usou o microfone, o Oscar responde por voz
       if (isVoiceInput && data.reply) {
-        const ut = new SpeechSynthesisUtterance(data.reply);
-        ut.lang = 'pt-PT';
-        window.speechSynthesis.speak(ut);
+        speak(data.reply);
       }
     } catch (e) {
       const eDiv = document.createElement('div');
@@ -91,15 +122,16 @@
     msgs.scrollTop = msgs.scrollHeight;
   }
 
+  // Eventos de Clique
   btn.onclick = () => {
     panel.classList.toggle('open');
-    // Adiciona saudação inicial apenas se o chat estiver vazio
     if(document.getElementById('chatMessages').children.length === 0) {
        const msgs = document.getElementById('chatMessages');
-       const welcome = document.createElement('div');
-       welcome.className = 'msg bot';
-       welcome.innerHTML = `<div class="msg-bubble">Olá! Sou o Oscar, assistente da CLVSN. Em que posso ajudar?</div>`;
-       msgs.appendChild(welcome);
+       const welcome = "Olá! Sou o Oscar, assistente da CLVSN. Em que posso ajudar?";
+       const welcomeDiv = document.createElement('div');
+       welcomeDiv.className = 'msg bot';
+       welcomeDiv.innerHTML = `<div class="msg-bubble">${welcome}</div>`;
+       msgs.appendChild(welcomeDiv);
     }
   };
   
@@ -108,6 +140,16 @@
   document.getElementById('chatSend').onclick = () => { 
     isVoiceInput = false; 
     sendMsg(document.getElementById('chatInput').value); 
+  };
+
+  document.getElementById('micBtn').onclick = () => {
+    if (recognition) {
+      isVoiceInput = true;
+      document.getElementById('micBtn').classList.add('listening');
+      recognition.start();
+    } else {
+      alert("O seu navegador não suporta reconhecimento de voz.");
+    }
   };
 
   document.getElementById('chatInput').onkeydown = (e) => { 
