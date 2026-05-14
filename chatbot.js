@@ -261,7 +261,7 @@
       bDiv.innerHTML = `<div class="msg-bubble">${data.reply || 'Erro na resposta.'}</div>`;
       chatMessages.appendChild(bDiv);
 
-      if (isVoiceInput && data.reply) speak(data.reply);
+      // TTS desativado — Oscar responde apenas por texto
     } catch (e) {
       hideTyping();
       const eDiv = document.createElement('div');
