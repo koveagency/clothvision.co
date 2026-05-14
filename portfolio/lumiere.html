@@ -1,0 +1,1302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>LUMIÈRE — L'Élégance Intemporelle</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,400;0,600;1,300;1,400&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300;1,400&family=Jost:wght@200;300;400&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --near-black: #0A0A0A;
+  --champagne: #F5E6D3;
+  --taupe: #8B7355;
+  --gold: #D4B896;
+  --white: #FFFFFF;
+  --font-serif: 'Playfair Display', serif;
+  --font-quote: 'Cormorant Garamond', serif;
+  --font-body: 'Jost', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--white);
+  color: var(--near-black);
+  font-family: var(--font-body);
+  font-weight: 300;
+  cursor: none;
+  overflow-x: hidden;
+}
+
+/* ===== PAGE REVEAL (White fade loader) ===== */
+#page-reveal {
+  position: fixed;
+  inset: 0;
+  background: var(--white);
+  z-index: 99999;
+  pointer-events: none;
+  animation: pageReveal 1.4s cubic-bezier(0.76, 0, 0.24, 1) 0.3s forwards;
+}
+
+@keyframes pageReveal {
+  0% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
+}
+
+/* ===== CUSTOM CURSOR: elegant cross ===== */
+#cursor-cross {
+  position: fixed;
+  width: 20px;
+  height: 20px;
+  pointer-events: none;
+  z-index: 99998;
+  transform: translate(-50%, -50%);
+  transition: transform 0.15s ease, width 0.4s ease, height 0.4s ease, opacity 0.3s ease;
+}
+
+#cursor-cross::before,
+#cursor-cross::after {
+  content: '';
+  position: absolute;
+  background: var(--near-black);
+  transition: all 0.4s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+#cursor-cross::before {
+  width: 1px;
+  height: 100%;
+  left: 50%;
+  top: 0;
+  transform: translateX(-50%);
+}
+
+#cursor-cross::after {
+  width: 100%;
+  height: 1px;
+  top: 50%;
+  left: 0;
+  transform: translateY(-50%);
+}
+
+#cursor-cross.hover {
+  width: 32px;
+  height: 32px;
+  opacity: 0.5;
+}
+
+#cursor-cross.dark-bg::before,
+#cursor-cross.dark-bg::after {
+  background: var(--champagne);
+}
+
+/* ===== SCROLL PROGRESS BAR ===== */
+#progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 1px;
+  background: var(--taupe);
+  z-index: 9998;
+  width: 0%;
+  transition: width 0.05s linear;
+}
+
+/* ===== NAV ===== */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 32px 64px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  transition: padding 0.8s cubic-bezier(0.76, 0, 0.24, 1), background 0.8s ease;
+}
+
+nav.scrolled {
+  padding: 20px 64px;
+  background: rgba(255,255,255,0.95);
+  backdrop-filter: blur(16px);
+  border-bottom: 1px solid var(--champagne);
+}
+
+.nav-logo {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 400;
+  font-size: 22px;
+  letter-spacing: 4px;
+  color: var(--near-black);
+  text-decoration: none;
+  transition: opacity 0.4s ease;
+}
+
+.nav-logo:hover { opacity: 0.6; }
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 0;
+  list-style: none;
+}
+
+.nav-links li { display: flex; align-items: center; }
+
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--near-black);
+  text-decoration: none;
+  padding: 0 20px;
+  position: relative;
+  transition: opacity 0.4s ease;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 1px;
+  background: var(--taupe);
+  transition: width 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.nav-links a:hover { opacity: 0.5; }
+.nav-links a:hover::after { width: 60%; }
+
+.nav-dot {
+  color: var(--champagne);
+  font-size: 16px;
+  line-height: 1;
+  opacity: 0.7;
+  pointer-events: none;
+}
+
+.nav-right {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+}
+
+.nav-icon {
+  font-size: 14px;
+  color: var(--near-black);
+  cursor: none;
+  opacity: 0.6;
+  transition: opacity 0.3s ease;
+}
+
+.nav-icon:hover { opacity: 1; }
+
+.nav-lang {
+  font-family: var(--font-body);
+  font-size: 9px;
+  letter-spacing: 2px;
+  color: rgba(10,10,10,0.4);
+}
+
+/* ===== HERO ===== */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  overflow: hidden;
+  display: flex;
+  align-items: flex-end;
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=1800&q=80&fit=crop&auto=format');
+  background-size: cover;
+  background-position: center top;
+  transition: transform 0.1s linear;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    to right,
+    rgba(10,10,10,0.55) 0%,
+    rgba(10,10,10,0.2) 50%,
+    rgba(10,10,10,0.05) 100%
+  );
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  padding: 0 80px 100px;
+  max-width: 720px;
+}
+
+.hero-eyebrow {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 5px;
+  color: var(--champagne);
+  text-transform: uppercase;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: elegantReveal 1.2s cubic-bezier(0.76, 0, 0.24, 1) 1.2s forwards;
+  display: block;
+  margin-bottom: 20px;
+}
+
+.hero-title-main {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(56px, 9vw, 120px);
+  color: var(--white);
+  line-height: 0.95;
+  letter-spacing: -1px;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: elegantReveal 1.4s cubic-bezier(0.76, 0, 0.24, 1) 1.4s forwards;
+  display: block;
+}
+
+.hero-title-sub {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(36px, 5.5vw, 72px);
+  color: rgba(255,255,255,0.7);
+  line-height: 1;
+  letter-spacing: 2px;
+  opacity: 0;
+  transform: translateY(30px);
+  animation: elegantReveal 1.4s cubic-bezier(0.76, 0, 0.24, 1) 1.6s forwards;
+  display: block;
+  margin-bottom: 28px;
+}
+
+.hero-caption {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: rgba(245,230,211,0.6);
+  opacity: 0;
+  transform: translateY(20px);
+  animation: elegantReveal 1.2s cubic-bezier(0.76, 0, 0.24, 1) 1.8s forwards;
+  display: block;
+  margin-bottom: 48px;
+}
+
+.hero-cta {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 5px;
+  text-transform: uppercase;
+  color: var(--champagne);
+  border: 1px solid rgba(245,230,211,0.4);
+  padding: 16px 40px;
+  text-decoration: none;
+  opacity: 0;
+  transform: translateY(20px);
+  animation: elegantReveal 1.2s cubic-bezier(0.76, 0, 0.24, 1) 2s forwards;
+  position: relative;
+  overflow: hidden;
+  transition: color 0.8s ease, border-color 0.8s ease;
+}
+
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--champagne);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.8s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.hero-cta:hover {
+  color: var(--near-black);
+  border-color: var(--champagne);
+}
+
+.hero-cta:hover::before { transform: scaleX(1); }
+.hero-cta span { position: relative; z-index: 1; }
+
+@keyframes elegantReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== COLLECTION STRIP ===== */
+.collection-strip {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 2px;
+  background: var(--white);
+}
+
+.strip-item {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 2/3;
+  cursor: none;
+}
+
+.strip-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 1.2s cubic-bezier(0.76, 0, 0.24, 1);
+  transform: scale(1.02);
+}
+
+.strip-item:hover img {
+  transform: scale(1.05);
+}
+
+.strip-caption {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 24px 20px 20px;
+  background: linear-gradient(to top, rgba(10,10,10,0.5) 0%, transparent 100%);
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  color: var(--champagne);
+  text-transform: uppercase;
+  transform: translateY(4px);
+  transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.strip-item:hover .strip-caption { transform: translateY(0); }
+
+/* ===== MAISON ===== */
+.maison {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 80vh;
+  background: var(--white);
+}
+
+.maison-image {
+  position: relative;
+  overflow: hidden;
+}
+
+.maison-image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 1.2s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.maison-image:hover img { transform: scale(1.03); }
+
+.maison-content {
+  padding: 80px 72px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  background: var(--near-black);
+}
+
+.maison-eyebrow {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 5px;
+  color: var(--taupe);
+  text-transform: uppercase;
+  margin-bottom: 24px;
+  display: block;
+}
+
+.maison-title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(28px, 3.5vw, 48px);
+  letter-spacing: 6px;
+  color: var(--champagne);
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  line-height: 1.3;
+}
+
+.maison-text {
+  font-family: var(--font-body);
+  font-size: 13px;
+  font-weight: 300;
+  line-height: 2;
+  color: rgba(245,230,211,0.5);
+  margin-bottom: 20px;
+  max-width: 420px;
+}
+
+.maison-link {
+  display: inline-block;
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-decoration: none;
+  text-transform: uppercase;
+  margin-top: 24px;
+  position: relative;
+  transition: opacity 0.4s ease;
+}
+
+.maison-link::after {
+  content: '';
+  position: absolute;
+  bottom: -2px;
+  left: 0;
+  width: 100%;
+  height: 1px;
+  background: var(--gold);
+  transform: scaleX(0.4);
+  transform-origin: left;
+  transition: transform 0.6s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.maison-link:hover::after { transform: scaleX(1); }
+
+/* ===== FEATURED PIECES ===== */
+.featured {
+  padding: 100px 64px;
+  background: var(--champagne);
+}
+
+.featured-header {
+  margin-bottom: 64px;
+}
+
+.featured-label {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 5px;
+  color: var(--taupe);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.featured-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(32px, 4vw, 52px);
+  color: var(--near-black);
+  letter-spacing: 2px;
+}
+
+.featured-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 24px;
+}
+
+.piece-card {
+  background: transparent;
+  cursor: none;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease;
+}
+
+.piece-card-img {
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3/4;
+  margin-bottom: 20px;
+  background: #e8d9c8;
+}
+
+.piece-card-img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  transition: transform 1.2s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.piece-card:hover .piece-card-img img { transform: scale(1.04); }
+
+.piece-card-img::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(10,10,10,0);
+  transition: background 0.8s ease;
+}
+
+.piece-card:hover .piece-card-img::after { background: rgba(10,10,10,0.06); }
+
+.piece-name {
+  font-family: var(--font-body);
+  font-size: 10px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  color: var(--near-black);
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 6px;
+}
+
+.piece-material {
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 13px;
+  color: var(--taupe);
+  display: block;
+  margin-bottom: 8px;
+}
+
+.piece-price {
+  font-family: var(--font-body);
+  font-size: 12px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: var(--gold);
+}
+
+/* ===== CRAFTSMANSHIP ===== */
+.craft {
+  padding: 100px 64px;
+  background: var(--near-black);
+}
+
+.craft-header {
+  text-align: center;
+  margin-bottom: 80px;
+}
+
+.craft-label {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  color: var(--taupe);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.craft-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(28px, 3.5vw, 48px);
+  color: var(--champagne);
+  letter-spacing: 4px;
+}
+
+.craft-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1px;
+  background: rgba(245,230,211,0.1);
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.craft-item {
+  padding: 56px 48px;
+  background: var(--near-black);
+  text-align: center;
+  position: relative;
+  transition: background 0.8s ease;
+}
+
+.craft-item:hover { background: #111; }
+
+.craft-number {
+  font-family: var(--font-quote);
+  font-style: italic;
+  font-size: 40px;
+  color: rgba(212,184,150,0.15);
+  display: block;
+  margin-bottom: 24px;
+  transition: color 0.6s ease;
+}
+
+.craft-item:hover .craft-number { color: rgba(212,184,150,0.25); }
+
+.craft-item-title {
+  font-family: var(--font-body);
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 16px;
+  display: block;
+}
+
+.craft-item-text {
+  font-size: 12px;
+  line-height: 1.9;
+  color: rgba(245,230,211,0.35);
+}
+
+/* ===== PRESS ===== */
+.press {
+  padding: 72px 64px;
+  background: var(--white);
+  text-align: center;
+}
+
+.press-label {
+  font-family: var(--font-body);
+  font-size: 8px;
+  font-weight: 300;
+  letter-spacing: 6px;
+  color: rgba(10,10,10,0.3);
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  display: block;
+}
+
+.press-logos {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0;
+  flex-wrap: wrap;
+}
+
+.press-logo {
+  padding: 0 40px;
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-size: clamp(14px, 2vw, 20px);
+  color: rgba(10,10,10,0.2);
+  border-right: 1px solid rgba(10,10,10,0.1);
+  transition: color 0.6s ease;
+  cursor: default;
+}
+
+.press-logo:last-child { border-right: none; }
+.press-logo:hover { color: var(--taupe); }
+
+/* ===== NEWSLETTER ===== */
+.newsletter {
+  padding: 100px 64px;
+  background: var(--champagne);
+  text-align: center;
+}
+
+.newsletter-title {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(24px, 3vw, 40px);
+  color: var(--near-black);
+  margin-bottom: 12px;
+}
+
+.newsletter-sub {
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 1px;
+  color: var(--taupe);
+  margin-bottom: 48px;
+}
+
+.newsletter-form {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  max-width: 480px;
+  margin: 0 auto;
+  border-bottom: 1px solid var(--taupe);
+}
+
+.newsletter-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 14px 0;
+  font-family: var(--font-body);
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: var(--near-black);
+  caret-color: var(--taupe);
+}
+
+.newsletter-input::placeholder {
+  color: rgba(139,115,85,0.4);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+  font-size: 9px;
+}
+
+.newsletter-btn {
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 8px;
+  font-weight: 300;
+  letter-spacing: 5px;
+  color: var(--taupe);
+  text-transform: uppercase;
+  cursor: none;
+  padding: 14px 0;
+  transition: color 0.4s ease;
+}
+
+.newsletter-btn:hover { color: var(--near-black); }
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 72px 64px 48px;
+  background: var(--near-black);
+}
+
+.footer-logo {
+  font-family: var(--font-serif);
+  font-style: italic;
+  font-weight: 300;
+  font-size: clamp(28px, 4vw, 52px);
+  color: var(--champagne);
+  letter-spacing: 8px;
+  text-align: center;
+  display: block;
+  margin-bottom: 64px;
+  opacity: 0.6;
+}
+
+.footer-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 48px;
+  max-width: 800px;
+  margin: 0 auto 56px;
+}
+
+.footer-col-title {
+  font-family: var(--font-body);
+  font-size: 8px;
+  font-weight: 300;
+  letter-spacing: 4px;
+  color: var(--taupe);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.footer-col a,
+.footer-col p {
+  display: block;
+  font-size: 11px;
+  font-weight: 300;
+  letter-spacing: 1px;
+  color: rgba(245,230,211,0.3);
+  text-decoration: none;
+  margin-bottom: 10px;
+  transition: color 0.4s ease;
+}
+
+.footer-col a:hover { color: var(--champagne); }
+
+.footer-bottom {
+  text-align: center;
+  padding-top: 32px;
+  border-top: 1px solid rgba(245,230,211,0.07);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.footer-copy {
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: rgba(245,230,211,0.2);
+}
+
+.footer-privacy {
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 2px;
+  color: rgba(245,230,211,0.15);
+  text-decoration: none;
+  transition: color 0.4s ease;
+}
+
+.footer-privacy:hover { color: rgba(245,230,211,0.4); }
+
+.footer-social {
+  display: flex;
+  gap: 24px;
+}
+
+.footer-social a {
+  font-size: 9px;
+  font-weight: 300;
+  letter-spacing: 3px;
+  color: rgba(245,230,211,0.25);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.4s ease;
+}
+
+.footer-social a:hover { color: var(--champagne); }
+
+/* ===== ANIMATE ON SCROLL ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 0.9s cubic-bezier(0.76, 0, 0.24, 1), transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-32px);
+  transition: opacity 0.9s cubic-bezier(0.76, 0, 0.24, 1), transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.reveal-right {
+  opacity: 0;
+  transform: translateX(32px);
+  transition: opacity 0.9s cubic-bezier(0.76, 0, 0.24, 1), transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.reveal-right.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.stagger-child {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.9s cubic-bezier(0.76, 0, 0.24, 1), transform 0.9s cubic-bezier(0.76, 0, 0.24, 1);
+}
+
+.stagger-child.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  nav { padding: 20px 24px; }
+  nav.scrolled { padding: 14px 24px; }
+  .nav-links { display: none; }
+
+  .hero-content { padding: 0 32px 80px; }
+  .hero-title-main { font-size: clamp(44px, 14vw, 72px); }
+  .hero-title-sub { font-size: clamp(28px, 9vw, 44px); }
+
+  .collection-strip { grid-template-columns: repeat(2, 1fr); }
+
+  .maison { grid-template-columns: 1fr; }
+  .maison-image { height: 50vw; }
+  .maison-content { padding: 48px 32px; }
+
+  .featured { padding: 60px 24px; }
+  .featured-grid { grid-template-columns: 1fr; gap: 40px; }
+
+  .craft { padding: 60px 24px; }
+  .craft-grid { grid-template-columns: 1fr; }
+
+  .press { padding: 48px 24px; }
+  .press-logos { gap: 0; }
+  .press-logo { padding: 12px 16px; font-size: 14px; border-right: none; border-bottom: 1px solid rgba(10,10,10,0.1); }
+
+  .newsletter { padding: 60px 24px; }
+
+  footer { padding: 48px 24px 32px; }
+  .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 16px; }
+}
+  /* ── CAMPAIGN VIDEO ── */
+  .campaign-video { position: relative; overflow: hidden; background: #0A0A0A; }
+  .campaign-video video { width: 100%; height: 70vh; object-fit: cover; opacity: 0.5; display: block; }
+  .campaign-video-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+  }
+  .campaign-video-overlay .cv-tag {
+    font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #D4B896; margin-bottom: 1rem;
+  }
+  .campaign-video-overlay h2 {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    color: #F5E6D3; line-height: 1.1; margin-bottom: 1.4rem;
+  }
+  .campaign-video-overlay p {
+    color: rgba(255,255,255,0.65); font-size: 1rem; max-width: 480px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- Page Reveal -->
+<div id="page-reveal"></div>
+
+<!-- Cursor Cross -->
+<div id="cursor-cross"></div>
+
+<!-- Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- Navigation -->
+<nav id="navbar">
+  <a href="#" class="nav-logo" style="display:flex;align-items:center;gap:10px;">
+    <img src="../assets/logo-lumiere.svg" style="height:36px;" alt="LUMIÈRE">
+    LUMIÈRE
+  </a>
+  <ul class="nav-links">
+    <li><a href="#collection">Collections</a></li>
+    <li><span class="nav-dot">·</span></li>
+    <li><a href="#maison">Atelier</a></li>
+    <li><span class="nav-dot">·</span></li>
+    <li><a href="#maison">Maison</a></li>
+    <li><span class="nav-dot">·</span></li>
+    <li><a href="#newsletter">Contact</a></li>
+  </ul>
+  <div class="nav-right">
+    <span class="nav-icon">◻</span>
+    <span class="nav-lang">FR · EN</span>
+  </div>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <span class="hero-eyebrow">Collection Printemps 2026</span>
+    <span class="hero-title-main">L'Élégance</span>
+    <span class="hero-title-sub">Intemporelle</span>
+    <span class="hero-caption">Crafted in Paris. Worn forever.</span>
+    <a href="#collection" class="hero-cta"><span>Discover</span></a>
+  </div>
+</section>
+
+<!-- Collection Strip -->
+<section class="collection-strip" id="collection">
+  <div class="strip-item">
+    <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80&fit=crop&auto=format" alt="Le Manteau" loading="lazy">
+    <div class="strip-caption">I — Le Manteau</div>
+  </div>
+  <div class="strip-item">
+    <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80&fit=crop&auto=format" alt="La Robe" loading="lazy">
+    <div class="strip-caption">II — La Robe</div>
+  </div>
+  <div class="strip-item">
+    <img src="https://images.unsplash.com/photo-1583846552345-1baab6e31ee4?w=600&q=80&fit=crop&auto=format" alt="La Veste" loading="lazy">
+    <div class="strip-caption">III — La Veste</div>
+  </div>
+  <div class="strip-item">
+    <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=600&q=80&fit=crop&auto=format" alt="L'Accessoire" loading="lazy">
+    <div class="strip-caption">IV — L'Accessoire</div>
+  </div>
+</section>
+
+<!-- Maison Lumière -->
+<section class="maison" id="maison">
+  <div class="maison-image reveal-left">
+    <img src="https://images.unsplash.com/photo-1469334031218-e382a71b716b?w=800&q=80&fit=crop&auto=format" alt="Maison Lumière" loading="lazy">
+  </div>
+  <div class="maison-content reveal-right">
+    <span class="maison-eyebrow">Since 1998, Crafted in Paris</span>
+    <h2 class="maison-title">Maison<br>Lumière</h2>
+    <p class="maison-text">
+      Born from a single atelier on the Rue du Faubourg Saint-Honoré, LUMIÈRE was conceived as a refusal of excess. We believe that true luxury has nothing to prove. A garment, at its finest, is architecture for the body — measured in time, not trend.
+    </p>
+    <p class="maison-text">
+      Every piece passes through the hands of no fewer than twelve craftspeople before it leaves Paris. We source exclusively from mills in Lyon, Biella, and Como. Our commitment is not to seasonal novelty, but to objects that outlast the hands that made them.
+    </p>
+    <a href="#" class="maison-link">Discover the Atelier →</a>
+  </div>
+</section>
+
+<!-- Featured Pieces -->
+<section class="featured" id="featured">
+  <div class="featured-header reveal">
+    <span class="featured-label">Pièces Choisies</span>
+    <h2 class="featured-title">La Sélection</h2>
+  </div>
+  <div class="featured-grid">
+    <div class="piece-card stagger-child" data-tilt>
+      <div class="piece-card-img">
+        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=600&q=80&fit=crop&auto=format" alt="Le Manteau Sable" loading="lazy">
+      </div>
+      <span class="piece-name">Le Manteau Sable</span>
+      <span class="piece-material">Cashmere</span>
+      <span class="piece-price">€1,200</span>
+    </div>
+    <div class="piece-card stagger-child" data-tilt>
+      <div class="piece-card-img">
+        <img src="https://images.unsplash.com/photo-1490481651871-ab68de25d43d?w=600&q=80&fit=crop&auto=format" alt="La Robe Lumière" loading="lazy">
+      </div>
+      <span class="piece-name">La Robe Lumière</span>
+      <span class="piece-material">Silk</span>
+      <span class="piece-price">€890</span>
+    </div>
+    <div class="piece-card stagger-child" data-tilt>
+      <div class="piece-card-img">
+        <img src="https://images.unsplash.com/photo-1583846552345-1baab6e31ee4?w=600&q=80&fit=crop&auto=format" alt="L'Écharpe" loading="lazy">
+      </div>
+      <span class="piece-name">L'Écharpe</span>
+      <span class="piece-material">Cashmere / Silk</span>
+      <span class="piece-price">€320</span>
+    </div>
+  </div>
+</section>
+
+<!-- Craftsmanship -->
+<section class="craft" id="craft">
+  <div class="craft-header reveal">
+    <span class="craft-label">Savoir-Faire</span>
+    <h2 class="craft-title">Façonné à la Main</h2>
+  </div>
+  <div class="craft-grid">
+    <div class="craft-item stagger-child">
+      <span class="craft-number">I</span>
+      <span class="craft-item-title">The Hand</span>
+      <p class="craft-item-text">Every stitch is placed by hand. Our artisans spend years mastering a single seam. No shortcut is acceptable when the work endures.</p>
+    </div>
+    <div class="craft-item stagger-child">
+      <span class="craft-number">II</span>
+      <span class="craft-item-title">The Fabric</span>
+      <p class="craft-item-text">Selected Italian and French fabrics from mills with a century of heritage. Each textile is chosen for how it moves, breathes, and ages.</p>
+    </div>
+    <div class="craft-item stagger-child">
+      <span class="craft-number">III</span>
+      <span class="craft-item-title">The Time</span>
+      <p class="craft-item-text">Designed to outlast trends. LUMIÈRE does not participate in acceleration. A coat sewn in our atelier is made to last forty years.</p>
+    </div>
+  </div>
+</section>
+
+<!-- Press -->
+<section class="press" id="press">
+  <span class="press-label reveal">As Seen In</span>
+  <div class="press-logos reveal" style="transition-delay:0.15s">
+    <span class="press-logo">Vogue</span>
+    <span class="press-logo">Madame Figaro</span>
+    <span class="press-logo">Harper's Bazaar</span>
+    <span class="press-logo">Le Monde</span>
+  </div>
+</section>
+
+<!-- Newsletter -->
+<section class="newsletter" id="newsletter">
+  <h2 class="newsletter-title reveal">La Lettre de la Maison</h2>
+  <p class="newsletter-sub reveal" style="transition-delay:0.1s">Receive the new collection before anyone else.</p>
+  <form class="newsletter-form reveal" style="transition-delay:0.2s" onsubmit="return false;">
+    <input type="email" class="newsletter-input" placeholder="Votre adresse email">
+    <button type="submit" class="newsletter-btn">Rejoindre</button>
+  </form>
+</section>
+
+<!-- Footer -->
+<!-- CAMPAIGN VIDEO -->
+<div class="campaign-video">
+  <video autoplay muted loop playsinline src="../assets/portfolio/videos/clothing-brand-ads-4.mp4"></video>
+  <div class="campaign-video-overlay">
+    <div class="cv-tag">Campaign Film</div>
+    <h2>Elegance,<br>in motion</h2>
+    <p>A luxury brand film created by CLVSN — cinematic staging for the house that defines refinement.</p>
+  </div>
+</div>
+
+
+<footer>
+  <span class="footer-logo reveal">LUMIÈRE</span>
+  <div class="footer-grid reveal" style="transition-delay:0.1s">
+    <div class="footer-col">
+      <span class="footer-col-title">Collections</span>
+      <a href="#">Printemps 2026</a>
+      <a href="#">Automne 2025</a>
+      <a href="#">Pièces Permanentes</a>
+      <a href="#">Accessoires</a>
+    </div>
+    <div class="footer-col">
+      <span class="footer-col-title">Maison</span>
+      <a href="#">L'Atelier</a>
+      <a href="#">Savoir-Faire</a>
+      <a href="#">Histoire</a>
+      <a href="#">Presse</a>
+    </div>
+    <div class="footer-col">
+      <span class="footer-col-title">Contact</span>
+      <a href="mailto:contact@lumiere.paris">contact@lumiere.paris</a>
+      <p>12 Rue du Faubourg Saint-Honoré</p>
+      <p>75008 Paris, France</p>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">© 2026 LUMIÈRE Paris</span>
+    <div class="footer-social">
+      <a href="#">Instagram</a>
+      <a href="#">Pinterest</a>
+      <a href="#">Newsletter</a>
+    </div>
+    <a href="#" class="footer-privacy">Politique de Confidentialité</a>
+  </div>
+</footer>
+
+<script>
+// ===== CURSOR CROSS =====
+const cursorCross = document.getElementById('cursor-cross');
+let cx = 0, cy = 0;
+let raf;
+
+document.addEventListener('mousemove', (e) => {
+  cx = e.clientX;
+  cy = e.clientY;
+  if (!raf) {
+    raf = requestAnimationFrame(() => {
+      cursorCross.style.left = cx + 'px';
+      cursorCross.style.top = cy + 'px';
+      raf = null;
+    });
+  }
+});
+
+const darkSections = document.querySelectorAll('.maison-content, .craft, footer');
+const interactables = document.querySelectorAll('a, button, .piece-card, .strip-item, .archive-item');
+
+interactables.forEach(el => {
+  el.addEventListener('mouseenter', () => cursorCross.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursorCross.classList.remove('hover'));
+});
+
+// Dark bg cursor detection
+const bgObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      cursorCross.classList.add('dark-bg');
+    } else {
+      cursorCross.classList.remove('dark-bg');
+    }
+  });
+}, { threshold: 0.5 });
+
+darkSections.forEach(s => bgObserver.observe(s));
+
+// ===== PROGRESS BAR =====
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressBar.style.width = pct + '%';
+}, { passive: true });
+
+// ===== NAVBAR =====
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 80);
+}, { passive: true });
+
+// ===== HERO PARALLAX =====
+const heroBg = document.getElementById('heroBg');
+window.addEventListener('scroll', () => {
+  if (window.scrollY < window.innerHeight * 1.5) {
+    const offset = window.scrollY * 0.25;
+    heroBg.style.transform = `translateY(${offset}px)`;
+  }
+}, { passive: true });
+
+// ===== COLLECTION STRIP PARALLAX =====
+const stripItems = document.querySelectorAll('.strip-item img');
+window.addEventListener('scroll', () => {
+  stripItems.forEach((img, i) => {
+    const rect = img.closest('.strip-item').getBoundingClientRect();
+    if (rect.top < window.innerHeight && rect.bottom > 0) {
+      const progress = (window.innerHeight - rect.top) / (window.innerHeight + rect.height);
+      const offset = (progress - 0.5) * 30;
+      img.style.transform = `scale(1.08) translateY(${offset}px)`;
+    }
+  });
+}, { passive: true });
+
+// ===== INTERSECTION OBSERVER =====
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.reveal, .reveal-left, .reveal-right').forEach(el => revealObserver.observe(el));
+
+// Stagger
+const staggerObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const parent = entry.target.parentElement;
+      const siblings = parent.querySelectorAll('.stagger-child');
+      siblings.forEach((sib, idx) => {
+        setTimeout(() => sib.classList.add('visible'), idx * 150);
+      });
+      staggerObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1 });
+
+document.querySelectorAll('.stagger-child').forEach(el => staggerObserver.observe(el));
+
+// ===== 3D TILT =====
+document.querySelectorAll('[data-tilt]').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const rotX = ((y - cy) / cy) * -5;
+    const rotY = ((x - cx) / cx) * 5;
+    card.style.transform = `perspective(1000px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(4px)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(1000px) rotateX(0) rotateY(0) translateZ(0)';
+    card.style.transition = 'transform 0.8s cubic-bezier(0.76, 0, 0.24, 1)';
+  });
+  card.addEventListener('mousemove', () => {
+    card.style.transition = 'transform 0.15s ease';
+  });
+});
+</script>
+</body>
+</html>

@@ -1,0 +1,1235 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TWINVAULT — Wear the Vault</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  /* ===== RESET & BASE ===== */
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+  :root {
+    --black: #000000;
+    --surface: #111111;
+    --gold: #C4A44B;
+    --gold-light: #D4B55C;
+    --gold-dim: rgba(196,164,75,0.15);
+    --white: #FFFFFF;
+    --text-muted: rgba(255,255,255,0.55);
+    --border: rgba(196,164,75,0.2);
+  }
+  html { scroll-behavior: smooth; overflow-x: hidden; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Inter', sans-serif;
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* ===== SCROLL PROGRESS ===== */
+  #scroll-progress {
+    position: fixed; top: 0; left: 0; height: 2px;
+    background: linear-gradient(90deg, var(--gold), var(--gold-light), var(--gold));
+    width: 0%; z-index: 9999;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 8px var(--gold);
+  }
+
+  /* ===== CUSTOM CURSOR ===== */
+  #cursor {
+    position: fixed; pointer-events: none; z-index: 9998;
+    width: 12px; height: 12px;
+    background: var(--gold);
+    border-radius: 0; /* diamond shape via transform */
+    transform: translate(-50%, -50%) rotate(45deg);
+    transition: transform 0.1s, background 0.2s, width 0.2s, height 0.2s;
+    mix-blend-mode: difference;
+  }
+  #cursor-ring {
+    position: fixed; pointer-events: none; z-index: 9997;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(196,164,75,0.6);
+    border-radius: 0;
+    transform: translate(-50%, -50%) rotate(45deg);
+    transition: transform 0.18s ease, width 0.25s, height 0.25s, border-color 0.2s;
+  }
+  body.cursor-hover #cursor { width: 20px; height: 20px; background: var(--gold-light); }
+  body.cursor-hover #cursor-ring { width: 60px; height: 60px; border-color: var(--gold); }
+
+  /* ===== NAVBAR ===== */
+  nav {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 24px 60px;
+    transition: background 0.4s, padding 0.4s, backdrop-filter 0.4s;
+  }
+  nav.scrolled {
+    background: rgba(0,0,0,0.88);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    padding: 16px 60px;
+    border-bottom: 1px solid var(--border);
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 28px;
+    letter-spacing: 4px;
+    color: var(--white);
+    text-decoration: none;
+    position: relative;
+  }
+  .nav-logo span { color: var(--gold); }
+  .nav-links { display: flex; align-items: center; gap: 36px; list-style: none; }
+  .nav-links a {
+    color: rgba(255,255,255,0.75);
+    text-decoration: none;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    position: relative;
+    transition: color 0.3s;
+  }
+  .nav-links a::after {
+    content: ''; position: absolute; bottom: -3px; left: 0;
+    width: 0; height: 1px; background: var(--gold);
+    transition: width 0.3s ease;
+  }
+  .nav-links a:hover { color: var(--white); }
+  .nav-links a:hover::after { width: 100%; }
+  .btn-nav {
+    background: transparent;
+    border: 1px solid var(--gold);
+    color: var(--gold);
+    padding: 10px 24px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-decoration: none;
+    transition: background 0.3s, color 0.3s, box-shadow 0.3s;
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-nav::before {
+    content: ''; position: absolute; inset: 0;
+    background: var(--gold);
+    transform: scaleX(0); transform-origin: left;
+    transition: transform 0.35s ease;
+    z-index: -1;
+  }
+  .btn-nav:hover { color: var(--black); }
+  .btn-nav:hover::before { transform: scaleX(1); }
+
+  /* Mobile nav toggle */
+  .nav-toggle { display: none; flex-direction: column; gap: 5px; cursor: none; background: none; border: none; }
+  .nav-toggle span { display: block; width: 24px; height: 1px; background: var(--white); transition: transform 0.3s, opacity 0.3s; }
+
+  /* ===== HERO ===== */
+  .hero {
+    position: relative; height: 100vh; min-height: 700px;
+    display: flex; align-items: center; justify-content: center;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute; inset: 0; z-index: 0;
+    background-image: url('https://images.unsplash.com/photo-1552374196-1ab2a1c593e8?w=1800&q=80');
+    background-size: cover; background-position: center;
+    transform: scale(1.08);
+    transition: transform 8s ease-out;
+  }
+  .hero-bg.loaded { transform: scale(1); }
+  .hero-overlay {
+    position: absolute; inset: 0; z-index: 1;
+    background: linear-gradient(180deg, rgba(0,0,0,0.4) 0%, rgba(0,0,0,0.72) 60%, rgba(0,0,0,0.95) 100%);
+  }
+  /* Animated grain texture */
+  .hero-grain {
+    position: absolute; inset: 0; z-index: 2; opacity: 0.04;
+    background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+    animation: grain 0.4s steps(1) infinite;
+  }
+  @keyframes grain {
+    0%,100% { background-position: 0 0; }
+    10% { background-position: -5% -10%; }
+    20% { background-position: -15% 5%; }
+    30% { background-position: 7% -25%; }
+    40% { background-position: 20% 25%; }
+    50% { background-position: -25% 10%; }
+    60% { background-position: 15% 5%; }
+    70% { background-position: 0% 15%; }
+    80% { background-position: 25% 35%; }
+    90% { background-position: -10% 10%; }
+  }
+  .hero-content {
+    position: relative; z-index: 3;
+    text-align: center;
+    display: flex; flex-direction: column; align-items: center;
+    gap: 28px;
+  }
+  .hero-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 6px;
+    text-transform: uppercase; color: var(--gold);
+    opacity: 0; transform: translateY(20px);
+    animation: fadeUp 0.8s forwards 0.3s;
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(80px, 14vw, 200px);
+    line-height: 0.9;
+    letter-spacing: 6px;
+    display: flex; gap: 0.05em;
+    overflow: hidden;
+  }
+  .hero-title .char {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(100%) skewY(8deg);
+    animation: charIn 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+  }
+  .hero-title .space { width: 0.25em; }
+  .hero-sub {
+    font-size: 13px; font-weight: 400; letter-spacing: 5px;
+    text-transform: uppercase; color: rgba(255,255,255,0.65);
+    opacity: 0; transform: translateY(20px);
+    animation: fadeUp 0.8s forwards 1.4s;
+  }
+  .hero-ctas {
+    display: flex; gap: 16px; margin-top: 8px;
+    opacity: 0; transform: translateY(20px);
+    animation: fadeUp 0.8s forwards 1.7s;
+  }
+  .btn-gold {
+    background: var(--gold);
+    color: var(--black);
+    padding: 14px 36px;
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; text-decoration: none;
+    border: 1px solid var(--gold);
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    position: relative; overflow: hidden;
+  }
+  .btn-gold:hover {
+    background: var(--gold-light);
+    box-shadow: 0 0 30px rgba(196,164,75,0.4);
+    transform: translateY(-2px);
+  }
+  .btn-ghost {
+    background: transparent;
+    color: var(--white);
+    padding: 14px 36px;
+    font-size: 11px; font-weight: 600; letter-spacing: 3px;
+    text-transform: uppercase; text-decoration: none;
+    border: 1px solid rgba(255,255,255,0.3);
+    transition: border-color 0.3s, background 0.3s, transform 0.2s;
+  }
+  .btn-ghost:hover {
+    border-color: var(--white);
+    background: rgba(255,255,255,0.05);
+    transform: translateY(-2px);
+  }
+  .scroll-arrow {
+    position: absolute; bottom: 40px; left: 50%; transform: translateX(-50%);
+    z-index: 3; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    opacity: 0; animation: fadeUp 0.8s forwards 2.2s;
+  }
+  .scroll-arrow span {
+    font-size: 9px; letter-spacing: 4px; text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+  .scroll-arrow-line {
+    width: 1px; height: 50px;
+    background: linear-gradient(180deg, rgba(255,255,255,0.4), transparent);
+    animation: scrollLine 2s ease-in-out infinite;
+  }
+  @keyframes scrollLine {
+    0%,100% { transform: scaleY(0); transform-origin: top; }
+    50% { transform: scaleY(1); transform-origin: top; }
+  }
+
+  @keyframes charIn {
+    to { opacity: 1; transform: translateY(0) skewY(0deg); }
+  }
+  @keyframes fadeUp {
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  /* ===== MARQUEE ===== */
+  .marquee-section {
+    background: var(--black);
+    border-top: 1px solid var(--gold);
+    border-bottom: 1px solid var(--gold);
+    padding: 14px 0;
+    overflow: hidden;
+    position: relative;
+    z-index: 2;
+  }
+  .marquee-track {
+    display: flex; gap: 0;
+    animation: marqueeRun 12s linear infinite;
+    width: max-content;
+  }
+  .marquee-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 15px;
+    letter-spacing: 4px;
+    color: var(--gold);
+    white-space: nowrap;
+    padding: 0 40px;
+  }
+  @keyframes marqueeRun {
+    0% { transform: translateX(0); }
+    100% { transform: translateX(-50%); }
+  }
+
+  /* ===== SECTIONS SHARED ===== */
+  section { padding: 120px 60px; }
+  .section-eyebrow {
+    font-size: 11px; font-weight: 600; letter-spacing: 6px;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 16px;
+  }
+  .section-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 7vw, 100px);
+    line-height: 1;
+    letter-spacing: 2px;
+  }
+
+  /* ===== REVEAL ANIMATIONS ===== */
+  .reveal {
+    opacity: 0;
+    transform: translateY(50px);
+    transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.22,1,0.36,1);
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-left {
+    opacity: 0; transform: translateX(-60px);
+    transition: opacity 0.8s ease, transform 0.9s cubic-bezier(0.22,1,0.36,1);
+  }
+  .reveal-left.visible { opacity: 1; transform: translateX(0); }
+  .reveal-right {
+    opacity: 0; transform: translateX(60px);
+    transition: opacity 0.8s ease, transform 0.9s cubic-bezier(0.22,1,0.36,1);
+  }
+  .reveal-right.visible { opacity: 1; transform: translateX(0); }
+
+  /* ===== COLLECTIONS ===== */
+  .collections { background: var(--surface); }
+  .collections-header {
+    display: flex; align-items: flex-end; justify-content: space-between;
+    margin-bottom: 60px;
+  }
+  .collections-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+  }
+  .collection-card {
+    position: relative;
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    cursor: none;
+    transform-style: preserve-3d;
+    perspective: 800px;
+  }
+  .collection-card-inner {
+    width: 100%; height: 100%;
+    transition: transform 0.15s ease;
+    transform-style: preserve-3d;
+  }
+  .collection-card img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s cubic-bezier(0.22,1,0.36,1), filter 0.4s;
+    filter: brightness(0.7) grayscale(0.2);
+  }
+  .collection-card:hover img {
+    transform: scale(1.06);
+    filter: brightness(0.55) grayscale(0);
+  }
+  .collection-card-overlay {
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 40%, rgba(0,0,0,0.9) 100%);
+    display: flex; flex-direction: column; justify-content: flex-end;
+    padding: 32px;
+    transform: translateZ(20px);
+  }
+  .card-tag {
+    display: inline-block;
+    font-size: 9px; font-weight: 700; letter-spacing: 3px; text-transform: uppercase;
+    color: var(--black); background: var(--gold);
+    padding: 4px 10px; margin-bottom: 12px;
+    width: fit-content;
+  }
+  .card-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(28px, 3.5vw, 48px);
+    letter-spacing: 2px;
+    line-height: 1;
+  }
+  .card-count {
+    font-size: 11px; font-weight: 400; letter-spacing: 2px;
+    color: rgba(255,255,255,0.5); margin-top: 8px;
+    text-transform: uppercase;
+  }
+  .card-arrow {
+    position: absolute; top: 24px; right: 24px;
+    width: 40px; height: 40px;
+    border: 1px solid rgba(255,255,255,0.2);
+    display: flex; align-items: center; justify-content: center;
+    font-size: 16px;
+    transform: translateZ(20px) rotate(0deg);
+    transition: border-color 0.3s, background 0.3s, transform 0.3s;
+  }
+  .collection-card:hover .card-arrow {
+    border-color: var(--gold);
+    background: var(--gold);
+    color: var(--black);
+    transform: translateZ(20px) rotate(45deg);
+  }
+  /* Stagger delays for cards */
+  .collections-grid .collection-card:nth-child(1) { transition-delay: 0s; }
+  .collections-grid .collection-card:nth-child(2) { transition-delay: 0.1s; }
+  .collections-grid .collection-card:nth-child(3) { transition-delay: 0.2s; }
+
+  /* ===== FEATURED DROP ===== */
+  .featured { background: var(--black); padding: 0; overflow: hidden; }
+  .featured-inner {
+    display: grid; grid-template-columns: 55% 45%;
+    min-height: 80vh;
+  }
+  .featured-image {
+    position: relative; overflow: hidden;
+  }
+  .featured-image img {
+    width: 100%; height: 100%;
+    object-fit: cover; display: block;
+    transform: scale(1.05);
+    transition: transform 0.6s ease;
+    filter: brightness(0.85);
+  }
+  .featured:hover .featured-image img { transform: scale(1); }
+  .featured-image::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(90deg, transparent 60%, rgba(0,0,0,0.8) 100%);
+  }
+  .featured-content {
+    background: var(--surface);
+    padding: 80px 60px;
+    display: flex; flex-direction: column; justify-content: center;
+    border-left: 1px solid var(--border);
+  }
+  .featured-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    background: var(--gold-dim);
+    border: 1px solid var(--gold);
+    padding: 6px 14px;
+    width: fit-content;
+    margin-bottom: 32px;
+  }
+  .featured-badge span {
+    font-size: 9px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: var(--gold);
+  }
+  .badge-dot { width: 6px; height: 6px; background: var(--gold); border-radius: 50%; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+  .featured-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 5vw, 72px);
+    letter-spacing: 2px; line-height: 1;
+    margin-bottom: 16px;
+  }
+  .featured-price {
+    font-size: 36px; font-weight: 300; color: var(--gold);
+    margin-bottom: 24px; letter-spacing: 2px;
+  }
+  .featured-price sup { font-size: 16px; vertical-align: super; }
+  .featured-desc {
+    font-size: 14px; line-height: 1.8; color: rgba(255,255,255,0.6);
+    margin-bottom: 40px;
+    border-left: 2px solid var(--gold);
+    padding-left: 16px;
+  }
+  .countdown { display: flex; gap: 24px; margin-bottom: 40px; }
+  .countdown-unit { text-align: center; }
+  .countdown-num {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 48px; line-height: 1;
+    color: var(--gold);
+    background: var(--gold-dim);
+    border: 1px solid var(--border);
+    padding: 8px 16px;
+    min-width: 70px;
+  }
+  .countdown-label {
+    display: block; font-size: 9px; letter-spacing: 3px;
+    text-transform: uppercase; color: rgba(255,255,255,0.4);
+    margin-top: 6px;
+  }
+  .btn-add-cart {
+    display: inline-block;
+    background: var(--gold);
+    color: var(--black);
+    padding: 16px 40px;
+    font-size: 11px; font-weight: 700; letter-spacing: 4px;
+    text-transform: uppercase; text-decoration: none;
+    border: 2px solid var(--gold);
+    transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+    position: relative; overflow: hidden; cursor: none;
+  }
+  .btn-add-cart::after {
+    content: '✦ ';
+    opacity: 0; transform: translateX(-10px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .btn-add-cart:hover {
+    background: transparent; color: var(--gold);
+    box-shadow: 0 0 40px rgba(196,164,75,0.3);
+    transform: translateY(-2px);
+  }
+  .btn-add-cart:hover::after { opacity: 1; transform: translateX(0); }
+
+  /* ===== ABOUT ===== */
+  .about { background: #0A0A0A; }
+  .about-inner {
+    display: grid; grid-template-columns: 1fr 1fr;
+    gap: 80px; align-items: center;
+  }
+  .about-text .section-title { margin-bottom: 32px; }
+  .about-text p {
+    font-size: 15px; line-height: 1.9; color: rgba(255,255,255,0.6);
+    margin-bottom: 20px;
+  }
+  .about-image { position: relative; }
+  .about-image img {
+    width: 100%; aspect-ratio: 3/4;
+    object-fit: cover; display: block;
+    filter: brightness(0.8) grayscale(0.3);
+    transition: filter 0.4s;
+  }
+  .about-image:hover img { filter: brightness(0.9) grayscale(0); }
+  .about-image::before {
+    content: '';
+    position: absolute; top: -16px; left: -16px;
+    right: 16px; bottom: -16px;
+    border: 1px solid var(--gold);
+    z-index: -1;
+    transition: transform 0.4s ease;
+  }
+  .about-image:hover::before { transform: translate(4px, 4px); }
+  .about-image::after {
+    content: '';
+    position: absolute; inset: 0;
+    background: linear-gradient(180deg, transparent 60%, rgba(0,0,0,0.7) 100%);
+  }
+  .about-quote {
+    display: block;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20px; letter-spacing: 3px;
+    color: var(--gold);
+    margin-top: 32px;
+    padding-top: 32px;
+    border-top: 1px solid var(--border);
+  }
+
+  /* ===== STATS ===== */
+  .stats { background: var(--gold); padding: 80px 60px; }
+  .stats-grid { display: grid; grid-template-columns: repeat(4, 1fr); }
+  .stat-item {
+    text-align: center; padding: 40px 20px;
+    border-right: 1px solid rgba(0,0,0,0.15);
+  }
+  .stat-item:last-child { border-right: none; }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(48px, 6vw, 80px);
+    line-height: 1; color: var(--black);
+    display: block;
+  }
+  .stat-label {
+    font-size: 11px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; color: rgba(0,0,0,0.65);
+    margin-top: 8px; display: block;
+  }
+
+  /* ===== NEWSLETTER ===== */
+  .newsletter { background: var(--surface); text-align: center; }
+  .newsletter .section-title { margin-bottom: 16px; }
+  .newsletter p {
+    font-size: 14px; color: rgba(255,255,255,0.5); margin-bottom: 40px;
+    letter-spacing: 1px;
+  }
+  .newsletter-form {
+    display: flex; max-width: 500px; margin: 0 auto;
+    border: 1px solid var(--border);
+    overflow: hidden;
+  }
+  .newsletter-form input {
+    flex: 1; padding: 16px 24px;
+    background: rgba(196,164,75,0.05);
+    border: none; outline: none;
+    color: var(--white); font-family: 'Inter', sans-serif;
+    font-size: 13px; letter-spacing: 1px;
+    transition: background 0.3s;
+  }
+  .newsletter-form input::placeholder { color: rgba(255,255,255,0.3); }
+  .newsletter-form input:focus { background: rgba(196,164,75,0.08); }
+  .newsletter-form button {
+    background: var(--gold); color: var(--black);
+    border: none; padding: 16px 28px;
+    font-size: 10px; font-weight: 700; letter-spacing: 3px;
+    text-transform: uppercase; cursor: none;
+    transition: background 0.3s;
+    white-space: nowrap;
+  }
+  .newsletter-form button:hover { background: var(--gold-light); }
+
+  /* ===== FOOTER ===== */
+  footer {
+    background: #040404;
+    border-top: 1px solid var(--border);
+    padding: 60px 60px 32px;
+  }
+  .footer-grid {
+    display: grid; grid-template-columns: 2fr 1fr 1fr 1fr;
+    gap: 60px; margin-bottom: 60px;
+  }
+  .footer-brand {}
+  .footer-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 32px; letter-spacing: 4px; color: var(--white);
+    display: block; margin-bottom: 16px; text-decoration: none;
+  }
+  .footer-logo span { color: var(--gold); }
+  .footer-tagline { font-size: 12px; color: rgba(255,255,255,0.35); letter-spacing: 2px; }
+  .footer-col h4 {
+    font-size: 10px; font-weight: 700; letter-spacing: 4px;
+    text-transform: uppercase; color: var(--gold);
+    margin-bottom: 20px;
+  }
+  .footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+  .footer-col ul a {
+    font-size: 12px; color: rgba(255,255,255,0.4); text-decoration: none;
+    letter-spacing: 1px; transition: color 0.2s;
+  }
+  .footer-col ul a:hover { color: var(--gold); }
+  .social-links { display: flex; gap: 12px; margin-top: 24px; }
+  .social-link {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(255,255,255,0.12);
+    display: flex; align-items: center; justify-content: center;
+    color: rgba(255,255,255,0.4);
+    text-decoration: none; font-size: 13px;
+    transition: border-color 0.3s, color 0.3s, background 0.3s;
+    transform: rotate(45deg);
+  }
+  .social-link span { transform: rotate(-45deg); display: block; }
+  .social-link:hover { border-color: var(--gold); color: var(--gold); background: var(--gold-dim); }
+  .footer-bottom {
+    display: flex; align-items: center; justify-content: space-between;
+    padding-top: 32px; border-top: 1px solid rgba(255,255,255,0.05);
+  }
+  .footer-bottom p { font-size: 11px; color: rgba(255,255,255,0.25); letter-spacing: 1px; }
+  .footer-bottom a { color: var(--gold); text-decoration: none; }
+
+  /* ===== DIAGONAL DIVIDER ===== */
+  .divider-gold {
+    height: 60px;
+    background: linear-gradient(135deg, var(--surface) 50%, var(--black) 50%);
+  }
+
+  /* ===== MOBILE MENU ===== */
+  .mobile-menu {
+    position: fixed; inset: 0; z-index: 999;
+    background: rgba(0,0,0,0.97);
+    backdrop-filter: blur(20px);
+    display: flex; align-items: center; justify-content: center;
+    flex-direction: column; gap: 40px;
+    transform: translateX(100%);
+    transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+  }
+  .mobile-menu.open { transform: translateX(0); }
+  .mobile-menu a {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(40px, 8vw, 72px);
+    letter-spacing: 4px; color: var(--white);
+    text-decoration: none; text-align: center;
+    transition: color 0.3s;
+  }
+  .mobile-menu a:hover { color: var(--gold); }
+
+  /* ===== RESPONSIVE ===== */
+  @media (max-width: 1024px) {
+    nav { padding: 20px 32px; }
+    nav.scrolled { padding: 14px 32px; }
+    section { padding: 80px 32px; }
+    .about-inner { grid-template-columns: 1fr; gap: 48px; }
+    .about-image { order: -1; }
+    .featured-inner { grid-template-columns: 1fr; }
+    .featured-image { height: 50vh; }
+    .footer-grid { grid-template-columns: 1fr 1fr; gap: 40px; }
+  }
+  @media (max-width: 768px) {
+    nav { padding: 18px 24px; }
+    nav.scrolled { padding: 12px 24px; }
+    .nav-links { display: none; }
+    .nav-toggle { display: flex; }
+    section { padding: 60px 24px; }
+    .collections-grid { grid-template-columns: 1fr; }
+    .collections-grid .collection-card { aspect-ratio: 4/3; }
+    .stats-grid { grid-template-columns: repeat(2, 1fr); }
+    .footer-grid { grid-template-columns: 1fr; gap: 32px; }
+    .countdown { gap: 12px; }
+    .featured-content { padding: 48px 24px; }
+    .hero-ctas { flex-direction: column; align-items: center; }
+    .collections-header { flex-direction: column; align-items: flex-start; gap: 16px; }
+    .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+  }
+
+  /* ===== FLOATING DECORATIVE ===== */
+  .float-badge {
+    display: inline-flex; align-items: center; gap: 8px;
+    border: 1px solid var(--border); background: var(--gold-dim);
+    padding: 8px 16px;
+    font-size: 10px; font-weight: 600; letter-spacing: 2px;
+    text-transform: uppercase; color: var(--gold);
+    animation: float 4s ease-in-out infinite;
+  }
+  @keyframes float {
+    0%,100% { transform: translateY(0); }
+    50% { transform: translateY(-8px); }
+  }
+
+  /* ===== TOAST ===== */
+  .toast {
+    position: fixed; bottom: 32px; right: 32px; z-index: 9996;
+    background: var(--surface); border: 1px solid var(--gold);
+    padding: 16px 24px;
+    display: flex; align-items: center; gap: 12px;
+    transform: translateX(200px); opacity: 0;
+    transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s;
+    min-width: 280px;
+  }
+  .toast.show { transform: translateX(0); opacity: 1; }
+  .toast-icon { color: var(--gold); font-size: 18px; }
+  .toast-text { font-size: 13px; letter-spacing: 0.5px; }
+  .toast-sub { font-size: 11px; color: rgba(255,255,255,0.4); margin-top: 2px; }
+  /* ── CAMPAIGN VIDEO ── */
+  .campaign-video { position: relative; overflow: hidden; background: #000000; }
+  .campaign-video video { width: 100%; height: 70vh; object-fit: cover; opacity: 0.5; display: block; }
+  .campaign-video-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+  }
+  .campaign-video-overlay .cv-tag {
+    font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #C4A44B; margin-bottom: 1rem;
+  }
+  .campaign-video-overlay h2 {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    color: #FFFFFF; line-height: 1.1; margin-bottom: 1.4rem;
+  }
+  .campaign-video-overlay p {
+    color: rgba(255,255,255,0.65); font-size: 1rem; max-width: 480px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- Scroll Progress -->
+<div id="scroll-progress"></div>
+
+<!-- Custom Cursor -->
+<div id="cursor"></div>
+<div id="cursor-ring"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <span class="toast-icon">✦</span>
+  <div>
+    <div class="toast-text">Added to the Vault</div>
+    <div class="toast-sub">GILT EDITION HOODIE — €180</div>
+  </div>
+</div>
+
+<!-- NAVBAR -->
+<nav id="navbar">
+  <a href="#" class="nav-logo" style="display:flex;align-items:center;gap:10px;">
+    <img src="../assets/logo-twinvault.png" style="height:36px;filter:brightness(0) invert(1);" alt="TwinVault">
+    TWIN<span>VAULT</span>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#collections">Collection</a></li>
+    <li><a href="#featured">Drops</a></li>
+    <li><a href="#about">About</a></li>
+    <li><a href="#" class="btn-nav">Shop Now</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#collections" onclick="closeMobileMenu()">Collection</a>
+  <a href="#featured" onclick="closeMobileMenu()">Drops</a>
+  <a href="#about" onclick="closeMobileMenu()">About</a>
+  <a href="#" class="btn-gold" style="font-family:inherit;font-size:18px;letter-spacing:4px;" onclick="closeMobileMenu()">Shop Now</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-grain"></div>
+  <div class="hero-content">
+    <div class="hero-eyebrow">SS26 COLLECTION — NOW AVAILABLE</div>
+    <h1 class="hero-title" id="heroTitle"></h1>
+    <p class="hero-sub">THE NEW DROP IS HERE</p>
+    <div class="hero-ctas">
+      <a href="#collections" class="btn-gold">View Collection</a>
+      <a href="#about" class="btn-ghost">Our Story</a>
+    </div>
+  </div>
+  <div class="scroll-arrow">
+    <div class="scroll-arrow-line"></div>
+    <span>Scroll</span>
+  </div>
+</section>
+
+<!-- MARQUEE -->
+<div class="marquee-section">
+  <div class="marquee-track" id="marqueeTrack">
+    <span class="marquee-item">NEW DROP ✦</span>
+    <span class="marquee-item">SS26 COLLECTION ✦</span>
+    <span class="marquee-item">LIMITED PIECES ✦</span>
+    <span class="marquee-item">WORLDWIDE SHIPPING ✦</span>
+    <span class="marquee-item">NEW DROP ✦</span>
+    <span class="marquee-item">SS26 COLLECTION ✦</span>
+    <span class="marquee-item">LIMITED PIECES ✦</span>
+    <span class="marquee-item">WORLDWIDE SHIPPING ✦</span>
+    <span class="marquee-item">NEW DROP ✦</span>
+    <span class="marquee-item">SS26 COLLECTION ✦</span>
+    <span class="marquee-item">LIMITED PIECES ✦</span>
+    <span class="marquee-item">WORLDWIDE SHIPPING ✦</span>
+    <span class="marquee-item">NEW DROP ✦</span>
+    <span class="marquee-item">SS26 COLLECTION ✦</span>
+    <span class="marquee-item">LIMITED PIECES ✦</span>
+    <span class="marquee-item">WORLDWIDE SHIPPING ✦</span>
+  </div>
+</div>
+
+<!-- COLLECTIONS -->
+<section class="collections" id="collections">
+  <div class="collections-header">
+    <div>
+      <p class="section-eyebrow reveal">Curated Selection</p>
+      <h2 class="section-title reveal">THE VAULT</h2>
+    </div>
+    <a href="#" class="btn-nav reveal" style="align-self:flex-end">View All</a>
+  </div>
+  <div class="collections-grid">
+    <div class="collection-card reveal" data-tilt>
+      <div class="collection-card-inner">
+        <img src="https://images.unsplash.com/photo-1515886657613-9f3515b0c78f?w=800&q=80&fit=crop&auto=format" alt="Urban Core" loading="lazy">
+        <div class="collection-card-overlay">
+          <span class="card-tag">Bestseller</span>
+          <h3 class="card-name">URBAN CORE</h3>
+          <p class="card-count">24 pieces available</p>
+        </div>
+        <div class="card-arrow">↗</div>
+      </div>
+    </div>
+    <div class="collection-card reveal" data-tilt>
+      <div class="collection-card-inner">
+        <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=800&q=80&fit=crop&auto=format" alt="Noir Series" loading="lazy">
+        <div class="collection-card-overlay">
+          <span class="card-tag">Limited</span>
+          <h3 class="card-name">NOIR SERIES</h3>
+          <p class="card-count">12 pieces available</p>
+        </div>
+        <div class="card-arrow">↗</div>
+      </div>
+    </div>
+    <div class="collection-card reveal" data-tilt>
+      <div class="collection-card-inner">
+        <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=800&q=80&fit=crop&auto=format" alt="Gilt Edition" loading="lazy">
+        <div class="collection-card-overlay">
+          <span class="card-tag">New Drop</span>
+          <h3 class="card-name">GILT EDITION</h3>
+          <p class="card-count">8 pieces available</p>
+        </div>
+        <div class="card-arrow">↗</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED DROP -->
+<section class="featured" id="featured">
+  <div class="featured-inner">
+    <div class="featured-image">
+      <img src="https://images.unsplash.com/photo-1561861422-a549073e547a?w=900&q=80&fit=crop&auto=format" alt="Gilt Edition Hoodie" loading="lazy">
+    </div>
+    <div class="featured-content">
+      <div class="featured-badge reveal-left">
+        <span class="badge-dot"></span>
+        <span>Live Drop — Ends Soon</span>
+      </div>
+      <h2 class="featured-title reveal-left">GILT EDITION<br>HOODIE</h2>
+      <p class="featured-price reveal-left"><sup>€</sup>180</p>
+      <p class="featured-desc reveal-left">
+        Heavyweight 600gsm fleece. Embroidered vault crest. Drop-shoulder silhouette with raw-edge pocket detail. Only 8 left in this colourway.
+      </p>
+      <div class="countdown reveal-left">
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cdDays">02</span>
+          <span class="countdown-label">Days</span>
+        </div>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cdHours">18</span>
+          <span class="countdown-label">Hours</span>
+        </div>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cdMins">43</span>
+          <span class="countdown-label">Mins</span>
+        </div>
+        <div class="countdown-unit">
+          <span class="countdown-num" id="cdSecs">00</span>
+          <span class="countdown-label">Secs</span>
+        </div>
+      </div>
+      <button class="btn-add-cart reveal-left" onclick="showToast()">ADD TO VAULT</button>
+    </div>
+  </div>
+</section>
+
+<!-- ABOUT -->
+<section class="about" id="about">
+  <div class="about-inner">
+    <div class="about-text">
+      <p class="section-eyebrow reveal">The Story</p>
+      <h2 class="section-title reveal">Born in the<br>streets. Built<br>for the vault.</h2>
+      <p class="reveal" style="margin-top:32px">TwinVault started as a shared obsession between two designers who believed luxury shouldn't be gatekept. Every piece we drop is conceived with obsessive attention to construction, fabrication, and silhouette — because the streets deserve the same standard as the runway.</p>
+      <p class="reveal">We don't do seasons. We do drops. Each one is numbered, archived, and retired permanently — which is why our community calls what they own a "vault piece". Once it's gone, it's gone.</p>
+      <span class="about-quote reveal">"We don't make streetwear. We make archives."</span>
+    </div>
+    <div class="about-image reveal-right">
+      <img src="https://images.unsplash.com/photo-1519085360753-af0119f7cbe7?w=800&q=80&fit=crop&auto=format" alt="TwinVault Story" loading="lazy">
+    </div>
+  </div>
+</section>
+
+<!-- STATS -->
+<section class="stats">
+  <div class="stats-grid">
+    <div class="stat-item">
+      <span class="stat-num" data-target="2019" data-prefix="">2019</span>
+      <span class="stat-label">Founded</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="48" data-suffix="">0</span>
+      <span class="stat-label">Drops</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="12" data-suffix="K+">0</span>
+      <span class="stat-label">Vaulted</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="6" data-suffix="">0</span>
+      <span class="stat-label">Countries</span>
+    </div>
+  </div>
+</section>
+
+<!-- CAMPAIGN VIDEO -->
+<div class="campaign-video">
+  <video autoplay muted loop playsinline src="../assets/portfolio/videos/fashion-brand-hooks.mp4"></video>
+  <div class="campaign-video-overlay">
+    <div class="cv-tag">Campaign Film</div>
+    <h2>Vault of<br>rare moments</h2>
+    <p>A brand film produced by CLVSN — editorial precision for the house that collects what others overlook.</p>
+  </div>
+</div>
+
+
+<!-- NEWSLETTER -->
+<section class="newsletter">
+  <p class="section-eyebrow reveal">Stay Connected</p>
+  <h2 class="section-title reveal">JOIN THE VAULT</h2>
+  <p class="reveal">Early access to drops. Zero spam. Exclusively for vault members.</p>
+  <form class="newsletter-form reveal" onsubmit="handleNewsletter(event)">
+    <input type="email" placeholder="your@email.com" required>
+    <button type="submit">Join</button>
+  </form>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-grid">
+    <div class="footer-brand">
+      <a href="#" class="footer-logo">TWIN<span>VAULT</span></a>
+      <p class="footer-tagline">WEAR THE VAULT — SS26</p>
+      <div class="social-links">
+        <a href="#" class="social-link" aria-label="Instagram"><span>IG</span></a>
+        <a href="#" class="social-link" aria-label="TikTok"><span>TK</span></a>
+        <a href="#" class="social-link" aria-label="Twitter"><span>TW</span></a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">Urban Core</a></li>
+        <li><a href="#">Noir Series</a></li>
+        <li><a href="#">Gilt Edition</a></li>
+        <li><a href="#">Archive</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Info</h4>
+      <ul>
+        <li><a href="#">About</a></li>
+        <li><a href="#">Drops Calendar</a></li>
+        <li><a href="#">Stockists</a></li>
+        <li><a href="#">Press</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Sizing Guide</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Shipping</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 TwinVault. All rights reserved.</p>
+    <p>Crafted by <a href="#">CLVSN Agency</a></p>
+  </div>
+</footer>
+
+<script>
+// ===== CURSOR =====
+const cursor = document.getElementById('cursor');
+const cursorRing = document.getElementById('cursor-ring');
+let mouseX = 0, mouseY = 0;
+let ringX = 0, ringY = 0;
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+  cursor.style.left = mouseX + 'px';
+  cursor.style.top = mouseY + 'px';
+});
+
+function animateRing() {
+  ringX += (mouseX - ringX) * 0.12;
+  ringY += (mouseY - ringY) * 0.12;
+  cursorRing.style.left = ringX + 'px';
+  cursorRing.style.top = ringY + 'px';
+  requestAnimationFrame(animateRing);
+}
+animateRing();
+
+document.querySelectorAll('a, button, [data-tilt], .collection-card').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+});
+
+// ===== SCROLL PROGRESS =====
+const progressBar = document.getElementById('scroll-progress');
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.width = (scrollTop / docHeight * 100) + '%';
+}, { passive: true });
+
+// ===== NAVBAR SCROLL =====
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 80);
+}, { passive: true });
+
+// ===== HERO TITLE SPLIT =====
+(function buildHeroTitle() {
+  const titleEl = document.getElementById('heroTitle');
+  const text = 'TWIN VAULT';
+  let delay = 0.5;
+  text.split('').forEach((char, i) => {
+    const span = document.createElement('span');
+    if (char === ' ') {
+      span.classList.add('char', 'space');
+      span.textContent = ' ';
+    } else {
+      span.classList.add('char');
+      span.textContent = char;
+      span.style.animationDelay = delay + 's';
+      delay += 0.06;
+    }
+    titleEl.appendChild(span);
+  });
+  // trigger bg zoom
+  setTimeout(() => document.getElementById('heroBg').classList.add('loaded'), 100);
+})();
+
+// ===== HERO PARALLAX =====
+const heroBg = document.getElementById('heroBg');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (y < window.innerHeight) {
+    heroBg.style.transform = `scale(1) translateY(${y * 0.35}px)`;
+  }
+}, { passive: true });
+
+// ===== INTERSECTION OBSERVER REVEALS =====
+const revealEls = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach((entry, index) => {
+    if (entry.isIntersecting) {
+      const el = entry.target;
+      // Check for siblings to stagger
+      const siblings = [...(el.parentElement?.children || [])].filter(c =>
+        c.classList.contains('reveal') || c.classList.contains('reveal-left') || c.classList.contains('reveal-right')
+      );
+      const sibIdx = siblings.indexOf(el);
+      const delay = el.dataset.delay ? parseFloat(el.dataset.delay) : (sibIdx * 0.1);
+      setTimeout(() => el.classList.add('visible'), delay * 1000);
+      revealObserver.unobserve(el);
+    }
+  });
+}, { threshold: 0.12, rootMargin: '0px 0px -40px 0px' });
+
+revealEls.forEach(el => revealObserver.observe(el));
+
+// ===== 3D CARD TILT =====
+document.querySelectorAll('[data-tilt]').forEach(card => {
+  const inner = card.querySelector('.collection-card-inner');
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    inner.style.transform = `perspective(800px) rotateY(${x * 14}deg) rotateX(${-y * 14}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    inner.style.transform = 'perspective(800px) rotateY(0deg) rotateX(0deg)';
+  });
+});
+
+// ===== STAT COUNTERS =====
+function animateCounter(el) {
+  const target = parseInt(el.dataset.target);
+  const suffix = el.dataset.suffix || '';
+  const prefix = el.dataset.prefix !== undefined ? el.dataset.prefix : '';
+  const duration = 1800;
+  const start = performance.now();
+  const isYear = target === 2019;
+
+  if (isYear) { el.textContent = '2019'; return; }
+
+  function update(now) {
+    const elapsed = now - start;
+    const progress = Math.min(elapsed / duration, 1);
+    const eased = 1 - Math.pow(1 - progress, 3);
+    const current = Math.floor(eased * target);
+    el.textContent = prefix + current + suffix;
+    if (progress < 1) requestAnimationFrame(update);
+    else el.textContent = prefix + target + suffix;
+  }
+  requestAnimationFrame(update);
+}
+
+const statObserver = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.querySelectorAll('[data-target]').forEach(el => animateCounter(el));
+      statObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.3 });
+document.querySelector('.stats') && statObserver.observe(document.querySelector('.stats'));
+
+// ===== COUNTDOWN =====
+(function startCountdown() {
+  let total = (2 * 86400) + (18 * 3600) + (43 * 60) + 0;
+  function tick() {
+    if (total <= 0) return;
+    const d = Math.floor(total / 86400);
+    const h = Math.floor((total % 86400) / 3600);
+    const m = Math.floor((total % 3600) / 60);
+    const s = total % 60;
+    document.getElementById('cdDays').textContent = String(d).padStart(2, '0');
+    document.getElementById('cdHours').textContent = String(h).padStart(2, '0');
+    document.getElementById('cdMins').textContent = String(m).padStart(2, '0');
+    document.getElementById('cdSecs').textContent = String(s).padStart(2, '0');
+    total--;
+    setTimeout(tick, 1000);
+  }
+  tick();
+})();
+
+// ===== MOBILE NAV =====
+const navToggle = document.getElementById('navToggle');
+const mobileMenu = document.getElementById('mobileMenu');
+let menuOpen = false;
+
+navToggle.addEventListener('click', () => {
+  menuOpen = !menuOpen;
+  mobileMenu.classList.toggle('open', menuOpen);
+  const spans = navToggle.querySelectorAll('span');
+  if (menuOpen) {
+    spans[0].style.transform = 'translateY(6px) rotate(45deg)';
+    spans[1].style.opacity = '0';
+    spans[2].style.transform = 'translateY(-6px) rotate(-45deg)';
+  } else {
+    spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+  }
+});
+
+function closeMobileMenu() {
+  menuOpen = false;
+  mobileMenu.classList.remove('open');
+  const spans = navToggle.querySelectorAll('span');
+  spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+}
+
+// ===== TOAST =====
+function showToast() {
+  const t = document.getElementById('toast');
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ===== NEWSLETTER =====
+function handleNewsletter(e) {
+  e.preventDefault();
+  const btn = e.target.querySelector('button');
+  btn.textContent = '✦ Joined';
+  btn.style.background = '#2a7a3b';
+  setTimeout(() => { btn.textContent = 'Join'; btn.style.background = ''; }, 3000);
+}
+
+// ===== MAGNETIC BUTTONS =====
+document.querySelectorAll('.btn-gold, .btn-add-cart').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    btn.style.transform = `translate(${x * 0.18}px, ${y * 0.28}px) translateY(-2px)`;
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = '';
+  });
+});
+</script>
+</body>
+</html>

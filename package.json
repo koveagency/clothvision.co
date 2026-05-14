@@ -1,0 +1,10 @@
+{
+  "name": "clothvision",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Cloth Vision (CLVSN) — Brand Scaling agency website",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  }
+}

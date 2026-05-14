@@ -1,0 +1,1639 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WERKHAUS — Built Different</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Oswald:wght@400;500;600;700&family=IBM+Plex+Mono:ital,wght@0,300;0,400;0,500;1,300&family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  *, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+  :root {
+    --black: #141414;
+    --amber: #F0A500;
+    --surface: #1E1E1E;
+    --grey: #E0E0E0;
+    --grey-mid: #888888;
+    --oswald: 'Oswald', sans-serif;
+    --mono: 'IBM Plex Mono', monospace;
+    --inter: 'Inter', sans-serif;
+  }
+
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--grey);
+    font-family: var(--inter);
+    cursor: none;
+    overflow-x: hidden;
+  }
+
+  /* ── SCROLL PROGRESS ── */
+  #progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 3px;
+    width: 0%;
+    background: var(--amber);
+    z-index: 9999;
+    transition: width 0.1s linear;
+    box-shadow: 0 0 10px var(--amber);
+  }
+
+  /* ── CURSOR ── */
+  #cursor {
+    position: fixed;
+    width: 8px; height: 8px;
+    background: var(--amber);
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: transform 0.08s, width 0.25s, height 0.25s, border-radius 0.25s;
+    clip-path: polygon(50% 0%, 100% 100%, 0% 100%);
+  }
+  #cursor.hover {
+    width: 14px; height: 14px;
+    background: var(--amber);
+  }
+  #cursor-crosshair {
+    position: fixed;
+    pointer-events: none;
+    z-index: 9997;
+    transform: translate(-50%, -50%);
+    transition: left 0.14s ease-out, top 0.14s ease-out;
+  }
+  #cursor-crosshair::before,
+  #cursor-crosshair::after {
+    content: '';
+    position: absolute;
+    background: rgba(240,165,0,0.5);
+  }
+  #cursor-crosshair::before {
+    width: 20px; height: 1px;
+    top: 0; left: -10px;
+  }
+  #cursor-crosshair::after {
+    width: 1px; height: 20px;
+    top: -10px; left: 0;
+  }
+  #cursor-crosshair.hover::before { background: var(--amber); }
+  #cursor-crosshair.hover::after { background: var(--amber); }
+
+  /* ── NAV ── */
+  nav {
+    position: fixed;
+    top: 3px; left: 0; right: 0;
+    z-index: 900;
+    background: rgba(20,20,20,0.92);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-bottom: 1px solid transparent;
+    transition: border-color 0.4s;
+    padding: 0 5vw;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    height: 70px;
+  }
+  nav.scrolled { border-color: rgba(240,165,0,0.2); }
+  .nav-logo {
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: 1.5rem;
+    letter-spacing: 0.08em;
+    color: white;
+    text-decoration: none;
+    text-transform: uppercase;
+    position: relative;
+    padding-bottom: 4px;
+  }
+  .nav-logo::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0;
+    width: 100%; height: 2px;
+    background: var(--amber);
+    transform-origin: left;
+    animation: underlineGrow 1s 0.5s cubic-bezier(0.77,0,0.175,1) both;
+  }
+  @keyframes underlineGrow {
+    from { transform: scaleX(0); }
+    to { transform: scaleX(1); }
+  }
+  .nav-links {
+    display: flex;
+    align-items: center;
+    gap: 2.5rem;
+    list-style: none;
+  }
+  .nav-links a {
+    text-decoration: none;
+    color: var(--grey-mid);
+    font-size: 0.82rem;
+    letter-spacing: 0.1em;
+    font-family: var(--mono);
+    text-transform: uppercase;
+    transition: color 0.2s;
+    position: relative;
+  }
+  .nav-links a:hover { color: white; }
+  .nav-links a::after {
+    content: '';
+    position: absolute;
+    bottom: -2px; left: 0;
+    width: 0; height: 1px;
+    background: var(--amber);
+    transition: width 0.3s;
+  }
+  .nav-links a:hover::after { width: 100%; }
+  .nav-shop {
+    padding: 8px 20px;
+    background: var(--amber);
+    color: var(--black) !important;
+    font-family: var(--oswald) !important;
+    font-weight: 700 !important;
+    font-size: 0.85rem !important;
+    letter-spacing: 0.1em !important;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: background 0.3s, transform 0.2s !important;
+  }
+  .nav-shop::after { display: none !important; }
+  .nav-shop:hover { background: white !important; transform: scale(1.04) !important; }
+
+  /* Hamburger */
+  .hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: none;
+    background: none;
+    border: none;
+    padding: 4px;
+  }
+  .hamburger span {
+    display: block;
+    width: 24px; height: 2px;
+    background: var(--grey);
+    transition: all 0.3s;
+  }
+  .hamburger.active span:nth-child(1) { transform: translateY(7px) rotate(45deg); background: var(--amber); }
+  .hamburger.active span:nth-child(2) { opacity: 0; }
+  .hamburger.active span:nth-child(3) { transform: translateY(-7px) rotate(-45deg); background: var(--amber); }
+
+  /* Mobile Menu */
+  .mobile-menu {
+    position: fixed;
+    inset: 0;
+    background: var(--black);
+    z-index: 800;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    justify-content: center;
+    padding: 0 8vw;
+    gap: 0.5rem;
+    transform: translateX(100%);
+    transition: transform 0.5s cubic-bezier(0.77,0,0.175,1);
+    border-left: 4px solid var(--amber);
+  }
+  .mobile-menu.open { transform: translateX(0); }
+  .mobile-menu a {
+    font-family: var(--oswald);
+    font-size: 3rem;
+    font-weight: 700;
+    color: rgba(224,224,224,0.4);
+    text-decoration: none;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    opacity: 0;
+    transform: translateX(30px);
+    transition: opacity 0.4s, transform 0.4s, color 0.2s;
+    line-height: 1.2;
+  }
+  .mobile-menu.open a {
+    opacity: 1;
+    transform: translateX(0);
+  }
+  .mobile-menu.open a:nth-child(1) { transition-delay: 0.15s; }
+  .mobile-menu.open a:nth-child(2) { transition-delay: 0.22s; }
+  .mobile-menu.open a:nth-child(3) { transition-delay: 0.29s; }
+  .mobile-menu.open a:nth-child(4) { transition-delay: 0.36s; }
+  .mobile-menu a:hover { color: var(--amber); }
+  .mobile-mono {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    color: var(--grey-mid);
+    margin-top: 2rem;
+    letter-spacing: 0.15em;
+    opacity: 0;
+    transition: opacity 0.4s 0.5s;
+  }
+  .mobile-menu.open .mobile-mono { opacity: 1; }
+
+  /* ── HERO ── */
+  .hero {
+    position: relative;
+    height: 100vh;
+    min-height: 700px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1504307651254-35680f356dfd?w=1800&q=80&fit=crop&auto=format');
+    background-size: cover;
+    background-position: center 40%;
+    transform: scale(1.08);
+    will-change: transform;
+    transition: transform 0.1s linear;
+  }
+  .hero-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      105deg,
+      rgba(20,20,20,0.92) 0%,
+      rgba(20,20,20,0.75) 50%,
+      rgba(20,20,20,0.3) 100%
+    );
+  }
+  .hero-grid-lines {
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(rgba(240,165,0,0.04) 1px, transparent 1px),
+      linear-gradient(90deg, rgba(240,165,0,0.04) 1px, transparent 1px);
+    background-size: 60px 60px;
+    pointer-events: none;
+  }
+  .hero-content {
+    position: relative;
+    z-index: 2;
+    padding: 0 8vw;
+    max-width: 900px;
+  }
+  .hero-mono-tag {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+    margin-bottom: 1.5rem;
+    opacity: 0;
+    transform: translateX(-20px);
+    animation: fadeLeft 0.8s 0.4s forwards;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+  .hero-mono-tag::before {
+    content: '//';
+    color: rgba(240,165,0,0.4);
+  }
+  @keyframes fadeLeft {
+    to { opacity: 1; transform: translateX(0); }
+  }
+  .hero-title {
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: clamp(4rem, 11vw, 10rem);
+    line-height: 0.9;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+    margin-bottom: 2.5rem;
+  }
+  .hero-title .letter {
+    display: inline-block;
+    opacity: 0;
+    transform: translateY(80px) skewY(6deg);
+    animation: letterReveal 0.7s cubic-bezier(0.16,1,0.3,1) forwards;
+  }
+  @keyframes letterReveal {
+    to { opacity: 1; transform: translateY(0) skewY(0deg); }
+  }
+  .hero-sub {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.15em;
+    color: rgba(224,224,224,0.6);
+    margin-bottom: 3rem;
+    opacity: 0;
+    animation: fadeLeft 0.8s 1.4s forwards;
+  }
+  .hero-btns {
+    display: flex;
+    gap: 1.2rem;
+    flex-wrap: wrap;
+    opacity: 0;
+    animation: fadeLeft 0.8s 1.7s forwards;
+  }
+  .hero-corner-info {
+    position: absolute;
+    bottom: 3rem;
+    right: 6vw;
+    z-index: 2;
+    text-align: right;
+    opacity: 0;
+    animation: fadeLeft 0.8s 2s forwards;
+  }
+  .hero-corner-info .corner-num {
+    font-family: var(--oswald);
+    font-size: 4rem;
+    font-weight: 700;
+    color: rgba(240,165,0,0.15);
+    line-height: 1;
+  }
+  .hero-corner-info .corner-label {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    color: var(--grey-mid);
+    text-transform: uppercase;
+  }
+
+  /* ── BUTTONS ── */
+  .btn-amber {
+    display: inline-block;
+    padding: 14px 32px;
+    background: var(--amber);
+    color: var(--black);
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    position: relative;
+    overflow: hidden;
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    transition: transform 0.3s;
+  }
+  .btn-amber::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: white;
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.77,0,0.175,1);
+  }
+  .btn-amber:hover::before { transform: translateX(0); }
+  .btn-amber:hover { transform: translateY(-2px); }
+  .btn-amber span { position: relative; z-index: 1; }
+
+  .btn-outline {
+    display: inline-block;
+    padding: 14px 32px;
+    background: transparent;
+    color: white;
+    font-family: var(--oswald);
+    font-weight: 600;
+    font-size: 0.9rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border: 1.5px solid rgba(224,224,224,0.35);
+    clip-path: polygon(8px 0%, 100% 0%, calc(100% - 8px) 100%, 0% 100%);
+    position: relative;
+    overflow: hidden;
+    transition: color 0.4s, transform 0.3s;
+  }
+  .btn-outline::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: rgba(224,224,224,0.08);
+    transform: translateX(-100%);
+    transition: transform 0.4s cubic-bezier(0.77,0,0.175,1);
+  }
+  .btn-outline:hover::before { transform: translateX(0); }
+  .btn-outline:hover { border-color: white; transform: translateY(-2px); }
+  .btn-outline span { position: relative; z-index: 1; }
+
+  /* ── UTILITY STRIP ── */
+  .ticker-strip {
+    background: var(--amber);
+    padding: 14px 0;
+    overflow: hidden;
+    position: relative;
+  }
+  .ticker-track {
+    display: flex;
+    animation: ticker 20s linear infinite;
+    width: max-content;
+    gap: 0;
+  }
+  .ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 0;
+    white-space: nowrap;
+    font-family: var(--oswald);
+    font-weight: 600;
+    font-size: 0.85rem;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--black);
+    padding: 0 3rem;
+  }
+  .ticker-sep {
+    color: rgba(20,20,20,0.4);
+    margin: 0 0.5rem;
+  }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+  .ticker-strip:hover .ticker-track { animation-play-state: paused; }
+
+  /* ── SECTION COMMONS ── */
+  section { padding: 120px 6vw; }
+  .mono-label {
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    margin-bottom: 1.5rem;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+  .mono-label::before { content: '//'; color: rgba(240,165,0,0.4); }
+  .section-title {
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: clamp(2.2rem, 5vw, 4rem);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 1rem;
+    line-height: 1.0;
+  }
+
+  /* ── WORKWEAR LINE ── */
+  .workwear { background: var(--surface); }
+  .workwear-inner { max-width: 1300px; margin: 0 auto; }
+  .workwear-header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    margin-bottom: 4rem;
+    flex-wrap: wrap;
+    gap: 1.5rem;
+  }
+  .product-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.05);
+  }
+  .product-card {
+    background: var(--black);
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+    transform: perspective(1200px);
+    transform-style: preserve-3d;
+  }
+  .product-card-img {
+    aspect-ratio: 3/4;
+    overflow: hidden;
+    position: relative;
+  }
+  .product-card-img img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    transition: transform 0.6s ease;
+    filter: grayscale(0.2) contrast(1.05);
+  }
+  .product-card:hover .product-card-img img {
+    transform: scale(1.08);
+    filter: grayscale(0) contrast(1.1);
+  }
+  .product-card-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(20,20,20,0.95) 0%, rgba(20,20,20,0.1) 60%, transparent 100%);
+    transition: opacity 0.4s;
+  }
+  .product-card-info {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    padding: 1.8rem;
+  }
+  .product-sku {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.2em;
+    color: var(--amber);
+    margin-bottom: 0.5rem;
+  }
+  .product-name {
+    font-family: var(--oswald);
+    font-weight: 600;
+    font-size: 1.1rem;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.4rem;
+  }
+  .product-material {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: rgba(224,224,224,0.5);
+    letter-spacing: 0.08em;
+    margin-bottom: 1rem;
+  }
+  .product-price-tag {
+    display: inline-block;
+    background: var(--amber);
+    color: var(--black);
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: 0.85rem;
+    letter-spacing: 0.08em;
+    padding: 4px 12px;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .product-card-hover-btn {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, calc(-50% + 20px));
+    opacity: 0;
+    transition: opacity 0.3s, transform 0.3s;
+    background: var(--amber);
+    color: var(--black);
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: 0.78rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    padding: 10px 20px;
+    text-decoration: none;
+    clip-path: polygon(6px 0%, 100% 0%, calc(100% - 6px) 100%, 0% 100%);
+  }
+  .product-card:hover .product-card-hover-btn {
+    opacity: 1;
+    transform: translate(-50%, -50%);
+  }
+
+  /* ── MATERIAL SPECS ── */
+  .materials { background: var(--black); }
+  .materials-inner { max-width: 1200px; margin: 0 auto; }
+  .spec-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1px;
+    background: rgba(255,255,255,0.06);
+    margin-top: 4rem;
+    border: 1px solid rgba(255,255,255,0.06);
+  }
+  .spec-card {
+    background: var(--surface);
+    padding: 3rem 2.5rem;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.4s;
+    cursor: none;
+  }
+  .spec-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 3px;
+    background: var(--amber);
+    transform: scaleX(0);
+    transition: transform 0.4s;
+    transform-origin: left;
+  }
+  .spec-card:hover::before { transform: scaleX(1); }
+  .spec-card:hover { background: #252525; }
+  .spec-card-num {
+    font-family: var(--mono);
+    font-size: 0.6rem;
+    letter-spacing: 0.3em;
+    color: rgba(240,165,0,0.4);
+    margin-bottom: 1.5rem;
+  }
+  .spec-material-name {
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    margin-bottom: 0.5rem;
+  }
+  .spec-material-type {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--amber);
+    letter-spacing: 0.12em;
+    margin-bottom: 2rem;
+  }
+  .spec-row-list {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+  .spec-row-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.8rem;
+    border-bottom: 1px solid rgba(255,255,255,0.06);
+    font-family: var(--mono);
+  }
+  .spec-row-item:last-child { border-bottom: none; padding-bottom: 0; }
+  .spec-key { font-size: 0.65rem; letter-spacing: 0.1em; color: var(--grey-mid); text-transform: uppercase; }
+  .spec-val { font-size: 0.72rem; color: var(--grey); }
+
+  /* ── HERITAGE ── */
+  .heritage {
+    background: var(--surface);
+    padding: 0;
+    overflow: hidden;
+  }
+  .heritage-inner {
+    display: grid;
+    grid-template-columns: 1fr 1.4fr;
+    min-height: 600px;
+  }
+  .heritage-year {
+    background: var(--amber);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 5rem 3rem;
+    position: relative;
+    overflow: hidden;
+  }
+  .heritage-year::before {
+    content: 'BERLIN';
+    position: absolute;
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: 8rem;
+    color: rgba(20,20,20,0.08);
+    letter-spacing: 0.15em;
+    bottom: 2rem;
+    left: 50%;
+    transform: translateX(-50%) rotate(-8deg);
+    white-space: nowrap;
+  }
+  .heritage-year-num {
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: clamp(5rem, 12vw, 10rem);
+    color: var(--black);
+    line-height: 1;
+    position: relative;
+    z-index: 1;
+  }
+  .heritage-content {
+    padding: 6rem 5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    background: var(--surface);
+  }
+  .heritage-content .mono-label { margin-bottom: 2rem; }
+  .heritage-title {
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: clamp(1.8rem, 3.5vw, 3rem);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    margin-bottom: 1.5rem;
+    line-height: 1.1;
+  }
+  .heritage-body {
+    color: rgba(224,224,224,0.65);
+    font-size: 0.95rem;
+    line-height: 1.8;
+    margin-bottom: 3rem;
+  }
+  .timeline {
+    display: flex;
+    flex-direction: column;
+    gap: 1.2rem;
+    border-left: 2px solid rgba(240,165,0,0.25);
+    padding-left: 1.5rem;
+    margin-left: 0.5rem;
+  }
+  .timeline-item {
+    position: relative;
+    padding-left: 0.5rem;
+  }
+  .timeline-item::before {
+    content: '';
+    position: absolute;
+    left: -1.85rem;
+    top: 6px;
+    width: 8px; height: 8px;
+    background: var(--amber);
+    clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%);
+  }
+  .timeline-year {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    letter-spacing: 0.15em;
+    color: var(--amber);
+    margin-bottom: 0.25rem;
+  }
+  .timeline-event {
+    font-family: var(--inter);
+    font-size: 0.85rem;
+    color: var(--grey);
+    font-weight: 500;
+  }
+
+  /* ── FEATURED DROP ── */
+  .featured-drop {
+    position: relative;
+    min-height: 80vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
+    padding: 0;
+  }
+  .featured-drop-bg {
+    position: absolute;
+    inset: 0;
+    background-image: url('https://images.unsplash.com/photo-1551028719-00167b16eac5?w=1800&q=80&fit=crop&auto=format');
+    background-size: cover;
+    background-position: center;
+    filter: grayscale(0.4) contrast(1.1);
+    will-change: transform;
+    transform: scale(1.05);
+  }
+  .featured-drop-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(
+      90deg,
+      rgba(20,20,20,0.97) 0%,
+      rgba(20,20,20,0.8) 50%,
+      rgba(20,20,20,0.2) 100%
+    );
+  }
+  .featured-drop-content {
+    position: relative;
+    z-index: 2;
+    padding: 8rem 8vw;
+    max-width: 600px;
+  }
+  .drop-tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.62rem;
+    letter-spacing: 0.25em;
+    color: var(--amber);
+    border: 1px solid rgba(240,165,0,0.4);
+    padding: 5px 14px;
+    margin-bottom: 2rem;
+    text-transform: uppercase;
+  }
+  .drop-name {
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: clamp(2.5rem, 6vw, 5rem);
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+    line-height: 0.95;
+    margin-bottom: 1.5rem;
+  }
+  .drop-specs {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: rgba(224,224,224,0.5);
+    letter-spacing: 0.1em;
+    line-height: 1.8;
+    margin-bottom: 2rem;
+  }
+  .drop-price {
+    font-family: var(--oswald);
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--amber);
+    margin-bottom: 1.5rem;
+  }
+  .drop-counter {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 2.5rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--grey-mid);
+    letter-spacing: 0.1em;
+  }
+  .drop-counter-num {
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: 1.8rem;
+    color: white;
+  }
+  .drop-limited {
+    width: 8px; height: 8px;
+    background: var(--amber);
+    border-radius: 50%;
+    animation: pulse 1.5s ease-in-out infinite;
+    display: inline-block;
+  }
+  @keyframes pulse {
+    0%,100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.5); opacity: 0.5; }
+  }
+
+  /* ── COMMUNITY GRID ── */
+  .community { background: var(--black); }
+  .community-inner { max-width: 1300px; margin: 0 auto; }
+  .community-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: auto auto;
+    gap: 3px;
+    margin-top: 4rem;
+  }
+  .comm-photo {
+    position: relative;
+    overflow: hidden;
+    cursor: none;
+  }
+  .comm-photo:nth-child(1) { aspect-ratio: 1/1.2; }
+  .comm-photo:nth-child(2) { aspect-ratio: 1/1; grid-row: 1/3; }
+  .comm-photo:nth-child(3) { aspect-ratio: 1/0.8; }
+  .comm-photo:nth-child(4) { aspect-ratio: 1/0.9; }
+  .comm-photo:nth-child(5) { aspect-ratio: 1/1.1; }
+  .comm-photo:nth-child(6) { aspect-ratio: 1/0.9; }
+  .comm-photo img {
+    width: 100%; height: 100%;
+    object-fit: cover;
+    display: block;
+    filter: grayscale(0.3) contrast(1.05);
+    transition: transform 0.6s ease, filter 0.6s ease;
+  }
+  .comm-photo:hover img {
+    transform: scale(1.05);
+    filter: grayscale(0) contrast(1.1);
+  }
+  .comm-photo-overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(240,165,0,0.0);
+    transition: background 0.4s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .comm-photo:hover .comm-photo-overlay {
+    background: rgba(240,165,0,0.35);
+  }
+  .comm-tag {
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--black);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    opacity: 0;
+    transform: translateY(10px);
+    transition: opacity 0.3s, transform 0.3s;
+  }
+  .comm-photo:hover .comm-tag { opacity: 1; transform: translateY(0); }
+
+  /* ── FOOTER ── */
+  footer {
+    background: var(--black);
+    padding: 70px 6vw 40px;
+    border-top: 1px solid rgba(240,165,0,0.15);
+  }
+  .footer-top {
+    display: grid;
+    grid-template-columns: 1.5fr 1fr 1fr 1fr;
+    gap: 3rem;
+    margin-bottom: 4rem;
+  }
+  .footer-brand-name {
+    font-family: var(--oswald);
+    font-weight: 700;
+    font-size: 2rem;
+    color: white;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    margin-bottom: 0.5rem;
+  }
+  .footer-brand-sub {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    color: var(--amber);
+    letter-spacing: 0.15em;
+    margin-bottom: 1.5rem;
+  }
+  .footer-tagline {
+    color: rgba(224,224,224,0.4);
+    font-size: 0.85rem;
+    line-height: 1.7;
+    font-family: var(--mono);
+    margin-bottom: 1.5rem;
+  }
+  .footer-socials {
+    display: flex;
+    gap: 0.8rem;
+  }
+  .footer-social-btn {
+    width: 36px; height: 36px;
+    border: 1px solid rgba(240,165,0,0.25);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--amber);
+    font-size: 0.7rem;
+    text-decoration: none;
+    font-family: var(--mono);
+    transition: background 0.3s, border-color 0.3s;
+    clip-path: polygon(5px 0%, 100% 0%, calc(100% - 5px) 100%, 0% 100%);
+  }
+  .footer-social-btn:hover { background: rgba(240,165,0,0.15); border-color: var(--amber); }
+  .footer-col-title {
+    font-family: var(--mono);
+    font-size: 0.65rem;
+    letter-spacing: 0.25em;
+    color: var(--amber);
+    text-transform: uppercase;
+    margin-bottom: 1.5rem;
+  }
+  .footer-col-links {
+    list-style: none;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+  .footer-col-links a {
+    text-decoration: none;
+    color: rgba(224,224,224,0.4);
+    font-size: 0.85rem;
+    font-family: var(--inter);
+    transition: color 0.2s;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+  .footer-col-links a::before { content: '›'; color: rgba(240,165,0,0.3); font-size: 1rem; }
+  .footer-col-links a:hover { color: white; }
+  .footer-col-links a:hover::before { color: var(--amber); }
+  .footer-bottom {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-top: 2rem;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    flex-wrap: wrap;
+    gap: 1rem;
+  }
+  .footer-copy {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: rgba(224,224,224,0.25);
+    letter-spacing: 0.1em;
+  }
+  .footer-legal {
+    display: flex;
+    gap: 1.5rem;
+  }
+  .footer-legal a {
+    font-family: var(--mono);
+    font-size: 0.68rem;
+    color: rgba(224,224,224,0.25);
+    text-decoration: none;
+    letter-spacing: 0.08em;
+    transition: color 0.2s;
+  }
+  .footer-legal a:hover { color: var(--amber); }
+
+  /* ── REVEAL ── */
+  .reveal {
+    opacity: 0;
+    transform: translateY(35px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+  .reveal-left {
+    opacity: 0;
+    transform: translateX(-35px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal-left.visible { opacity: 1; transform: translateX(0); }
+  .reveal-right {
+    opacity: 0;
+    transform: translateX(35px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal-right.visible { opacity: 1; transform: translateX(0); }
+  .stagger .reveal { transition-delay: calc(var(--i, 0) * 0.1s); }
+
+  /* ── RESPONSIVE ── */
+  @media (max-width: 1024px) {
+    .product-grid { grid-template-columns: repeat(2, 1fr); }
+    .spec-grid { grid-template-columns: 1fr; }
+    .footer-top { grid-template-columns: 1fr 1fr; }
+  }
+  @media (max-width: 768px) {
+    nav { padding: 0 5vw; }
+    .nav-links { display: none; }
+    .hamburger { display: flex; }
+    section { padding: 80px 5vw; }
+    .heritage-inner { grid-template-columns: 1fr; }
+    .heritage-year { padding: 4rem 3rem; }
+    .community-grid { grid-template-columns: repeat(2, 1fr); }
+    .comm-photo:nth-child(2) { grid-row: auto; }
+    .footer-top { grid-template-columns: 1fr; gap: 2rem; }
+    .workwear-header { flex-direction: column; align-items: flex-start; }
+  }
+  @media (max-width: 480px) {
+    .product-grid { grid-template-columns: 1fr; }
+    .hero-btns { flex-direction: column; }
+    .community-grid { grid-template-columns: 1fr; }
+    .comm-photo:nth-child(n) { aspect-ratio: 4/3; }
+  }
+  /* ── CAMPAIGN VIDEO ── */
+  .campaign-video { position: relative; overflow: hidden; background: #141414; }
+  .campaign-video video { width: 100%; height: 70vh; object-fit: cover; opacity: 0.5; display: block; }
+  .campaign-video-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+  }
+  .campaign-video-overlay .cv-tag {
+    font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #F0A500; margin-bottom: 1rem;
+  }
+  .campaign-video-overlay h2 {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    color: #E0E0E0; line-height: 1.1; margin-bottom: 1.4rem;
+  }
+  .campaign-video-overlay p {
+    color: rgba(255,255,255,0.65); font-size: 1rem; max-width: 480px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- Progress -->
+<div id="progress-bar"></div>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+<div id="cursor-crosshair"></div>
+
+<!-- Mobile Menu -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#workwear">Workwear</a>
+  <a href="#heritage">Heritage</a>
+  <a href="#material">Material</a>
+  <a href="#drop">Drop</a>
+  <span class="mobile-mono">// WERKHAUS — BERLIN — SS26</span>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo" style="display:flex;align-items:center;gap:10px;">
+    <img src="../assets/logo-werkhaus.svg" style="height:36px;" alt="WERKHAUS">
+    WERKHAUS
+  </a>
+  <ul class="nav-links">
+    <li><a href="#workwear">Workwear</a></li>
+    <li><a href="#heritage">Heritage</a></li>
+    <li><a href="#material">Material</a></li>
+    <li><a href="#" class="nav-shop">Shop</a></li>
+  </ul>
+  <button class="hamburger" id="hamburger" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- HERO -->
+<section class="hero" id="hero">
+  <div class="hero-bg" id="heroBg"></div>
+  <div class="hero-overlay"></div>
+  <div class="hero-grid-lines"></div>
+  <div class="hero-content">
+    <div class="hero-mono-tag">SINCE 2018 — BERLIN</div>
+    <h1 class="hero-title" id="heroTitle">
+      <span class="hero-line">
+        <span class="letter" style="animation-delay:0.6s">B</span><span class="letter" style="animation-delay:0.68s">U</span><span class="letter" style="animation-delay:0.76s">I</span><span class="letter" style="animation-delay:0.84s">L</span><span class="letter" style="animation-delay:0.92s">T</span>
+      </span>
+      <br>
+      <span class="hero-line" style="color:var(--amber)">
+        <span class="letter" style="animation-delay:1.0s">D</span><span class="letter" style="animation-delay:1.08s">I</span><span class="letter" style="animation-delay:1.16s">F</span><span class="letter" style="animation-delay:1.24s">F</span><span class="letter" style="animation-delay:1.32s">E</span><span class="letter" style="animation-delay:1.4s">R</span><span class="letter" style="animation-delay:1.48s">E</span><span class="letter" style="animation-delay:1.56s">N</span><span class="letter" style="animation-delay:1.64s">T</span>
+      </span>
+    </h1>
+    <p class="hero-sub">// SINCE 2018 — BERLIN · UTILITARIAN WORKWEAR · WORLDWIDE WORN</p>
+    <div class="hero-btns">
+      <a href="#workwear" class="btn-amber"><span>Werkhaus Collection</span></a>
+      <a href="#heritage" class="btn-outline"><span>The Heritage</span></a>
+    </div>
+  </div>
+  <div class="hero-corner-info">
+    <div class="corner-num">WW26</div>
+    <div class="corner-label">Current Season</div>
+  </div>
+</section>
+
+<!-- TICKER STRIP -->
+<div class="ticker-strip">
+  <div class="ticker-track">
+    <div class="ticker-item">Heavy Cotton Canvas <span class="ticker-sep">◆</span> Reinforced Stitching <span class="ticker-sep">◆</span> Berlin Designed <span class="ticker-sep">◆</span> Worldwide Worn <span class="ticker-sep">◆</span> Built Different <span class="ticker-sep">◆</span> WW26 Season Drop <span class="ticker-sep">◆</span></div>
+    <div class="ticker-item">Heavy Cotton Canvas <span class="ticker-sep">◆</span> Reinforced Stitching <span class="ticker-sep">◆</span> Berlin Designed <span class="ticker-sep">◆</span> Worldwide Worn <span class="ticker-sep">◆</span> Built Different <span class="ticker-sep">◆</span> WW26 Season Drop <span class="ticker-sep">◆</span></div>
+  </div>
+</div>
+
+<!-- WORKWEAR LINE -->
+<section class="workwear" id="workwear">
+  <div class="workwear-inner">
+    <div class="workwear-header">
+      <div>
+        <div class="mono-label reveal">Current Season</div>
+        <h2 class="section-title reveal" style="transition-delay:0.1s">WW26 — Workwear Line</h2>
+      </div>
+      <a href="#" class="btn-amber reveal" style="transition-delay:0.2s;white-space:nowrap"><span>Full Catalogue</span></a>
+    </div>
+    <div class="product-grid stagger">
+      <div class="product-card reveal tilt-card" style="--i:0">
+        <div class="product-card-img">
+          <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80&fit=crop&auto=format" alt="Canvas Work Jacket" loading="lazy">
+          <div class="product-card-overlay"></div>
+        </div>
+        <div class="product-card-info">
+          <div class="product-sku">WH-001 // OUTERWEAR</div>
+          <div class="product-name">Canvas Work Jacket</div>
+          <div class="product-material">600g/m² · Cotton Canvas · Quilted Lining</div>
+          <div class="product-price-tag">€220</div>
+        </div>
+        <a href="#" class="product-card-hover-btn">Add to Bag</a>
+      </div>
+      <div class="product-card reveal tilt-card" style="--i:1">
+        <div class="product-card-img">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80&fit=crop&auto=format" alt="Cargo Utility Pant" loading="lazy">
+          <div class="product-card-overlay"></div>
+        </div>
+        <div class="product-card-info">
+          <div class="product-sku">WH-002 // BOTTOMS</div>
+          <div class="product-name">Cargo Utility Pant</div>
+          <div class="product-material">480g/m² · Ripstop Twill · 8-Pocket</div>
+          <div class="product-price-tag">€165</div>
+        </div>
+        <a href="#" class="product-card-hover-btn">Add to Bag</a>
+      </div>
+      <div class="product-card reveal tilt-card" style="--i:2">
+        <div class="product-card-img">
+          <img src="https://images.unsplash.com/photo-1556821840-3a63f15732ce?w=600&q=80&fit=crop&auto=format" alt="Heavy Hoodie" loading="lazy">
+          <div class="product-card-overlay"></div>
+        </div>
+        <div class="product-card-info">
+          <div class="product-sku">WH-003 // TOPS</div>
+          <div class="product-name">Heavy Hoodie</div>
+          <div class="product-material">500g/m² · Brushed Fleece · Kangaroo Pocket</div>
+          <div class="product-price-tag">€145</div>
+        </div>
+        <a href="#" class="product-card-hover-btn">Add to Bag</a>
+      </div>
+      <div class="product-card reveal tilt-card" style="--i:3">
+        <div class="product-card-img">
+          <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=80&fit=crop&auto=format" alt="Field Vest" loading="lazy">
+          <div class="product-card-overlay"></div>
+        </div>
+        <div class="product-card-info">
+          <div class="product-sku">WH-004 // OUTERWEAR</div>
+          <div class="product-name">Field Vest</div>
+          <div class="product-material">420g/m² · Waxed Canvas · 12-Pocket</div>
+          <div class="product-price-tag">€185</div>
+        </div>
+        <a href="#" class="product-card-hover-btn">Add to Bag</a>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MATERIAL SPECS -->
+<section class="materials" id="material">
+  <div class="materials-inner">
+    <div class="mono-label reveal">// MATERIAL_SPECS</div>
+    <h2 class="section-title reveal" style="transition-delay:0.1s">Engineered to Last</h2>
+    <div class="spec-grid stagger">
+      <div class="spec-card reveal tilt-card" style="--i:0">
+        <div class="spec-card-num">01_CANVAS</div>
+        <div class="spec-material-name">Canvas</div>
+        <div class="spec-material-type">PRIMARY_FABRIC // STRUCTURED</div>
+        <div class="spec-row-list">
+          <div class="spec-row-item">
+            <span class="spec-key">Weight</span>
+            <span class="spec-val">600g/m²</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Composition</span>
+            <span class="spec-val">100% Cotton</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Weave</span>
+            <span class="spec-val">Plain weave, double-ply</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Treatment</span>
+            <span class="spec-val">Stone-washed + Wax</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Durability</span>
+            <span class="spec-val">500+ wash cycles</span>
+          </div>
+        </div>
+      </div>
+      <div class="spec-card reveal tilt-card" style="--i:1">
+        <div class="spec-card-num">02_RIPSTOP</div>
+        <div class="spec-material-name">Ripstop</div>
+        <div class="spec-material-type">UTILITY_FABRIC // TACTICAL</div>
+        <div class="spec-row-list">
+          <div class="spec-row-item">
+            <span class="spec-key">Weight</span>
+            <span class="spec-val">260g/m²</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Composition</span>
+            <span class="spec-val">65% Poly / 35% Cotton</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Grid</span>
+            <span class="spec-val">8mm reinforced grid</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Standard</span>
+            <span class="spec-val">MIL-SPEC Grade A</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Water</span>
+            <span class="spec-val">DWR Treated</span>
+          </div>
+        </div>
+      </div>
+      <div class="spec-card reveal tilt-card" style="--i:2">
+        <div class="spec-card-num">03_FLEECE</div>
+        <div class="spec-material-name">Fleece</div>
+        <div class="spec-material-type">LAYERING_FABRIC // THERMAL</div>
+        <div class="spec-row-list">
+          <div class="spec-row-item">
+            <span class="spec-key">Weight</span>
+            <span class="spec-val">400g/m²</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Composition</span>
+            <span class="spec-val">Recycled polyester</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Pile</span>
+            <span class="spec-val">Brushed, anti-pill</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Warmth</span>
+            <span class="spec-val">Mid-layer grade</span>
+          </div>
+          <div class="spec-row-item">
+            <span class="spec-key">Origin</span>
+            <span class="spec-val">Bluesign® Certified</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- HERITAGE -->
+<section class="heritage" id="heritage">
+  <div class="heritage-inner">
+    <div class="heritage-year reveal-left">
+      <div class="heritage-year-num">2018</div>
+    </div>
+    <div class="heritage-content">
+      <div class="mono-label reveal">// FOUNDED_IN_BERLIN</div>
+      <h2 class="heritage-title reveal" style="transition-delay:0.1s">Built from<br>the ground up</h2>
+      <p class="heritage-body reveal" style="transition-delay:0.2s">WERKHAUS started in a small Berlin workshop in 2018. Two industrial designers, fed up with workwear that looked the part but fell apart — decided to build something that lasted. Inspired by the utility of German engineering and the aesthetic of urban street culture.</p>
+      <div class="timeline reveal" style="transition-delay:0.3s">
+        <div class="timeline-item">
+          <div class="timeline-year">2018</div>
+          <div class="timeline-event">Founded in Prenzlauer Berg, Berlin</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2019</div>
+          <div class="timeline-event">First wholesale partnership with 12 stockists</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2021</div>
+          <div class="timeline-event">WW21 — breakthrough collection, sold out in 72h</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2023</div>
+          <div class="timeline-event">International expansion: Tokyo, London, NYC</div>
+        </div>
+        <div class="timeline-item">
+          <div class="timeline-year">2026</div>
+          <div class="timeline-event">WW26 — most technical workwear drop to date</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED DROP -->
+<div class="featured-drop" id="drop">
+  <div class="featured-drop-bg" id="dropBg"></div>
+  <div class="featured-drop-overlay"></div>
+  <div class="featured-drop-content">
+    <span class="drop-tag reveal">// LIMITED RELEASE — WW26</span>
+    <h2 class="drop-name reveal" style="transition-delay:0.1s">WW26<br>Field<br>Jacket</h2>
+    <div class="drop-specs reveal" style="transition-delay:0.2s">
+      FABRIC // 600g WAXED CANVAS<br>
+      POCKETS // 12 UTILITY POCKETS<br>
+      ORIGIN // HANDMADE IN BERLIN<br>
+      LINING // QUILTED RIPSTOP
+    </div>
+    <div class="drop-price reveal" style="transition-delay:0.3s">€280</div>
+    <div class="drop-counter reveal" style="transition-delay:0.35s">
+      <span class="drop-limited"></span>
+      <span class="drop-counter-num" id="pieceCounter">47</span>
+      <span>pieces remaining</span>
+    </div>
+    <a href="#" class="btn-amber reveal" style="transition-delay:0.4s"><span>Secure Yours →</span></a>
+  </div>
+</div>
+
+<!-- COMMUNITY GRID -->
+<section class="community">
+  <div class="community-inner">
+    <div class="mono-label reveal">// WERKHAUS_COMMUNITY</div>
+    <h2 class="section-title reveal" style="transition-delay:0.1s">Worn in the Field</h2>
+    <div class="community-grid">
+      <div class="comm-photo reveal" style="transition-delay:0.05s">
+        <img src="https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=600&q=80&fit=crop&auto=format" alt="Community" loading="lazy">
+        <div class="comm-photo-overlay"><span class="comm-tag">@MARCO_B</span></div>
+      </div>
+      <div class="comm-photo reveal" style="transition-delay:0.1s">
+        <img src="https://images.unsplash.com/photo-1504593811423-6dd665756598?w=600&q=80&fit=crop&auto=format" alt="Community" loading="lazy">
+        <div class="comm-photo-overlay"><span class="comm-tag">@JULIEN_K</span></div>
+      </div>
+      <div class="comm-photo reveal" style="transition-delay:0.15s">
+        <img src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=600&q=80&fit=crop&auto=format" alt="Community" loading="lazy">
+        <div class="comm-photo-overlay"><span class="comm-tag">@PETER_H</span></div>
+      </div>
+      <div class="comm-photo reveal" style="transition-delay:0.2s">
+        <img src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=600&q=80&fit=crop&auto=format" alt="Community" loading="lazy">
+        <div class="comm-photo-overlay"><span class="comm-tag">@TOBIAS_W</span></div>
+      </div>
+      <div class="comm-photo reveal" style="transition-delay:0.25s">
+        <img src="https://images.unsplash.com/photo-1519345182560-3f2917c472ef?w=600&q=80&fit=crop&auto=format" alt="Community" loading="lazy">
+        <div class="comm-photo-overlay"><span class="comm-tag">@FELIX_M</span></div>
+      </div>
+      <div class="comm-photo reveal" style="transition-delay:0.3s">
+        <img src="https://images.unsplash.com/photo-1463453091185-61582044d556?w=600&q=80&fit=crop&auto=format" alt="Community" loading="lazy">
+        <div class="comm-photo-overlay"><span class="comm-tag">@LUKAS_S</span></div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CAMPAIGN VIDEO -->
+<div class="campaign-video">
+  <video autoplay muted loop playsinline src="../assets/portfolio/videos/clothing-brand-ads-2.mp4"></video>
+  <div class="campaign-video-overlay">
+    <div class="cv-tag">Campaign Film</div>
+    <h2>Forged,<br>not made</h2>
+    <p>A campaign produced by CLVSN — raw industrial direction for the brand built from the workshop floor up.</p>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div>
+      <div class="footer-brand-name">WERKHAUS</div>
+      <div class="footer-brand-sub">// BERLIN — EST. 2018</div>
+      <p class="footer-tagline">Built different. Worn hard.<br>Designed in Berlin.</p>
+      <div class="footer-socials">
+        <a href="#" class="footer-social-btn">ig</a>
+        <a href="#" class="footer-social-btn">tw</a>
+        <a href="#" class="footer-social-btn">tt</a>
+        <a href="#" class="footer-social-btn">yt</a>
+      </div>
+    </div>
+    <div>
+      <div class="footer-col-title">// Shop</div>
+      <ul class="footer-col-links">
+        <li><a href="#">WW26 Collection</a></li>
+        <li><a href="#">Jackets</a></li>
+        <li><a href="#">Bottoms</a></li>
+        <li><a href="#">Tops</a></li>
+        <li><a href="#">Accessories</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">// Brand</div>
+      <ul class="footer-col-links">
+        <li><a href="#">Our Heritage</a></li>
+        <li><a href="#">Materials Lab</a></li>
+        <li><a href="#">Craftmanship</a></li>
+        <li><a href="#">Berlin Studio</a></li>
+        <li><a href="#">Stockists</a></li>
+      </ul>
+    </div>
+    <div>
+      <div class="footer-col-title">// Support</div>
+      <ul class="footer-col-links">
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">Shipping</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Care Guide</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <span class="footer-copy">// © 2026 WERKHAUS — BERLIN. ALL RIGHTS RESERVED.</span>
+    <div class="footer-legal">
+      <a href="#">Privacy</a>
+      <a href="#">Terms</a>
+      <a href="#">Cookies</a>
+    </div>
+  </div>
+</footer>
+
+<script>
+// ── CURSOR ──
+const cursor = document.getElementById('cursor');
+const crosshair = document.getElementById('cursor-crosshair');
+let mx = 0, my = 0, cx = 0, cy = 0;
+
+document.addEventListener('mousemove', e => {
+  mx = e.clientX;
+  my = e.clientY;
+  cursor.style.left = mx + 'px';
+  cursor.style.top = my + 'px';
+});
+
+function animateCrosshair() {
+  cx += (mx - cx) * 0.11;
+  cy += (my - cy) * 0.11;
+  crosshair.style.left = cx + 'px';
+  crosshair.style.top = cy + 'px';
+  requestAnimationFrame(animateCrosshair);
+}
+animateCrosshair();
+
+document.querySelectorAll('a, button, .product-card, .spec-card, .comm-photo').forEach(el => {
+  el.addEventListener('mouseenter', () => { cursor.classList.add('hover'); crosshair.classList.add('hover'); });
+  el.addEventListener('mouseleave', () => { cursor.classList.remove('hover'); crosshair.classList.remove('hover'); });
+});
+
+// ── SCROLL PROGRESS ──
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const pct = (window.scrollY / (document.body.scrollHeight - window.innerHeight)) * 100;
+  progressBar.style.width = pct + '%';
+}, { passive: true });
+
+// ── NAV ──
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ── HERO PARALLAX ──
+const heroBg = document.getElementById('heroBg');
+const dropBg = document.getElementById('dropBg');
+window.addEventListener('scroll', () => {
+  const sy = window.scrollY;
+  if (sy < window.innerHeight * 1.5) {
+    heroBg.style.transform = `scale(1.08) translateY(${sy * 0.25}px)`;
+  }
+}, { passive: true });
+
+// ── MOBILE MENU ──
+const hamburger = document.getElementById('hamburger');
+const mobileMenu = document.getElementById('mobileMenu');
+hamburger.addEventListener('click', () => {
+  hamburger.classList.toggle('active');
+  mobileMenu.classList.toggle('open');
+  document.body.style.overflow = mobileMenu.classList.contains('open') ? 'hidden' : '';
+});
+mobileMenu.querySelectorAll('a').forEach(a => {
+  a.addEventListener('click', () => {
+    hamburger.classList.remove('active');
+    mobileMenu.classList.remove('open');
+    document.body.style.overflow = '';
+  });
+});
+
+// ── SCROLL REVEAL ──
+const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+const revealObs = new IntersectionObserver(entries => {
+  entries.forEach(e => { if (e.isIntersecting) e.target.classList.add('visible'); });
+}, { threshold: 0.1, rootMargin: '0px 0px -50px 0px' });
+reveals.forEach(el => revealObs.observe(el));
+
+// ── 3D TILT ──
+document.querySelectorAll('.tilt-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    card.style.transform = `perspective(1200px) rotateY(${x * 10}deg) rotateX(${-y * 10}deg) translateZ(8px)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(1200px) rotateY(0) rotateX(0) translateZ(0)';
+    card.style.transition = 'transform 0.6s ease';
+  });
+  card.addEventListener('mouseenter', () => { card.style.transition = 'transform 0.08s ease'; });
+});
+
+// ── MAGNETIC BUTTONS ──
+document.querySelectorAll('.btn-amber, .btn-outline, .nav-shop').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const rect = btn.getBoundingClientRect();
+    const x = (e.clientX - rect.left - rect.width / 2) * 0.3;
+    const y = (e.clientY - rect.top - rect.height / 2) * 0.3;
+    btn.style.transform = `translate(${x}px, ${y}px)`;
+  });
+  btn.addEventListener('mouseleave', () => {
+    btn.style.transform = '';
+    btn.style.transition = 'transform 0.4s ease, background 0.3s';
+  });
+  btn.addEventListener('mouseenter', () => { btn.style.transition = 'transform 0.08s ease, background 0.3s'; });
+});
+
+// ── RIPPLE ──
+document.querySelectorAll('.btn-amber, .btn-outline').forEach(btn => {
+  btn.addEventListener('click', e => {
+    const rect = btn.getBoundingClientRect();
+    const size = Math.max(rect.width, rect.height) * 2;
+    const ripple = document.createElement('span');
+    ripple.style.cssText = `
+      position:absolute;width:${size}px;height:${size}px;
+      left:${e.clientX - rect.left - size/2}px;
+      top:${e.clientY - rect.top - size/2}px;
+      background:rgba(255,255,255,0.15);border-radius:50%;
+      transform:scale(0);animation:ripWerk 0.5s ease-out;
+      pointer-events:none;z-index:10;
+    `;
+    if (!document.getElementById('rw')) {
+      const s = document.createElement('style');
+      s.id = 'rw';
+      s.textContent = '@keyframes ripWerk{to{transform:scale(1.5);opacity:0}}';
+      document.head.appendChild(s);
+    }
+    btn.style.position = 'relative';
+    btn.style.overflow = 'hidden';
+    btn.appendChild(ripple);
+    setTimeout(() => ripple.remove(), 500);
+  });
+});
+
+// ── PIECE COUNTER COUNTDOWN ──
+const counter = document.getElementById('pieceCounter');
+if (counter) {
+  let pieces = 47;
+  setInterval(() => {
+    if (Math.random() < 0.08 && pieces > 1) {
+      pieces--;
+      counter.style.color = 'var(--amber)';
+      counter.textContent = pieces;
+      setTimeout(() => { counter.style.color = 'white'; counter.style.transition = 'color 0.5s'; }, 300);
+    }
+  }, 4000);
+}
+
+// ── SCANLINE EFFECT ON HERO ──
+const hero = document.querySelector('.hero');
+if (hero) {
+  const scanline = document.createElement('div');
+  scanline.style.cssText = `
+    position:absolute;inset:0;pointer-events:none;z-index:3;
+    background:repeating-linear-gradient(
+      0deg,
+      transparent,
+      transparent 3px,
+      rgba(0,0,0,0.03) 3px,
+      rgba(0,0,0,0.03) 4px
+    );
+  `;
+  hero.appendChild(scanline);
+}
+</script>
+</body>
+</html>

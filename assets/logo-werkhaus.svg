@@ -1,0 +1,12 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- WERKHAUS — Industrial W, truss/scaffold construction -->
+  <!-- Left V -->
+  <polygon points="18,42 50,42 80,145 65,145 40,60 32,60" fill="#F0A500"/>
+  <!-- Middle peak (shared) -->
+  <polygon points="65,145 80,145 100,82 120,145 135,145 100,60" fill="#F0A500"/>
+  <!-- Right V -->
+  <polygon points="120,145 135,145 160,60 168,60 150,145 182,145 182,42 150,42" fill="#F0A500"/>
+  <!-- Horizontal connecting bars (industrial feel) -->
+  <rect x="18" y="56" width="164" height="5" fill="#F0A500" opacity="0.35" rx="2"/>
+  <rect x="18" y="38" width="164" height="5" fill="#F0A500" opacity="0.35" rx="2"/>
+</svg>

@@ -1,0 +1,11 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- CÔTE — Minimal wave horizon, coastal luxury -->
+  <g fill="none" stroke="#5BAFD6" stroke-linecap="round">
+    <!-- Three wave lines stacked -->
+    <path d="M30,75 Q65,58 100,75 Q135,92 170,75" stroke-width="4"/>
+    <path d="M30,100 Q65,83 100,100 Q135,117 170,100" stroke-width="5.5"/>
+    <path d="M30,125 Q65,108 100,125 Q135,142 170,125" stroke-width="3"/>
+  </g>
+  <!-- Wordmark -->
+  <text x="100" y="168" font-family="Cormorant Garamond,Georgia,serif" font-size="28" font-weight="400" letter-spacing="14" fill="#0A1628" text-anchor="middle" dominant-baseline="middle">CÔTE</text>
+</svg>

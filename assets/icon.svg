@@ -1,0 +1,16 @@
+<svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+  <!-- CLVSN Triskelion — three rotating spiral arms -->
+  <g transform="translate(50,50)" fill="none" stroke="white" stroke-linecap="round" stroke-linejoin="round">
+    <!-- Arm 1 (pointing up-right, sweeping clockwise) -->
+    <path d="M1,-2 C6,-10 12,-22 8,-34 C4,-44 -8,-46 -14,-38 C-18,-30 -12,-20 -4,-16"
+          stroke-width="7.5"/>
+    <!-- Arm 2 (rotated 120°) -->
+    <path d="M1,-2 C6,-10 12,-22 8,-34 C4,-44 -8,-46 -14,-38 C-18,-30 -12,-20 -4,-16"
+          stroke-width="7.5" transform="rotate(120,0,0)"/>
+    <!-- Arm 3 (rotated 240°) -->
+    <path d="M1,-2 C6,-10 12,-22 8,-34 C4,-44 -8,-46 -14,-38 C-18,-30 -12,-20 -4,-16"
+          stroke-width="7.5" transform="rotate(240,0,0)"/>
+    <!-- Center dot -->
+    <circle cx="0" cy="0" r="4" fill="white" stroke="none"/>
+  </g>
+</svg>

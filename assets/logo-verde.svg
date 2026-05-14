@@ -1,0 +1,20 @@
+<svg viewBox="0 0 200 200" xmlns="http://www.w3.org/2000/svg">
+  <!-- VERDÉ — Three-stem botanical sprout in circle -->
+  <circle cx="100" cy="100" r="82" fill="none" stroke="#2D5A27" stroke-width="3"/>
+  <!-- Center stem -->
+  <path d="M100,148 L100,75" stroke="#2D5A27" stroke-width="3.5" stroke-linecap="round" fill="none"/>
+  <!-- Center leaf -->
+  <path d="M100,75 C84,60 80,38 100,34 C120,38 116,60 100,75 Z" fill="#9DC88D"/>
+  <!-- Left stem -->
+  <path d="M100,135 C85,125 72,115 68,95" stroke="#2D5A27" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <!-- Left leaf -->
+  <path d="M68,95 C55,82 52,62 68,58 C82,58 85,76 68,95 Z" fill="#2D5A27"/>
+  <!-- Right stem -->
+  <path d="M100,130 C115,120 128,110 132,90" stroke="#2D5A27" stroke-width="2.5" stroke-linecap="round" fill="none"/>
+  <!-- Right leaf -->
+  <path d="M132,90 C145,77 148,57 132,53 C118,53 115,71 132,90 Z" fill="#9DC88D" opacity="0.85"/>
+  <!-- Root dots -->
+  <circle cx="100" cy="155" r="3" fill="#2D5A27"/>
+  <circle cx="92" cy="158" r="2" fill="#2D5A27" opacity="0.6"/>
+  <circle cx="108" cy="158" r="2" fill="#2D5A27" opacity="0.6"/>
+</svg>

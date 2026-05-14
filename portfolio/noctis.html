@@ -1,0 +1,1222 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>NOCTIS — Dressed in Darkness</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@400;600;700&family=Space+Grotesk:wght@300;400;500&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & BASE ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+
+:root {
+  --black: #030303;
+  --surface: #0D0D0D;
+  --red: #6B0000;
+  --red-bright: #8B0000;
+  --silver: #B0B0B0;
+  --white: #FFFFFF;
+  --font-head: 'Rajdhani', sans-serif;
+  --font-body: 'Space Grotesk', sans-serif;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+  background: var(--black);
+  color: var(--white);
+  font-family: var(--font-body);
+  cursor: none;
+  overflow-x: hidden;
+}
+
+/* ===== CUSTOM CURSOR ===== */
+#cursor {
+  position: fixed;
+  width: 8px;
+  height: 8px;
+  background: var(--red-bright);
+  border-radius: 50%;
+  pointer-events: none;
+  z-index: 99999;
+  transform: translate(-50%, -50%);
+  transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease, background 0.2s ease;
+  mix-blend-mode: normal;
+}
+
+#cursor.hover {
+  width: 20px;
+  height: 20px;
+  background: rgba(139,0,0,0.6);
+}
+
+/* ===== SCROLL PROGRESS BAR ===== */
+#progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  background: linear-gradient(90deg, var(--red) 0%, var(--red-bright) 50%, #CC0000 100%);
+  z-index: 9998;
+  width: 0%;
+  transition: width 0.05s linear;
+  box-shadow: 0 0 8px var(--red);
+}
+
+/* ===== NAVIGATION ===== */
+nav {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+  padding: 24px 48px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: transparent;
+  transition: background 0.4s ease, padding 0.4s ease;
+}
+
+nav.scrolled {
+  background: rgba(3,3,3,0.95);
+  padding: 16px 48px;
+  border-bottom: 1px solid rgba(107,0,0,0.3);
+  backdrop-filter: blur(12px);
+}
+
+.nav-logo {
+  font-family: var(--font-head);
+  font-size: 28px;
+  font-weight: 700;
+  letter-spacing: 6px;
+  color: var(--silver);
+  text-decoration: none;
+  text-transform: uppercase;
+}
+
+.nav-links {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  list-style: none;
+}
+
+.nav-links a {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--silver);
+  text-decoration: none;
+  position: relative;
+  transition: color 0.3s ease;
+}
+
+.nav-links a::after {
+  content: '';
+  position: absolute;
+  bottom: -3px;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--red-bright);
+  transition: width 0.3s ease;
+}
+
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { width: 100%; }
+
+.nav-cta {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: rgba(139,0,0,0.7);
+  text-decoration: none;
+  border: 1px solid rgba(139,0,0,0.3);
+  padding: 8px 16px;
+  transition: all 0.3s ease;
+}
+
+.nav-cta:hover {
+  color: var(--red-bright) !important;
+  border-color: var(--red-bright) !important;
+  background: rgba(107,0,0,0.1);
+}
+
+.nav-cta::after { display: none !important; }
+
+/* ===== HERO ===== */
+.hero {
+  position: relative;
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  background: var(--black);
+}
+
+.hero-bg {
+  position: absolute;
+  inset: 0;
+  background-image: url('https://images.unsplash.com/photo-1509631179647-0177331693ae?w=1800&q=80');
+  background-size: cover;
+  background-position: center;
+  opacity: 0.4;
+  filter: brightness(0.3) contrast(1.2) grayscale(0.3);
+  transform: scale(1.05);
+  animation: heroParallax 20s ease-in-out infinite alternate;
+}
+
+@keyframes heroParallax {
+  from { transform: scale(1.05) translateY(0px); }
+  to { transform: scale(1.08) translateY(-20px); }
+}
+
+.hero-content {
+  position: relative;
+  z-index: 2;
+  text-align: center;
+}
+
+.hero-title {
+  font-family: var(--font-head);
+  font-size: clamp(80px, 14vw, 180px);
+  font-weight: 700;
+  letter-spacing: 20px;
+  line-height: 1;
+  color: var(--white);
+  text-shadow: 0 0 60px rgba(139,0,0,0.4), 0 0 120px rgba(139,0,0,0.15);
+  display: flex;
+  justify-content: center;
+  gap: 0;
+  overflow: hidden;
+}
+
+.hero-title .letter {
+  display: inline-block;
+  opacity: 0;
+  transform: translateY(60px);
+  animation: letterReveal 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+  animation-delay: calc(var(--i) * 0.1s + 0.3s);
+}
+
+@keyframes letterReveal {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.hero-title .letter:hover {
+  color: var(--red-bright);
+  text-shadow: 0 0 30px rgba(139,0,0,0.8);
+  transition: all 0.2s ease;
+}
+
+/* Glitch effect */
+.hero-title {
+  animation: glitchFloat 8s ease-in-out infinite;
+}
+
+@keyframes glitchFloat {
+  0%, 90%, 100% { transform: none; filter: none; }
+  91% { transform: translateX(-2px); filter: blur(0.5px); }
+  92% { transform: translateX(2px) skewX(-1deg); }
+  93% { transform: translateX(-1px); filter: none; }
+  94% { transform: translateX(1px) skewX(0.5deg); }
+  95% { transform: none; }
+}
+
+.hero-tagline {
+  font-family: var(--font-body);
+  font-size: 11px;
+  letter-spacing: 8px;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-top: 24px;
+  opacity: 0;
+  animation: fadeUp 1s ease forwards 1.2s;
+}
+
+.hero-sub {
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 4px;
+  color: rgba(176,176,176,0.5);
+  text-transform: uppercase;
+  margin-top: 12px;
+  opacity: 0;
+  animation: fadeUp 1s ease forwards 1.5s;
+}
+
+.hero-cta {
+  display: inline-block;
+  margin-top: 48px;
+  font-family: var(--font-body);
+  font-size: 10px;
+  letter-spacing: 4px;
+  text-transform: uppercase;
+  color: var(--silver);
+  border: 1px solid rgba(176,176,176,0.25);
+  padding: 14px 36px;
+  text-decoration: none;
+  position: relative;
+  overflow: hidden;
+  opacity: 0;
+  animation: fadeUp 1s ease forwards 1.8s;
+  transition: all 0.4s ease;
+}
+
+.hero-cta::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: var(--red);
+  transform: translateX(-100%);
+  transition: transform 0.4s ease;
+}
+
+.hero-cta:hover {
+  color: var(--white);
+  border-color: var(--red-bright);
+}
+
+.hero-cta:hover::before { transform: translateX(0); }
+
+.hero-cta span { position: relative; z-index: 1; }
+
+/* ===== SCROLL INDICATOR ===== */
+.scroll-indicator {
+  position: absolute;
+  bottom: 40px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 2;
+  opacity: 0;
+  animation: fadeUp 1s ease forwards 2.2s;
+}
+
+.scroll-indicator span {
+  display: block;
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(176,176,176,0.4);
+  text-transform: uppercase;
+  text-align: center;
+  margin-bottom: 12px;
+}
+
+.scroll-line {
+  width: 1px;
+  height: 40px;
+  background: linear-gradient(to bottom, var(--red), transparent);
+  margin: 0 auto;
+  animation: scrollPulse 2s ease-in-out infinite;
+}
+
+@keyframes scrollPulse {
+  0%, 100% { opacity: 0.3; transform: scaleY(1); }
+  50% { opacity: 1; transform: scaleY(1.2); }
+}
+
+/* ===== DIVIDER ===== */
+.red-divider {
+  width: 100%;
+  height: 1px;
+  background: var(--red);
+  position: relative;
+}
+
+.divider-text {
+  text-align: center;
+  padding: 20px 0;
+  font-family: var(--font-body);
+  font-size: 9px;
+  letter-spacing: 5px;
+  color: rgba(176,176,176,0.4);
+  text-transform: uppercase;
+}
+
+/* ===== EDITORIAL LOOKBOOK ===== */
+.lookbook {
+  padding: 100px 48px;
+  background: var(--surface);
+}
+
+.section-header {
+  margin-bottom: 60px;
+}
+
+.section-label {
+  font-size: 9px;
+  letter-spacing: 5px;
+  color: var(--red-bright);
+  text-transform: uppercase;
+  margin-bottom: 12px;
+  display: block;
+}
+
+.section-title {
+  font-family: var(--font-head);
+  font-size: clamp(32px, 5vw, 64px);
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--white);
+  text-transform: uppercase;
+}
+
+.lookbook-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: auto;
+  gap: 4px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.lookbook-item {
+  position: relative;
+  overflow: hidden;
+  cursor: none;
+}
+
+.lookbook-item.large {
+  grid-row: 1 / 3;
+  aspect-ratio: 3/4;
+}
+
+.lookbook-item.small {
+  aspect-ratio: 4/3;
+}
+
+.lookbook-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  display: block;
+  filter: brightness(0.5) contrast(1.3) saturate(0.4);
+  transform: scale(1);
+  transition: transform 0.8s cubic-bezier(0.16, 1, 0.3, 1), filter 0.8s ease;
+}
+
+.lookbook-item:hover img {
+  transform: scale(1.06);
+  filter: brightness(0.35) contrast(1.4) saturate(0.3);
+}
+
+.lookbook-overlay {
+  position: absolute;
+  inset: 0;
+  background: rgba(107,0,0,0);
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-end;
+  padding: 32px;
+  transition: background 0.5s ease;
+}
+
+.lookbook-item:hover .lookbook-overlay {
+  background: rgba(107,0,0,0.55);
+}
+
+.lookbook-piece-name {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--white);
+  text-transform: uppercase;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.4s ease 0.1s;
+}
+
+.lookbook-piece-num {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: rgba(255,255,255,0.6);
+  text-transform: uppercase;
+  transform: translateY(20px);
+  opacity: 0;
+  transition: all 0.4s ease;
+  margin-bottom: 8px;
+}
+
+.lookbook-item:hover .lookbook-piece-name,
+.lookbook-item:hover .lookbook-piece-num {
+  transform: translateY(0);
+  opacity: 1;
+}
+
+/* ===== PRODUCTS ===== */
+.products {
+  padding: 100px 48px;
+  background: var(--black);
+}
+
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+  max-width: 1000px;
+  margin: 60px auto 0;
+}
+
+.product-card {
+  background: var(--surface);
+  padding: 48px 36px;
+  position: relative;
+  overflow: hidden;
+  cursor: none;
+  transform-style: preserve-3d;
+  transition: transform 0.15s ease;
+}
+
+.product-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  width: 0;
+  height: 1px;
+  background: var(--red-bright);
+  transition: width 0.5s ease;
+  box-shadow: 0 0 6px var(--red);
+}
+
+.product-card:hover::after { width: 100%; }
+
+.product-card::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(139,0,0,0.03) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.product-card:hover::before { opacity: 1; }
+
+.product-number {
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: rgba(107,0,0,0.6);
+  margin-bottom: 32px;
+  display: block;
+}
+
+.product-name {
+  font-family: var(--font-head);
+  font-size: 22px;
+  font-weight: 700;
+  letter-spacing: 3px;
+  color: var(--white);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  display: block;
+}
+
+.product-material {
+  font-size: 10px;
+  letter-spacing: 2px;
+  color: rgba(176,176,176,0.4);
+  text-transform: uppercase;
+  margin-bottom: 40px;
+  display: block;
+}
+
+.product-price {
+  font-family: var(--font-head);
+  font-size: 28px;
+  font-weight: 700;
+  color: var(--silver);
+  letter-spacing: 2px;
+}
+
+.product-arrow {
+  position: absolute;
+  bottom: 24px;
+  right: 24px;
+  font-size: 16px;
+  color: rgba(107,0,0,0);
+  transition: all 0.3s ease;
+  transform: translateX(-10px);
+}
+
+.product-card:hover .product-arrow {
+  color: var(--red-bright);
+  transform: translateX(0);
+}
+
+/* ===== MANIFESTO ===== */
+.manifesto {
+  padding: 120px 48px;
+  background: var(--red);
+  text-align: center;
+  position: relative;
+  overflow: hidden;
+}
+
+.manifesto::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(ellipse at center, rgba(0,0,0,0) 40%, rgba(0,0,0,0.5) 100%);
+}
+
+.manifesto-main {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-head);
+  font-size: clamp(28px, 5vw, 64px);
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--white);
+  text-transform: uppercase;
+  line-height: 1.2;
+  max-width: 900px;
+  margin: 0 auto 48px;
+}
+
+.manifesto-text {
+  position: relative;
+  z-index: 1;
+  font-size: 14px;
+  line-height: 2;
+  color: rgba(255,255,255,0.7);
+  max-width: 600px;
+  margin: 0 auto;
+  letter-spacing: 0.5px;
+}
+
+/* ===== ARCHIVE ===== */
+.archive {
+  padding: 100px 48px;
+  background: var(--surface);
+  overflow: hidden;
+}
+
+.archive-row {
+  display: flex;
+  gap: 2px;
+  margin-top: 60px;
+  overflow: hidden;
+}
+
+.archive-item {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  aspect-ratio: 3/4;
+  filter: grayscale(1) brightness(0.4);
+  transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+  cursor: none;
+}
+
+.archive-item:hover {
+  filter: grayscale(0.7) brightness(0.6);
+  flex: 1.4;
+}
+
+.archive-item img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  transform: scale(1.1);
+  transition: transform 0.6s ease;
+}
+
+.archive-item:hover img { transform: scale(1); }
+
+.archive-label {
+  position: absolute;
+  bottom: 24px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-family: var(--font-head);
+  font-size: 12px;
+  letter-spacing: 4px;
+  color: var(--silver);
+  text-transform: uppercase;
+  z-index: 2;
+}
+
+.archive-item::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(107,0,0,0.4) 0%, transparent 60%);
+  opacity: 0;
+  transition: opacity 0.4s ease;
+}
+
+.archive-item:hover::after { opacity: 1; }
+
+/* ===== CONTACT ===== */
+.contact {
+  padding: 100px 48px;
+  background: var(--black);
+  text-align: center;
+}
+
+.contact-title {
+  font-size: 9px;
+  letter-spacing: 6px;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 40px;
+}
+
+.contact-email-link {
+  font-family: var(--font-head);
+  font-size: clamp(20px, 3vw, 36px);
+  font-weight: 700;
+  letter-spacing: 4px;
+  color: var(--silver);
+  text-decoration: none;
+  text-transform: uppercase;
+  display: block;
+  margin-bottom: 12px;
+  transition: color 0.3s ease;
+  position: relative;
+}
+
+.contact-email-link::after {
+  content: '';
+  position: absolute;
+  bottom: -4px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 0;
+  height: 1px;
+  background: var(--red-bright);
+  transition: width 0.4s ease;
+}
+
+.contact-email-link:hover { color: var(--white); }
+.contact-email-link:hover::after { width: 80%; }
+
+.contact-ig {
+  font-size: 10px;
+  letter-spacing: 3px;
+  color: rgba(176,176,176,0.4);
+  text-transform: uppercase;
+  margin-bottom: 60px;
+}
+
+.contact-form {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0;
+  max-width: 480px;
+  margin: 0 auto;
+  border-bottom: 1px solid rgba(176,176,176,0.15);
+}
+
+.contact-input {
+  flex: 1;
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 16px 0;
+  font-family: var(--font-body);
+  font-size: 12px;
+  letter-spacing: 2px;
+  color: var(--white);
+  caret-color: var(--red-bright);
+}
+
+.contact-input::placeholder {
+  color: rgba(176,176,176,0.25);
+  text-transform: uppercase;
+  letter-spacing: 3px;
+}
+
+.contact-submit {
+  background: transparent;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 9px;
+  letter-spacing: 4px;
+  color: var(--red-bright);
+  text-transform: uppercase;
+  cursor: none;
+  padding: 16px 0;
+  transition: color 0.3s ease;
+}
+
+.contact-submit:hover { color: var(--white); }
+
+/* ===== FOOTER ===== */
+footer {
+  padding: 48px;
+  background: var(--black);
+  border-top: 1px solid rgba(107,0,0,0.2);
+  text-align: center;
+}
+
+.footer-logo {
+  font-family: var(--font-head);
+  font-size: 20px;
+  font-weight: 700;
+  letter-spacing: 8px;
+  color: var(--silver);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+  display: block;
+}
+
+.footer-copy {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(176,176,176,0.25);
+  text-transform: uppercase;
+  margin-bottom: 20px;
+}
+
+.footer-socials {
+  display: flex;
+  justify-content: center;
+  gap: 32px;
+}
+
+.footer-socials a {
+  font-size: 9px;
+  letter-spacing: 3px;
+  color: rgba(176,176,176,0.3);
+  text-decoration: none;
+  text-transform: uppercase;
+  transition: color 0.3s ease;
+}
+
+.footer-socials a:hover { color: var(--silver); }
+
+/* ===== ANIMATE ON SCROLL ===== */
+.reveal {
+  opacity: 0;
+  transform: translateY(40px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.reveal-left {
+  opacity: 0;
+  transform: translateX(-40px);
+  transition: opacity 0.8s ease, transform 0.8s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.reveal-left.visible {
+  opacity: 1;
+  transform: translateX(0);
+}
+
+.stagger-child {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 0.7s ease, transform 0.7s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.stagger-child.visible {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+@keyframes fadeUp {
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== MARQUEE ===== */
+.marquee-strip {
+  overflow: hidden;
+  padding: 16px 0;
+  background: rgba(107,0,0,0.08);
+  border-top: 1px solid rgba(107,0,0,0.2);
+  border-bottom: 1px solid rgba(107,0,0,0.2);
+}
+
+.marquee-inner {
+  display: flex;
+  gap: 80px;
+  animation: marqueeScroll 25s linear infinite;
+  white-space: nowrap;
+}
+
+.marquee-inner span {
+  font-size: 9px;
+  letter-spacing: 5px;
+  color: rgba(107,0,0,0.7);
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+@keyframes marqueeScroll {
+  from { transform: translateX(0); }
+  to { transform: translateX(-50%); }
+}
+
+/* ===== NOISE TEXTURE ===== */
+body::after {
+  content: '';
+  position: fixed;
+  inset: 0;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.04'/%3E%3C/svg%3E");
+  pointer-events: none;
+  z-index: 99990;
+  opacity: 0.4;
+}
+
+/* ===== MOBILE ===== */
+@media (max-width: 768px) {
+  nav { padding: 20px 24px; }
+  nav.scrolled { padding: 14px 24px; }
+  .nav-links { display: none; }
+
+  .hero-title { font-size: clamp(56px, 18vw, 100px); letter-spacing: 8px; }
+
+  .lookbook { padding: 60px 24px; }
+  .lookbook-grid { grid-template-columns: 1fr; }
+  .lookbook-item.large { grid-row: auto; }
+
+  .products { padding: 60px 24px; }
+  .products-grid { grid-template-columns: 1fr; gap: 2px; }
+
+  .manifesto { padding: 80px 24px; }
+
+  .archive { padding: 60px 24px; }
+  .archive-row { flex-direction: column; }
+  .archive-item { flex: none; aspect-ratio: 16/9; }
+  .archive-item:hover { flex: none; }
+
+  .contact { padding: 60px 24px; }
+
+  footer { padding: 32px 24px; }
+}
+  /* ── CAMPAIGN VIDEO ── */
+  .campaign-video { position: relative; overflow: hidden; background: #030303; }
+  .campaign-video video { width: 100%; height: 70vh; object-fit: cover; opacity: 0.5; display: block; }
+  .campaign-video-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+  }
+  .campaign-video-overlay .cv-tag {
+    font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #8B0000; margin-bottom: 1rem;
+  }
+  .campaign-video-overlay h2 {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    color: #B0B0B0; line-height: 1.1; margin-bottom: 1.4rem;
+  }
+  .campaign-video-overlay p {
+    color: rgba(255,255,255,0.65); font-size: 1rem; max-width: 480px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- Cursor -->
+<div id="cursor"></div>
+
+<!-- Progress Bar -->
+<div id="progress-bar"></div>
+
+<!-- Navigation -->
+<nav id="navbar">
+  <a href="#" class="nav-logo" style="display:flex;align-items:center;gap:10px;">
+    <img src="../assets/logo-noctis.svg" style="height:36px;" alt="NOCTIS">
+    NOCTIS
+  </a>
+  <ul class="nav-links">
+    <li><a href="#lookbook">Collections</a></li>
+    <li><a href="#archive">Archive</a></li>
+    <li><a href="#manifesto">Manifesto</a></li>
+    <li><a href="#contact" class="nav-cta">[ENTER THE DARK]</a></li>
+  </ul>
+</nav>
+
+<!-- Hero -->
+<section class="hero" id="hero">
+  <div class="hero-bg"></div>
+  <div class="hero-content">
+    <h1 class="hero-title" id="heroTitle" aria-label="NOCTIS"></h1>
+    <p class="hero-tagline">Dressed in Darkness</p>
+    <p class="hero-sub">AW26 Collection — Now Available</p>
+    <a href="#lookbook" class="hero-cta"><span>Explore the Collection</span></a>
+  </div>
+  <div class="scroll-indicator">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<!-- Red Divider -->
+<div class="red-divider"></div>
+<div class="divider-text">Autumn/Winter 2026 — Collection 08</div>
+<div class="red-divider"></div>
+
+<!-- Marquee -->
+<div class="marquee-strip">
+  <div class="marquee-inner">
+    <span>NOCTIS</span>
+    <span>—</span>
+    <span>Darkness By Design</span>
+    <span>—</span>
+    <span>AW26</span>
+    <span>—</span>
+    <span>Collection 08</span>
+    <span>—</span>
+    <span>Dressed in Darkness</span>
+    <span>—</span>
+    <span>NOCTIS</span>
+    <span>—</span>
+    <span>Darkness By Design</span>
+    <span>—</span>
+    <span>AW26</span>
+    <span>—</span>
+    <span>Collection 08</span>
+    <span>—</span>
+    <span>Dressed in Darkness</span>
+    <span>—</span>
+  </div>
+</div>
+
+<!-- Editorial Lookbook -->
+<section class="lookbook" id="lookbook">
+  <div class="section-header reveal">
+    <span class="section-label">Editorial</span>
+    <h2 class="section-title">Collection 08 — AW26</h2>
+  </div>
+  <div class="lookbook-grid">
+    <div class="lookbook-item large reveal-left" style="transition-delay:0.1s">
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=900&q=80&fit=crop&auto=format" alt="Shadow Coat Editorial" loading="lazy">
+      <div class="lookbook-overlay">
+        <span class="lookbook-piece-num">01 — AW26</span>
+        <span class="lookbook-piece-name">The Shadow Coat</span>
+      </div>
+    </div>
+    <div class="lookbook-item small reveal" style="transition-delay:0.2s">
+      <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=600&q=80&fit=crop&auto=format" alt="Void Jacket Editorial" loading="lazy">
+      <div class="lookbook-overlay">
+        <span class="lookbook-piece-num">02 — AW26</span>
+        <span class="lookbook-piece-name">Void Jacket</span>
+      </div>
+    </div>
+    <div class="lookbook-item small reveal" style="transition-delay:0.35s">
+      <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=600&q=80&fit=crop&auto=format" alt="Dark Matter Pants" loading="lazy">
+      <div class="lookbook-overlay">
+        <span class="lookbook-piece-num">03 — AW26</span>
+        <span class="lookbook-piece-name">Dark Matter</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- Products -->
+<section class="products" id="products">
+  <div class="section-header reveal" style="text-align:center">
+    <span class="section-label" style="display:block;text-align:center">The Pieces</span>
+    <h2 class="section-title">AW26 Selection</h2>
+  </div>
+  <div class="products-grid">
+    <div class="product-card stagger-child" data-tilt>
+      <span class="product-number">01</span>
+      <span class="product-name">Shadow Coat</span>
+      <span class="product-material">Deconstructed Wool</span>
+      <span class="product-price">€680</span>
+      <span class="product-arrow">→</span>
+    </div>
+    <div class="product-card stagger-child" data-tilt>
+      <span class="product-number">02</span>
+      <span class="product-name">Void Jacket</span>
+      <span class="product-material">Asymmetric Cut — Recycled Nylon</span>
+      <span class="product-price">€520</span>
+      <span class="product-arrow">→</span>
+    </div>
+    <div class="product-card stagger-child" data-tilt>
+      <span class="product-number">03</span>
+      <span class="product-name">Dark Matter Pants</span>
+      <span class="product-material">Avant-Garde Drape</span>
+      <span class="product-price">€310</span>
+      <span class="product-arrow">→</span>
+    </div>
+  </div>
+</section>
+
+<!-- Manifesto -->
+<section class="manifesto" id="manifesto">
+  <h2 class="manifesto-main reveal">We Don't Follow Trends. We Bury Them.</h2>
+  <p class="manifesto-text reveal" style="transition-delay:0.2s">
+    NOCTIS exists for those who understand that darkness is not absence — it is presence. A presence so absolute, so undeniable, that light becomes irrelevant. We construct garments from the space between shadows, from the silence before storms. Our collections are not seasonal artifacts. They are permanent statements. Each piece a manifesto worn on the body, a refusal to comply with the spectacle of fashion as entertainment.
+  </p>
+</section>
+
+<!-- Archive -->
+<section class="archive" id="archive">
+  <div class="section-header reveal">
+    <span class="section-label">History</span>
+    <h2 class="section-title">The Archive</h2>
+  </div>
+  <div class="archive-row">
+    <div class="archive-item reveal" style="transition-delay:0.05s">
+      <img src="https://images.unsplash.com/photo-1509631179647-0177331693ae?w=400&q=70&fit=crop&auto=format" alt="Collection 07" loading="lazy">
+      <span class="archive-label">Collection 07</span>
+    </div>
+    <div class="archive-item reveal" style="transition-delay:0.15s">
+      <img src="https://images.unsplash.com/photo-1558618666-fcd25c85cd64?w=400&q=70&fit=crop&auto=format" alt="Collection 06" loading="lazy">
+      <span class="archive-label">Collection 06</span>
+    </div>
+    <div class="archive-item reveal" style="transition-delay:0.25s">
+      <img src="https://images.unsplash.com/photo-1539109136881-3be0616acf4b?w=400&q=70&fit=crop&auto=format" alt="Collection 05" loading="lazy">
+      <span class="archive-label">Collection 05</span>
+    </div>
+    <div class="archive-item reveal" style="transition-delay:0.35s">
+      <img src="https://images.unsplash.com/photo-1551028719-00167b16eac5?w=400&q=70&fit=crop&auto=format" alt="Collection 04" loading="lazy">
+      <span class="archive-label">Collection 04</span>
+    </div>
+  </div>
+</section>
+
+<!-- Contact -->
+<section class="contact" id="contact">
+  <p class="contact-title reveal">Get in Touch</p>
+  <a href="mailto:studio@noctis.co" class="contact-email-link reveal" style="transition-delay:0.1s">studio@noctis.co</a>
+  <p class="contact-ig reveal" style="transition-delay:0.2s">@noctis</p>
+  <form class="contact-form reveal" style="transition-delay:0.3s" onsubmit="return false;">
+    <input type="email" class="contact-input" placeholder="Your email address">
+    <button type="submit" class="contact-submit">Enter</button>
+  </form>
+</section>
+
+<!-- Footer -->
+<!-- CAMPAIGN VIDEO -->
+<div class="campaign-video">
+  <video autoplay muted loop playsinline src="../assets/portfolio/videos/clothing-brand-ads-5.mp4"></video>
+  <div class="campaign-video-overlay">
+    <div class="cv-tag">Campaign Film</div>
+    <h2>Darkness<br>as identity</h2>
+    <p>A campaign produced by CLVSN — atmospheric visual direction for the brand that turns night into a statement.</p>
+  </div>
+</div>
+
+
+<footer>
+  <span class="footer-logo">NOCTIS</span>
+  <p class="footer-copy">© 2026 NOCTIS — Darkness By Design</p>
+  <div class="footer-socials">
+    <a href="#">Instagram</a>
+    <a href="#">Twitter</a>
+  </div>
+</footer>
+
+<script>
+// ===== CURSOR =====
+const cursor = document.getElementById('cursor');
+let cursorX = 0, cursorY = 0;
+let rafCursor;
+
+document.addEventListener('mousemove', (e) => {
+  cursorX = e.clientX;
+  cursorY = e.clientY;
+  if (!rafCursor) {
+    rafCursor = requestAnimationFrame(() => {
+      cursor.style.left = cursorX + 'px';
+      cursor.style.top = cursorY + 'px';
+      rafCursor = null;
+    });
+  }
+});
+
+document.querySelectorAll('a, button, .product-card, .lookbook-item, .archive-item').forEach(el => {
+  el.addEventListener('mouseenter', () => cursor.classList.add('hover'));
+  el.addEventListener('mouseleave', () => cursor.classList.remove('hover'));
+});
+
+// ===== PROGRESS BAR =====
+const progressBar = document.getElementById('progress-bar');
+window.addEventListener('scroll', () => {
+  const scrollTop = window.scrollY;
+  const docHeight = document.documentElement.scrollHeight - window.innerHeight;
+  const pct = docHeight > 0 ? (scrollTop / docHeight) * 100 : 0;
+  progressBar.style.width = pct + '%';
+}, { passive: true });
+
+// ===== NAVBAR SCROLL =====
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 60);
+}, { passive: true });
+
+// ===== HERO TITLE LETTER SPLIT =====
+const heroTitle = document.getElementById('heroTitle');
+const word = 'NOCTIS';
+word.split('').forEach((letter, i) => {
+  const span = document.createElement('span');
+  span.textContent = letter;
+  span.classList.add('letter');
+  span.style.setProperty('--i', i);
+  heroTitle.appendChild(span);
+});
+
+// ===== INTERSECTION OBSERVER — REVEAL =====
+const revealObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+    }
+  });
+}, { threshold: 0.12 });
+
+document.querySelectorAll('.reveal, .reveal-left').forEach(el => revealObserver.observe(el));
+
+// Staggered children
+const staggerObserver = new IntersectionObserver((entries) => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      const siblings = entry.target.parentElement.querySelectorAll('.stagger-child');
+      siblings.forEach((sib, idx) => {
+        setTimeout(() => sib.classList.add('visible'), idx * 120);
+      });
+      staggerObserver.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.15 });
+
+document.querySelectorAll('.stagger-child').forEach(el => staggerObserver.observe(el));
+
+// ===== 3D CARD TILT =====
+document.querySelectorAll('[data-tilt]').forEach(card => {
+  card.addEventListener('mousemove', (e) => {
+    const rect = card.getBoundingClientRect();
+    const x = e.clientX - rect.left;
+    const y = e.clientY - rect.top;
+    const cx = rect.width / 2;
+    const cy = rect.height / 2;
+    const rotX = ((y - cy) / cy) * -8;
+    const rotY = ((x - cx) / cx) * 8;
+    card.style.transform = `perspective(800px) rotateX(${rotX}deg) rotateY(${rotY}deg) translateZ(8px)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    card.style.transform = 'perspective(800px) rotateX(0) rotateY(0) translateZ(0)';
+  });
+});
+
+// ===== PARALLAX on scroll =====
+const heroBg = document.querySelector('.hero-bg');
+window.addEventListener('scroll', () => {
+  if (window.scrollY < window.innerHeight) {
+    const offset = window.scrollY * 0.3;
+    heroBg.style.transform = `scale(1.08) translateY(${offset}px)`;
+  }
+}, { passive: true });
+</script>
+</body>
+</html>

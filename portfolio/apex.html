@@ -1,0 +1,1278 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>APEX® — Engineer Your Form</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;600;700;800&family=Barlow:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+/* ===== RESET & VARIABLES ===== */
+*, *::before, *::after { margin: 0; padding: 0; box-sizing: border-box; }
+:root {
+  --bg: #050505;
+  --surface: #0E0E0E;
+  --surface2: #161616;
+  --white: #F5F5F5;
+  --light: #E8E8E8;
+  --red: #FF2D20;
+  --red-dim: rgba(255,45,32,0.12);
+  --red-glow: rgba(255,45,32,0.3);
+  --border: rgba(245,245,245,0.08);
+  --border-red: rgba(255,45,32,0.25);
+  --muted: rgba(245,245,245,0.45);
+}
+html { scroll-behavior: smooth; overflow-x: hidden; }
+body {
+  background: var(--bg);
+  color: var(--white);
+  font-family: 'Barlow', sans-serif;
+  cursor: none;
+  overflow-x: hidden;
+}
+
+/* ===== SCROLL PROGRESS ===== */
+#scroll-progress {
+  position: fixed; top: 0; left: 0; height: 3px;
+  background: var(--red);
+  width: 0%; z-index: 9999;
+  box-shadow: 0 0 12px var(--red-glow);
+  transition: width 0.08s linear;
+}
+
+/* ===== CURSOR — Crosshair theme ===== */
+#cursor-dot {
+  position: fixed; pointer-events: none; z-index: 9998;
+  width: 6px; height: 6px;
+  background: var(--red);
+  border-radius: 50%;
+  transform: translate(-50%, -50%);
+  transition: transform 0.08s, background 0.2s;
+}
+#cursor-cross {
+  position: fixed; pointer-events: none; z-index: 9997;
+  width: 28px; height: 28px;
+  transform: translate(-50%, -50%);
+  transition: transform 0.22s cubic-bezier(0.22,1,0.36,1), width 0.2s, height 0.2s;
+}
+#cursor-cross::before, #cursor-cross::after {
+  content: '';
+  position: absolute;
+  background: rgba(255,45,32,0.7);
+}
+#cursor-cross::before {
+  width: 1px; height: 100%;
+  left: 50%; top: 0; transform: translateX(-50%);
+}
+#cursor-cross::after {
+  height: 1px; width: 100%;
+  top: 50%; left: 0; transform: translateY(-50%);
+}
+/* Corner brackets */
+#cursor-bracket {
+  position: fixed; pointer-events: none; z-index: 9997;
+  width: 36px; height: 36px;
+  transform: translate(-50%, -50%);
+  transition: transform 0.25s cubic-bezier(0.22,1,0.36,1), width 0.25s, height 0.25s;
+}
+#cursor-bracket::before, #cursor-bracket::after {
+  content: '';
+  position: absolute;
+  width: 10px; height: 10px;
+  border-color: rgba(255,45,32,0.5);
+  border-style: solid;
+}
+#cursor-bracket::before {
+  top: 0; left: 0;
+  border-width: 1px 0 0 1px;
+}
+#cursor-bracket::after {
+  bottom: 0; right: 0;
+  border-width: 0 1px 1px 0;
+}
+body.cursor-hover #cursor-dot { transform: translate(-50%, -50%) scale(3); }
+body.cursor-hover #cursor-cross { width: 0; height: 0; opacity: 0; }
+body.cursor-hover #cursor-bracket { width: 60px; height: 60px; border-color: var(--red); }
+
+/* ===== NAVBAR ===== */
+nav {
+  position: fixed; top: 0; left: 0; right: 0; z-index: 1000;
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 24px 64px;
+  transition: background 0.4s, padding 0.4s;
+}
+nav.scrolled {
+  background: rgba(5,5,5,0.94);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  padding: 16px 64px;
+  border-bottom: 1px solid var(--border);
+}
+.nav-logo {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 30px; font-weight: 800;
+  letter-spacing: 6px; text-decoration: none;
+  color: var(--white);
+  position: relative;
+}
+.nav-logo sup {
+  font-size: 11px; font-weight: 600; letter-spacing: 1px;
+  vertical-align: super; color: var(--red); margin-left: 2px;
+}
+.nav-links { display: flex; align-items: center; gap: 40px; list-style: none; }
+.nav-links a {
+  color: var(--muted); text-decoration: none;
+  font-size: 12px; font-weight: 500; letter-spacing: 2px;
+  text-transform: uppercase;
+  transition: color 0.3s;
+  position: relative;
+}
+.nav-links a::after {
+  content: ''; position: absolute; bottom: -4px; left: 0;
+  width: 0; height: 1px; background: var(--red);
+  transition: width 0.3s;
+}
+.nav-links a:hover { color: var(--white); }
+.nav-links a:hover::after { width: 100%; }
+.btn-nav-red {
+  background: var(--red); color: var(--white);
+  padding: 10px 24px;
+  font-size: 11px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; text-decoration: none;
+  border: 1px solid var(--red);
+  transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+}
+.btn-nav-red:hover {
+  background: transparent; color: var(--red);
+  box-shadow: 0 0 24px var(--red-glow);
+  transform: translateY(-1px);
+}
+.nav-toggle { display: none; flex-direction: column; gap: 5px; background: none; border: none; cursor: none; }
+.nav-toggle span { display: block; width: 22px; height: 1px; background: var(--white); transition: transform 0.3s, opacity 0.3s; }
+
+/* ===== HERO — SPLIT LAYOUT ===== */
+.hero {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 60fr 40fr;
+  overflow: hidden;
+}
+.hero-visual {
+  position: relative; overflow: hidden;
+}
+.hero-img {
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transform: scale(1.06);
+  transition: transform 8s ease-out;
+  display: block;
+}
+.hero-img.loaded { transform: scale(1); }
+.hero-visual-overlay {
+  position: absolute; inset: 0;
+  background: linear-gradient(180deg, rgba(5,5,5,0.2) 0%, rgba(5,5,5,0.1) 50%, rgba(5,5,5,0.6) 100%);
+}
+/* Scan line effect */
+.hero-scanlines {
+  position: absolute; inset: 0; pointer-events: none;
+  background: repeating-linear-gradient(
+    0deg,
+    transparent,
+    transparent 2px,
+    rgba(0,0,0,0.04) 2px,
+    rgba(0,0,0,0.04) 4px
+  );
+}
+/* HUD corner brackets */
+.hero-hud {
+  position: absolute; inset: 32px;
+  pointer-events: none;
+}
+.hero-hud::before, .hero-hud::after {
+  content: '';
+  position: absolute;
+  width: 32px; height: 32px;
+  border-color: rgba(255,45,32,0.6);
+  border-style: solid;
+}
+.hero-hud::before { top: 0; left: 0; border-width: 2px 0 0 2px; }
+.hero-hud::after { bottom: 0; right: 0; border-width: 0 2px 2px 0; }
+.hero-hud-br {
+  position: absolute; bottom: 0; left: 0;
+  width: 32px; height: 32px;
+  border-left: 2px solid rgba(255,45,32,0.6);
+  border-bottom: 2px solid rgba(255,45,32,0.6);
+}
+.hero-hud-tr {
+  position: absolute; top: 0; right: 0;
+  width: 32px; height: 32px;
+  border-right: 2px solid rgba(255,45,32,0.6);
+  border-top: 2px solid rgba(255,45,32,0.6);
+}
+/* Metric overlays */
+.hero-metric {
+  position: absolute;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 10px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; color: rgba(255,255,255,0.5);
+  border: 1px solid rgba(255,255,255,0.1);
+  background: rgba(5,5,5,0.6);
+  padding: 6px 12px;
+  backdrop-filter: blur(4px);
+}
+.hero-metric-1 { bottom: 60px; left: 40px; }
+.hero-metric-2 { top: 100px; right: 40px; }
+.hero-metric span { color: var(--red); }
+
+.hero-panel {
+  background: var(--bg);
+  display: flex; flex-direction: column; justify-content: center;
+  padding: 120px 60px 80px;
+  position: relative;
+  border-left: 1px solid var(--border);
+}
+/* Background grid */
+.hero-panel::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,45,32,0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,45,32,0.04) 1px, transparent 1px);
+  background-size: 40px 40px;
+  mask-image: radial-gradient(ellipse at 30% 60%, black 0%, transparent 70%);
+}
+.hero-eyebrow {
+  display: inline-flex; align-items: center; gap: 8px;
+  font-size: 10px; font-weight: 600; letter-spacing: 5px;
+  text-transform: uppercase; color: var(--red);
+  margin-bottom: 28px;
+  opacity: 0; transform: translateX(-30px);
+  animation: slideRight 0.8s cubic-bezier(0.22,1,0.36,1) forwards 0.4s;
+}
+.eyebrow-line { width: 32px; height: 1px; background: var(--red); }
+.hero-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(48px, 6.5vw, 88px);
+  font-weight: 800;
+  line-height: 0.92;
+  letter-spacing: -1px;
+  text-transform: uppercase;
+  margin-bottom: 32px;
+  position: relative; z-index: 1;
+}
+.hero-title .word {
+  display: block; overflow: hidden;
+}
+.hero-title .word span {
+  display: block;
+  opacity: 0;
+  transform: translateY(110%);
+  animation: wordSlide 0.7s cubic-bezier(0.22,1,0.36,1) forwards;
+}
+.hero-title .word:nth-child(1) span { animation-delay: 0.6s; }
+.hero-title .word:nth-child(2) span { animation-delay: 0.75s; }
+.hero-title .word:nth-child(3) span { animation-delay: 0.9s; }
+.hero-title .accent { color: var(--red); }
+.hero-sub {
+  font-size: 14px; font-weight: 300; line-height: 1.7;
+  color: var(--muted); max-width: 340px;
+  margin-bottom: 48px;
+  opacity: 0; transform: translateY(20px);
+  animation: fadeUp 0.8s forwards 1.3s;
+}
+.hero-ctas {
+  display: flex; flex-direction: column; gap: 12px;
+  opacity: 0; transform: translateY(20px);
+  animation: fadeUp 0.8s forwards 1.6s;
+}
+.btn-red-fill {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--red); color: var(--white);
+  padding: 14px 32px; font-size: 11px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; text-decoration: none;
+  border: 1px solid var(--red);
+  transition: background 0.3s, box-shadow 0.3s, transform 0.2s;
+  max-width: fit-content;
+}
+.btn-red-fill:hover {
+  background: transparent; color: var(--red);
+  box-shadow: 0 0 32px var(--red-glow);
+  transform: translateY(-2px);
+}
+.btn-outline-white {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: transparent; color: var(--muted);
+  padding: 14px 32px; font-size: 11px; font-weight: 600; letter-spacing: 3px;
+  text-transform: uppercase; text-decoration: none;
+  border: 1px solid var(--border);
+  transition: border-color 0.3s, color 0.3s, transform 0.2s;
+  max-width: fit-content;
+}
+.btn-outline-white:hover {
+  border-color: rgba(255,255,255,0.4); color: var(--white);
+  transform: translateY(-2px);
+}
+.hero-scroll-indicator {
+  position: absolute; bottom: 40px; left: 60px;
+  display: flex; align-items: center; gap: 12px;
+  opacity: 0; animation: fadeUp 0.8s forwards 2s;
+}
+.hero-scroll-text { font-size: 9px; letter-spacing: 4px; text-transform: uppercase; color: var(--muted); }
+.hero-scroll-line {
+  width: 40px; height: 1px; background: var(--red);
+  transform-origin: left;
+  animation: lineGrow 2s ease-in-out infinite;
+}
+@keyframes lineGrow {
+  0%,100% { transform: scaleX(0); }
+  50% { transform: scaleX(1); }
+}
+
+@keyframes slideRight { to { opacity: 1; transform: translateX(0); } }
+@keyframes wordSlide { to { opacity: 1; transform: translateY(0); } }
+@keyframes fadeUp { to { opacity: 1; transform: translateY(0); } }
+
+/* ===== PERFORMANCE STRIP ===== */
+.perf-strip {
+  background: var(--red);
+  padding: 0;
+  overflow: hidden;
+}
+.perf-inner {
+  display: grid; grid-template-columns: repeat(4, 1fr);
+}
+.perf-item {
+  padding: 32px 40px;
+  border-right: 1px solid rgba(255,255,255,0.15);
+  display: flex; align-items: center; gap: 16px;
+}
+.perf-item:last-child { border-right: none; }
+.perf-icon {
+  width: 40px; height: 40px;
+  border: 1px solid rgba(255,255,255,0.3);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; flex-shrink: 0;
+}
+.perf-text {}
+.perf-num {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 24px; font-weight: 800; letter-spacing: 1px;
+  line-height: 1; display: block; color: var(--white);
+}
+.perf-label { font-size: 11px; font-weight: 500; letter-spacing: 1px; color: rgba(255,255,255,0.7); }
+
+/* ===== SHARED SECTION ===== */
+section { padding: 120px 64px; }
+.section-eyebrow {
+  font-size: 10px; font-weight: 700; letter-spacing: 6px;
+  text-transform: uppercase; color: var(--red);
+  margin-bottom: 16px; display: flex; align-items: center; gap: 10px;
+}
+.section-eyebrow::before { content: ''; width: 24px; height: 1px; background: var(--red); }
+.section-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-weight: 800; font-size: clamp(40px, 6vw, 80px);
+  text-transform: uppercase; letter-spacing: -1px; line-height: 1;
+}
+
+/* ===== REVEAL ===== */
+.reveal {
+  opacity: 0; transform: translateY(48px);
+  transition: opacity 0.8s ease, transform 0.9s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal.visible { opacity: 1; transform: translateY(0); }
+.reveal-left {
+  opacity: 0; transform: translateX(-48px);
+  transition: opacity 0.8s, transform 0.9s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-left.visible { opacity: 1; transform: translateX(0); }
+.reveal-right {
+  opacity: 0; transform: translateX(48px);
+  transition: opacity 0.8s, transform 0.9s cubic-bezier(0.22,1,0.36,1);
+}
+.reveal-right.visible { opacity: 1; transform: translateX(0); }
+.delay-1 { transition-delay: 0.1s !important; }
+.delay-2 { transition-delay: 0.2s !important; }
+.delay-3 { transition-delay: 0.3s !important; }
+.delay-4 { transition-delay: 0.4s !important; }
+
+/* ===== PRODUCT GRID ===== */
+.products { background: var(--surface); }
+.products-header {
+  display: flex; align-items: flex-end; justify-content: space-between;
+  margin-bottom: 60px;
+}
+.products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1px;
+  background: var(--border);
+}
+.product-card {
+  position: relative;
+  background: var(--surface);
+  overflow: hidden;
+  cursor: none;
+  group: true;
+}
+.product-card-img-wrap {
+  aspect-ratio: 3/4; overflow: hidden; position: relative;
+}
+.product-card-img-wrap img {
+  width: 100%; height: 100%; object-fit: cover; display: block;
+  transition: transform 0.6s cubic-bezier(0.22,1,0.36,1), filter 0.4s;
+  filter: brightness(0.88) saturate(0.9);
+}
+.product-card:hover .product-card-img-wrap img {
+  transform: scale(1.07);
+  filter: brightness(0.6) saturate(1);
+}
+.product-card-overlay {
+  position: absolute; inset: 0;
+  background: rgba(5,5,5,0.7);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transform: translateY(10px);
+  transition: opacity 0.3s, transform 0.3s;
+}
+.product-card:hover .product-card-overlay { opacity: 1; transform: translateY(0); }
+.btn-add-product {
+  background: var(--red); color: var(--white);
+  border: none; padding: 12px 24px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 13px; font-weight: 700; letter-spacing: 3px;
+  text-transform: uppercase; cursor: none;
+  transition: background 0.3s, box-shadow 0.3s;
+}
+.btn-add-product:hover { background: #E0261A; box-shadow: 0 0 20px var(--red-glow); }
+.product-info { padding: 20px 20px 24px; background: var(--surface2); }
+.product-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 700; letter-spacing: 1px;
+  text-transform: uppercase; margin-bottom: 6px;
+}
+.product-meta { display: flex; align-items: center; justify-content: space-between; }
+.product-price { font-size: 14px; font-weight: 300; color: var(--muted); }
+.product-tag {
+  font-size: 9px; font-weight: 700; letter-spacing: 2px;
+  text-transform: uppercase; color: var(--red);
+  border: 1px solid var(--border-red);
+  padding: 3px 8px; background: var(--red-dim);
+}
+/* Tilt for product cards */
+.product-card { perspective: 1000px; }
+.product-card-inner { transition: transform 0.15s ease; transform-style: preserve-3d; }
+
+/* ===== TECHNOLOGY BENTO ===== */
+.technology { background: var(--bg); }
+.bento-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: auto auto;
+  gap: 2px;
+  background: var(--border);
+  margin-top: 60px;
+}
+.bento-cell {
+  background: var(--surface);
+  padding: 48px 40px;
+  position: relative; overflow: hidden;
+  transition: background 0.3s;
+}
+.bento-cell:hover { background: var(--surface2); }
+.bento-cell.main {
+  grid-column: span 2; grid-row: span 2;
+  padding: 60px;
+  background: var(--surface2);
+  display: flex; flex-direction: column; justify-content: flex-end;
+}
+.bento-cell.main::before {
+  content: 'APEXTECH™';
+  position: absolute; top: 40px; right: 40px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 11px; font-weight: 700; letter-spacing: 4px;
+  color: rgba(255,45,32,0.2);
+  text-transform: uppercase;
+}
+/* Animated grid in main bento */
+.bento-main-bg {
+  position: absolute; inset: 0;
+  background-image:
+    linear-gradient(rgba(255,45,32,0.05) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255,45,32,0.05) 1px, transparent 1px);
+  background-size: 32px 32px;
+  mask-image: radial-gradient(ellipse at 50% 50%, black, transparent 80%);
+}
+/* Animated orb */
+.bento-orb {
+  position: absolute; top: 60px; right: 60px;
+  width: 160px; height: 160px;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255,45,32,0.2) 0%, transparent 70%);
+  animation: orbPulse 3s ease-in-out infinite;
+}
+@keyframes orbPulse {
+  0%,100% { transform: scale(1); opacity: 0.6; }
+  50% { transform: scale(1.2); opacity: 1; }
+}
+.bento-main-label {
+  font-size: 10px; font-weight: 700; letter-spacing: 4px;
+  color: var(--red); text-transform: uppercase; margin-bottom: 16px;
+  position: relative; z-index: 1;
+}
+.bento-main-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(40px, 5vw, 64px); font-weight: 800;
+  letter-spacing: -1px; line-height: 1;
+  text-transform: uppercase; position: relative; z-index: 1;
+}
+.bento-main-desc {
+  font-size: 14px; line-height: 1.8; color: var(--muted);
+  margin-top: 20px; max-width: 380px; position: relative; z-index: 1;
+}
+.bento-icon {
+  width: 48px; height: 48px;
+  background: var(--red-dim); border: 1px solid var(--border-red);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 22px; margin-bottom: 20px;
+  transition: background 0.3s, transform 0.3s;
+}
+.bento-cell:hover .bento-icon { background: var(--red); transform: scale(1.1); }
+.bento-cell-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 22px; font-weight: 800; text-transform: uppercase;
+  letter-spacing: 1px; margin-bottom: 8px;
+}
+.bento-cell-desc { font-size: 13px; color: var(--muted); line-height: 1.6; }
+/* Accent line */
+.bento-cell::after {
+  content: '';
+  position: absolute; bottom: 0; left: 0;
+  height: 2px; width: 0;
+  background: var(--red);
+  transition: width 0.4s ease;
+}
+.bento-cell:hover::after { width: 100%; }
+
+/* ===== BRAND STORY ===== */
+.brand-story {
+  position: relative; padding: 160px 64px;
+  display: flex; align-items: center; justify-content: center;
+  text-align: center; overflow: hidden;
+}
+.brand-story-bg {
+  position: absolute; inset: 0; z-index: 0;
+  background-image: url('https://images.unsplash.com/photo-1534438327276-14e5300c3a48?w=1800&q=80&fit=crop&auto=format');
+  background-size: cover; background-position: center;
+  filter: brightness(0.25) saturate(0.3);
+}
+.brand-story-content {
+  position: relative; z-index: 1; max-width: 800px;
+}
+.brand-story-title {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(56px, 10vw, 140px); font-weight: 800;
+  text-transform: uppercase; letter-spacing: -2px; line-height: 0.95;
+  margin-bottom: 32px;
+}
+.brand-story-title .accent { color: var(--red); -webkit-text-stroke: 0; }
+.brand-story-title .outline {
+  -webkit-text-stroke: 1px rgba(255,255,255,0.3);
+  color: transparent;
+}
+.brand-story-text {
+  font-size: 16px; font-weight: 300; line-height: 1.9;
+  color: rgba(255,255,255,0.55); max-width: 520px; margin: 0 auto;
+}
+/* Animated border */
+.brand-story-line {
+  width: 1px; height: 60px;
+  background: linear-gradient(180deg, var(--red), transparent);
+  margin: 0 auto 32px;
+  animation: linePulse 2s ease-in-out infinite;
+}
+@keyframes linePulse {
+  0%,100% { opacity: 0.4; }
+  50% { opacity: 1; }
+}
+
+/* ===== COMMUNITY / TESTIMONIALS ===== */
+.community { background: var(--surface); }
+.community-header { margin-bottom: 60px; }
+.testimonials-grid {
+  display: grid; grid-template-columns: repeat(3, 1fr);
+  gap: 2px; background: var(--border);
+}
+.testimonial-card {
+  background: var(--surface2);
+  padding: 40px 36px;
+  position: relative; overflow: hidden;
+  transition: background 0.3s;
+  perspective: 800px;
+}
+.testimonial-card:hover { background: #1A1A1A; }
+.testimonial-card::before {
+  content: '"';
+  position: absolute; top: -20px; right: 24px;
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 140px; font-weight: 800; line-height: 1;
+  color: rgba(255,45,32,0.06);
+  pointer-events: none;
+}
+.testimonial-top {
+  display: flex; align-items: center; gap: 16px; margin-bottom: 24px;
+}
+.testimonial-avatar {
+  width: 52px; height: 52px;
+  object-fit: cover; display: block;
+  filter: grayscale(0.4);
+  border: 2px solid var(--border-red);
+}
+.testimonial-info {}
+.testimonial-name {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 18px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px;
+}
+.testimonial-role { font-size: 11px; color: var(--muted); letter-spacing: 1px; margin-top: 2px; }
+.testimonial-stars { color: var(--red); font-size: 14px; letter-spacing: 2px; margin-bottom: 16px; }
+.testimonial-text { font-size: 14px; line-height: 1.8; color: rgba(255,255,255,0.6); font-weight: 300; }
+.testimonial-metric {
+  display: inline-flex; align-items: center; gap: 6px;
+  margin-top: 20px;
+  font-size: 10px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase;
+  color: var(--red);
+  background: var(--red-dim); border: 1px solid var(--border-red);
+  padding: 5px 10px;
+}
+.tilt-card-inner { transition: transform 0.12s ease; }
+
+/* ===== FOOTER ===== */
+footer {
+  background: #020202;
+  border-top: 1px solid var(--border);
+  padding: 64px 64px 32px;
+}
+.footer-top {
+  display: grid; grid-template-columns: 2.5fr 1fr 1fr 1fr;
+  gap: 60px; margin-bottom: 60px;
+}
+.footer-brand {}
+.footer-logo-link {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: 32px; font-weight: 800; letter-spacing: 6px;
+  color: var(--white); text-decoration: none; display: block;
+  margin-bottom: 12px;
+}
+.footer-logo-link sup { font-size: 12px; color: var(--red); vertical-align: super; }
+.footer-tagline { font-size: 11px; color: var(--muted); letter-spacing: 3px; text-transform: uppercase; }
+.footer-social { display: flex; gap: 10px; margin-top: 24px; }
+.social-btn {
+  width: 36px; height: 36px;
+  border: 1px solid var(--border);
+  display: flex; align-items: center; justify-content: center;
+  color: var(--muted); text-decoration: none; font-size: 11px; font-weight: 700;
+  letter-spacing: 1px; transition: border-color 0.3s, color 0.3s, background 0.3s;
+  font-family: 'Barlow Condensed', sans-serif;
+}
+.social-btn:hover { border-color: var(--red); color: var(--red); background: var(--red-dim); }
+.footer-col h4 {
+  font-size: 10px; font-weight: 700; letter-spacing: 4px;
+  text-transform: uppercase; color: var(--red);
+  margin-bottom: 20px;
+}
+.footer-col ul { list-style: none; display: flex; flex-direction: column; gap: 10px; }
+.footer-col ul a {
+  font-size: 13px; color: var(--muted); text-decoration: none;
+  transition: color 0.2s;
+}
+.footer-col ul a:hover { color: var(--white); }
+.footer-bottom {
+  display: flex; align-items: center; justify-content: space-between;
+  padding-top: 32px; border-top: 1px solid var(--border);
+}
+.footer-bottom p { font-size: 11px; color: rgba(255,255,255,0.2); letter-spacing: 1px; }
+.footer-bottom a { color: var(--red); text-decoration: none; }
+
+/* ===== MOBILE MENU ===== */
+.mobile-menu {
+  position: fixed; inset: 0; z-index: 999;
+  background: rgba(5,5,5,0.97); backdrop-filter: blur(20px);
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 36px;
+  transform: translateY(-100%);
+  transition: transform 0.5s cubic-bezier(0.22,1,0.36,1);
+}
+.mobile-menu.open { transform: translateY(0); }
+.mobile-menu a {
+  font-family: 'Barlow Condensed', sans-serif;
+  font-size: clamp(36px, 8vw, 64px); font-weight: 800;
+  text-transform: uppercase; letter-spacing: 4px; color: var(--white);
+  text-decoration: none; transition: color 0.3s;
+}
+.mobile-menu a:hover { color: var(--red); }
+
+/* ===== RESPONSIVE ===== */
+@media (max-width: 1200px) {
+  .hero { grid-template-columns: 1fr; }
+  .hero-panel { min-height: 60vh; padding: 100px 40px 60px; }
+  .hero-visual { height: 60vh; }
+  .products-grid { grid-template-columns: repeat(2, 1fr); }
+  .bento-grid { grid-template-columns: 1fr 1fr; }
+  .bento-cell.main { grid-column: span 2; grid-row: span 1; min-height: 300px; }
+}
+@media (max-width: 768px) {
+  nav { padding: 18px 24px; }
+  nav.scrolled { padding: 12px 24px; }
+  .nav-links { display: none; }
+  .nav-toggle { display: flex; }
+  section { padding: 64px 24px; }
+  .hero-panel { padding: 80px 24px 48px; }
+  .perf-inner { grid-template-columns: repeat(2, 1fr); }
+  .perf-item { border-bottom: 1px solid rgba(255,255,255,0.1); }
+  .products-grid { grid-template-columns: repeat(2, 1fr); }
+  .testimonials-grid { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr 1fr; gap: 32px; }
+  .footer-bottom { flex-direction: column; gap: 12px; text-align: center; }
+  .bento-grid { grid-template-columns: 1fr; }
+  .bento-cell.main { grid-column: span 1; }
+  .products-header { flex-direction: column; align-items: flex-start; gap: 12px; }
+}
+@media (max-width: 480px) {
+  .products-grid { grid-template-columns: 1fr; }
+  .perf-inner { grid-template-columns: 1fr; }
+  .footer-top { grid-template-columns: 1fr; }
+}
+
+/* ===== TOAST ===== */
+.toast {
+  position: fixed; bottom: 32px; right: 32px; z-index: 9996;
+  background: var(--surface2); border: 1px solid var(--red);
+  border-left: 3px solid var(--red);
+  padding: 16px 24px;
+  display: flex; align-items: center; gap: 12px;
+  transform: translateX(240px); opacity: 0;
+  transition: transform 0.4s cubic-bezier(0.22,1,0.36,1), opacity 0.4s;
+  min-width: 280px;
+}
+.toast.show { transform: translateX(0); opacity: 1; }
+.toast-text { font-size: 13px; font-weight: 500; letter-spacing: 0.5px; }
+.toast-sub { font-size: 11px; color: var(--muted); margin-top: 2px; }
+  /* ── CAMPAIGN VIDEO ── */
+  .campaign-video { position: relative; overflow: hidden; background: #050505; }
+  .campaign-video video { width: 100%; height: 70vh; object-fit: cover; opacity: 0.5; display: block; }
+  .campaign-video-overlay {
+    position: absolute; inset: 0;
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    text-align: center; padding: 2rem;
+  }
+  .campaign-video-overlay .cv-tag {
+    font-size: 0.72rem; letter-spacing: 0.22em;
+    text-transform: uppercase; color: #FF2D20; margin-bottom: 1rem;
+  }
+  .campaign-video-overlay h2 {
+    font-size: clamp(2rem, 5vw, 3.8rem);
+    color: #F5F5F5; line-height: 1.1; margin-bottom: 1.4rem;
+  }
+  .campaign-video-overlay p {
+    color: rgba(255,255,255,0.65); font-size: 1rem; max-width: 480px; line-height: 1.7;
+  }
+</style>
+</head>
+<body>
+
+<!-- Scroll Progress -->
+<div id="scroll-progress"></div>
+
+<!-- Cursor -->
+<div id="cursor-dot"></div>
+<div id="cursor-cross"></div>
+<div id="cursor-bracket"></div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div>
+    <div class="toast-text">Added to Cart</div>
+    <div class="toast-sub">APEX PRO — Free shipping included</div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav id="navbar">
+  <a href="#" class="nav-logo" style="display:flex;align-items:center;gap:10px;">
+    <img src="../assets/logo-apex.svg" style="height:38px;" alt="APEX">
+    APEX<sup>®</sup>
+  </a>
+  <ul class="nav-links">
+    <li><a href="#products">Performance</a></li>
+    <li><a href="#products">Collection</a></li>
+    <li><a href="#technology">Technology</a></li>
+    <li><a href="#" class="btn-nav-red">Get Started</a></li>
+  </ul>
+  <button class="nav-toggle" id="navToggle" aria-label="Menu">
+    <span></span><span></span><span></span>
+  </button>
+</nav>
+
+<!-- MOBILE MENU -->
+<div class="mobile-menu" id="mobileMenu">
+  <a href="#products" onclick="closeMobileMenu()">Performance</a>
+  <a href="#products" onclick="closeMobileMenu()">Collection</a>
+  <a href="#technology" onclick="closeMobileMenu()">Technology</a>
+  <a href="#" class="btn-nav-red" style="font-family:inherit;font-size:24px;letter-spacing:4px;padding:14px 32px;" onclick="closeMobileMenu()">Get Started</a>
+</div>
+
+<!-- HERO -->
+<section class="hero" id="hero" style="padding:0;">
+  <div class="hero-visual">
+    <img id="heroImg" class="hero-img" src="https://images.unsplash.com/photo-1571019614242-c5c5dee9f50b?w=1800&q=80&fit=crop&auto=format" alt="Athlete hero">
+    <div class="hero-visual-overlay"></div>
+    <div class="hero-scanlines"></div>
+    <div class="hero-hud">
+      <div class="hero-hud-br"></div>
+      <div class="hero-hud-tr"></div>
+    </div>
+    <div class="hero-metric hero-metric-1">ATHLETE MODE: <span>ACTIVE</span></div>
+    <div class="hero-metric hero-metric-2">SS26 — <span>NEW DROP</span></div>
+  </div>
+  <div class="hero-panel">
+    <div class="hero-eyebrow">
+      <span class="eyebrow-line"></span>
+      Performance Activewear
+    </div>
+    <h1 class="hero-title">
+      <div class="word"><span>ENGINEER</span></div>
+      <div class="word"><span>YOUR</span></div>
+      <div class="word"><span class="accent">FORM</span></div>
+    </h1>
+    <p class="hero-sub">Performance Activewear. Designed for the elite. Engineered for the obsessed.</p>
+    <div class="hero-ctas">
+      <a href="#products" class="btn-red-fill">Shop Collection →</a>
+      <a href="#technology" class="btn-outline-white">Learn the Tech →</a>
+    </div>
+    <div class="hero-scroll-indicator">
+      <div class="hero-scroll-line"></div>
+      <span class="hero-scroll-text">Scroll to explore</span>
+    </div>
+  </div>
+</section>
+
+<!-- PERFORMANCE STRIP -->
+<div class="perf-strip">
+  <div class="perf-inner">
+    <div class="perf-item reveal">
+      <div class="perf-icon">↕</div>
+      <div class="perf-text">
+        <span class="perf-num">37%</span>
+        <span class="perf-label">More Stretch</span>
+      </div>
+    </div>
+    <div class="perf-item reveal delay-1">
+      <div class="perf-icon">✦</div>
+      <div class="perf-text">
+        <span class="perf-num">4-Way</span>
+        <span class="perf-label">Motion System</span>
+      </div>
+    </div>
+    <div class="perf-item reveal delay-2">
+      <div class="perf-icon">◎</div>
+      <div class="perf-text">
+        <span class="perf-num">Anti-Odor</span>
+        <span class="perf-label">Technology</span>
+      </div>
+    </div>
+    <div class="perf-item reveal delay-3">
+      <div class="perf-icon">☀</div>
+      <div class="perf-text">
+        <span class="perf-num">UPF 50+</span>
+        <span class="perf-label">UV Protection</span>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCTS -->
+<section class="products" id="products">
+  <div class="products-header">
+    <div>
+      <p class="section-eyebrow reveal">Current Season</p>
+      <h2 class="section-title reveal">SS26 LINE</h2>
+    </div>
+    <a href="#" class="btn-outline-white reveal" style="align-self:flex-end">View All Products</a>
+  </div>
+  <div class="products-grid">
+    <!-- Card 1 -->
+    <div class="product-card reveal" data-tilt>
+      <div class="product-card-inner">
+        <div class="product-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1506629082955-511b1aa562c8?w=600&q=80&fit=crop&auto=format" alt="APEX PRO LEGGING" loading="lazy">
+          <div class="product-card-overlay">
+            <button class="btn-add-product" onclick="showToast('APEX PRO LEGGING — €125')">ADD TO CART</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">APEX PRO LEGGING</h3>
+          <div class="product-meta">
+            <span class="product-price">€125</span>
+            <span class="product-tag">Best Seller</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Card 2 -->
+    <div class="product-card reveal delay-1" data-tilt>
+      <div class="product-card-inner">
+        <div class="product-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1620799140408-edc6dcb6d633?w=600&q=80&fit=crop&auto=format" alt="FORM JACKET" loading="lazy">
+          <div class="product-card-overlay">
+            <button class="btn-add-product" onclick="showToast('FORM JACKET — €165')">ADD TO CART</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">FORM JACKET</h3>
+          <div class="product-meta">
+            <span class="product-price">€165</span>
+            <span class="product-tag">New</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Card 3 -->
+    <div class="product-card reveal delay-2" data-tilt>
+      <div class="product-card-inner">
+        <div class="product-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1583744946564-b52ac1c389c8?w=600&q=80&fit=crop&auto=format" alt="VELOCITY TEE" loading="lazy">
+          <div class="product-card-overlay">
+            <button class="btn-add-product" onclick="showToast('VELOCITY TEE — €85')">ADD TO CART</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">VELOCITY TEE</h3>
+          <div class="product-meta">
+            <span class="product-price">€85</span>
+            <span class="product-tag">Limited</span>
+          </div>
+        </div>
+      </div>
+    </div>
+    <!-- Card 4 -->
+    <div class="product-card reveal delay-3" data-tilt>
+      <div class="product-card-inner">
+        <div class="product-card-img-wrap">
+          <img src="https://images.unsplash.com/photo-1542291026-7eec264c27ff?w=600&q=80&fit=crop&auto=format" alt="CORE SHORTS" loading="lazy">
+          <div class="product-card-overlay">
+            <button class="btn-add-product" onclick="showToast('CORE SHORTS — €95')">ADD TO CART</button>
+          </div>
+        </div>
+        <div class="product-info">
+          <h3 class="product-name">CORE SHORTS</h3>
+          <div class="product-meta">
+            <span class="product-price">€95</span>
+            <span class="product-tag">SS26</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- TECHNOLOGY BENTO -->
+<section class="technology" id="technology">
+  <p class="section-eyebrow reveal">Innovation</p>
+  <h2 class="section-title reveal">THE TECH BEHIND<br>EVERY MOVE</h2>
+  <div class="bento-grid">
+    <!-- Main cell -->
+    <div class="bento-cell main reveal">
+      <div class="bento-main-bg"></div>
+      <div class="bento-orb"></div>
+      <p class="bento-main-label">Core Technology</p>
+      <h3 class="bento-main-title">APEXTECH™<br>FABRIC</h3>
+      <p class="bento-main-desc">Our proprietary 4-way stretch composite weave — engineered from the ground up for peak athletic performance. Every fibre engineered to move with you, not against you.</p>
+    </div>
+    <!-- Cell 1 -->
+    <div class="bento-cell reveal">
+      <div class="bento-icon">◈</div>
+      <h4 class="bento-cell-title">Breathable</h4>
+      <p class="bento-cell-desc">Micro-channel ventilation keeps core temperature regulated during max output.</p>
+    </div>
+    <!-- Cell 2 -->
+    <div class="bento-cell reveal">
+      <div class="bento-icon">↔</div>
+      <h4 class="bento-cell-title">Lightweight</h4>
+      <p class="bento-cell-desc">140gsm ultra-low weight fabric. You'll forget you're wearing it until it matters.</p>
+    </div>
+    <!-- Cell 3 -->
+    <div class="bento-cell reveal">
+      <div class="bento-icon">✦</div>
+      <h4 class="bento-cell-title">4-Way Stretch</h4>
+      <p class="bento-cell-desc">Multi-directional elasticity allows unrestricted range of motion in any plane.</p>
+    </div>
+    <!-- Cell 4 -->
+    <div class="bento-cell reveal">
+      <div class="bento-icon">◎</div>
+      <h4 class="bento-cell-title">Moisture Wicking</h4>
+      <p class="bento-cell-desc">Rapid moisture transfer keeps skin dry for sustained performance under pressure.</p>
+    </div>
+  </div>
+</section>
+
+<!-- BRAND STORY -->
+<section class="brand-story" style="padding:160px 64px">
+  <div class="brand-story-bg"></div>
+  <div class="brand-story-content reveal">
+    <div class="brand-story-line"></div>
+    <h2 class="brand-story-title">
+      WE BUILD<br>
+      <span class="accent">ATHLETES</span>
+    </h2>
+    <p class="brand-story-text">
+      APEX was founded by athletes, for athletes. We believe that the gap between ambition and achievement is often just equipment. Every stitch, seam, and fibre is engineered to reduce friction — between you and your best performance.
+    </p>
+  </div>
+</section>
+
+<!-- COMMUNITY -->
+<section class="community" id="community">
+  <div class="community-header">
+    <p class="section-eyebrow reveal">Athlete Reviews</p>
+    <h2 class="section-title reveal">THE COMMUNITY<br>SPEAKS</h2>
+  </div>
+  <div class="testimonials-grid">
+    <!-- Testimonial 1 -->
+    <div class="testimonial-card reveal" data-tilt>
+      <div class="tilt-card-inner">
+        <div class="testimonial-top">
+          <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1557862921-37829c790f19?w=200&q=80&fit=crop&auto=format" alt="Marcus R">
+          <div class="testimonial-info">
+            <div class="testimonial-name">Marcus R.</div>
+            <div class="testimonial-role">CrossFit Competitor · Berlin</div>
+          </div>
+        </div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"The APEX PRO Legging is the only kit I've trained in for 6 months straight. The stretch memory is unlike anything else on the market — it doesn't bag out after a session."</p>
+        <span class="testimonial-metric">↑ Performance +22%</span>
+      </div>
+    </div>
+    <!-- Testimonial 2 -->
+    <div class="testimonial-card reveal delay-1" data-tilt>
+      <div class="tilt-card-inner">
+        <div class="testimonial-top">
+          <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1500648767791-00dcc994a43e?w=200&q=80&fit=crop&auto=format" alt="Lena K">
+          <div class="testimonial-info">
+            <div class="testimonial-name">Lena K.</div>
+            <div class="testimonial-role">Triathlete · Amsterdam</div>
+          </div>
+        </div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"APEXTECH fabric is genuinely different. I wore the Velocity Tee through a 6-hour triathlon and it performed perfectly — wicking, breathability, no chafe. Remarkable."</p>
+        <span class="testimonial-metric">↑ Endurance +18%</span>
+      </div>
+    </div>
+    <!-- Testimonial 3 -->
+    <div class="testimonial-card reveal delay-2" data-tilt>
+      <div class="tilt-card-inner">
+        <div class="testimonial-top">
+          <img class="testimonial-avatar" src="https://images.unsplash.com/photo-1506794778202-cad84cf45f1d?w=200&q=80&fit=crop&auto=format" alt="David S">
+          <div class="testimonial-info">
+            <div class="testimonial-name">David S.</div>
+            <div class="testimonial-role">HIIT Coach · London</div>
+          </div>
+        </div>
+        <div class="testimonial-stars">★★★★★</div>
+        <p class="testimonial-text">"I recommend APEX to every client I train. The Form Jacket alone has changed how my morning sessions feel. Lightweight, non-restrictive, and honestly premium quality at this price point."</p>
+        <span class="testimonial-metric">↑ Recovery Speed +31%</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CAMPAIGN VIDEO -->
+<div class="campaign-video">
+  <video autoplay muted loop playsinline src="../assets/portfolio/videos/fashion-brands-ads.mp4"></video>
+  <div class="campaign-video-overlay">
+    <div class="cv-tag">Campaign Film</div>
+    <h2>Built for the<br>relentless few</h2>
+    <p>A brand film produced by CLVSN — high-impact visual direction for the performance culture that never settles.</p>
+  </div>
+</div>
+
+
+<!-- FOOTER -->
+<footer>
+  <div class="footer-top">
+    <div class="footer-brand">
+      <a href="#" class="footer-logo-link">APEX<sup>®</sup></a>
+      <p class="footer-tagline">Engineer Your Form — SS26</p>
+      <div class="footer-social">
+        <a href="#" class="social-btn" aria-label="Instagram">IG</a>
+        <a href="#" class="social-btn" aria-label="TikTok">TK</a>
+        <a href="#" class="social-btn" aria-label="YouTube">YT</a>
+        <a href="#" class="social-btn" aria-label="Twitter">TW</a>
+      </div>
+    </div>
+    <div class="footer-col">
+      <h4>Shop</h4>
+      <ul>
+        <li><a href="#">Leggings</a></li>
+        <li><a href="#">Jackets</a></li>
+        <li><a href="#">T-Shirts</a></li>
+        <li><a href="#">Shorts</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Company</h4>
+      <ul>
+        <li><a href="#">About APEX</a></li>
+        <li><a href="#">Technology</a></li>
+        <li><a href="#">Sustainability</a></li>
+        <li><a href="#">Careers</a></li>
+      </ul>
+    </div>
+    <div class="footer-col">
+      <h4>Support</h4>
+      <ul>
+        <li><a href="#">Size Guide</a></li>
+        <li><a href="#">Returns</a></li>
+        <li><a href="#">Shipping</a></li>
+        <li><a href="#">Contact</a></li>
+      </ul>
+    </div>
+  </div>
+  <div class="footer-bottom">
+    <p>© 2026 APEX Athletic. All rights reserved.</p>
+    <p>Crafted by <a href="#">CLVSN Agency</a></p>
+  </div>
+</footer>
+
+<script>
+// ===== CURSOR =====
+const cursorDot = document.getElementById('cursor-dot');
+const cursorCross = document.getElementById('cursor-cross');
+const cursorBracket = document.getElementById('cursor-bracket');
+let mx = 0, my = 0, cx = 0, cy = 0, bx = 0, by = 0;
+
+document.addEventListener('mousemove', e => { mx = e.clientX; my = e.clientY; });
+
+function animateCursors() {
+  // Dot follows immediately
+  cursorDot.style.left = mx + 'px';
+  cursorDot.style.top = my + 'px';
+  // Cross trails
+  cx += (mx - cx) * 0.25;
+  cy += (my - cy) * 0.25;
+  cursorCross.style.left = cx + 'px';
+  cursorCross.style.top = cy + 'px';
+  // Bracket trails slower
+  bx += (mx - bx) * 0.1;
+  by += (my - by) * 0.1;
+  cursorBracket.style.left = bx + 'px';
+  cursorBracket.style.top = by + 'px';
+  requestAnimationFrame(animateCursors);
+}
+animateCursors();
+
+document.querySelectorAll('a, button, [data-tilt]').forEach(el => {
+  el.addEventListener('mouseenter', () => document.body.classList.add('cursor-hover'));
+  el.addEventListener('mouseleave', () => document.body.classList.remove('cursor-hover'));
+});
+
+// ===== SCROLL PROGRESS =====
+const progressBar = document.getElementById('scroll-progress');
+window.addEventListener('scroll', () => {
+  const s = window.scrollY;
+  const h = document.documentElement.scrollHeight - window.innerHeight;
+  progressBar.style.width = (s / h * 100) + '%';
+}, { passive: true });
+
+// ===== NAVBAR =====
+const navbar = document.getElementById('navbar');
+window.addEventListener('scroll', () => {
+  navbar.classList.toggle('scrolled', window.scrollY > 80);
+}, { passive: true });
+
+// ===== HERO IMAGE SCALE-IN =====
+setTimeout(() => {
+  const img = document.getElementById('heroImg');
+  img && img.classList.add('loaded');
+}, 100);
+
+// ===== HERO PARALLAX =====
+const heroImg = document.getElementById('heroImg');
+window.addEventListener('scroll', () => {
+  const y = window.scrollY;
+  if (y < window.innerHeight && heroImg) {
+    heroImg.style.transform = `scale(1) translateY(${y * 0.25}px)`;
+  }
+}, { passive: true });
+
+// ===== INTERSECTION OBSERVER =====
+const reveals = document.querySelectorAll('.reveal, .reveal-left, .reveal-right');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(entry => {
+    if (entry.isIntersecting) {
+      entry.target.classList.add('visible');
+      observer.unobserve(entry.target);
+    }
+  });
+}, { threshold: 0.1, rootMargin: '0px 0px -30px 0px' });
+reveals.forEach(el => observer.observe(el));
+
+// ===== 3D CARD TILT =====
+document.querySelectorAll('[data-tilt]').forEach(card => {
+  const inner = card.querySelector('.product-card-inner') || card.querySelector('.tilt-card-inner') || card;
+  card.addEventListener('mousemove', e => {
+    const rect = card.getBoundingClientRect();
+    const x = (e.clientX - rect.left) / rect.width - 0.5;
+    const y = (e.clientY - rect.top) / rect.height - 0.5;
+    inner.style.transform = `perspective(900px) rotateY(${x * 12}deg) rotateX(${-y * 12}deg)`;
+  });
+  card.addEventListener('mouseleave', () => {
+    inner.style.transform = 'perspective(900px) rotateY(0deg) rotateX(0deg)';
+  });
+});
+
+// ===== MOBILE NAV =====
+const navToggle = document.getElementById('navToggle');
+const mobileMenu = document.getElementById('mobileMenu');
+let menuOpen = false;
+navToggle.addEventListener('click', () => {
+  menuOpen = !menuOpen;
+  mobileMenu.classList.toggle('open', menuOpen);
+  const spans = navToggle.querySelectorAll('span');
+  if (menuOpen) {
+    spans[0].style.transform = 'translateY(6px) rotate(45deg)';
+    spans[1].style.opacity = '0';
+    spans[2].style.transform = 'translateY(-6px) rotate(-45deg)';
+  } else {
+    spans.forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+  }
+});
+function closeMobileMenu() {
+  menuOpen = false;
+  mobileMenu.classList.remove('open');
+  navToggle.querySelectorAll('span').forEach(s => { s.style.transform = ''; s.style.opacity = ''; });
+}
+
+// ===== TOAST =====
+function showToast(label) {
+  const t = document.getElementById('toast');
+  if (label) t.querySelector('.toast-sub').textContent = label;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3500);
+}
+
+// ===== MAGNETIC BUTTONS =====
+document.querySelectorAll('.btn-red-fill, .btn-nav-red').forEach(btn => {
+  btn.addEventListener('mousemove', e => {
+    const rect = btn.getBoundingClientRect();
+    const x = e.clientX - rect.left - rect.width / 2;
+    const y = e.clientY - rect.top - rect.height / 2;
+    btn.style.transform = `translate(${x * 0.15}px, ${y * 0.25}px)`;
+  });
+  btn.addEventListener('mouseleave', () => btn.style.transform = '');
+});
+
+// ===== PERFORMANCE STRIP REVEAL =====
+// Already handled by intersection observer above
+</script>
+</body>
+</html>
