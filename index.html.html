@@ -1,0 +1,1980 @@
+<!DOCTYPE html>
+<html lang="pt" data-theme="dark">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>CLVSN — Cloth Vision</title>
+<meta name="description" content="Cloth Vision (CLVSN) — Agência de Marketing Digital e Brand Scaling para marcas de moda emergentes.">
+<link rel="icon" type="image/png" href="assets/icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700;800&family=Inter:wght@300;400;500;600;700&family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<style>
+:root{--cyan:#00b5f8;--cyan-deep:#0099e0;--navy:#001627;--navy-mid:#002b49;--grey:#b4b4b4;--bg:#00080f;--bg2:#001020;--text:#f0f4f8;--text-muted:#8ba3b8;--border:rgba(0,181,248,0.15);--glass-bg:rgba(0,22,39,0.35);--glass-bg-soft:rgba(0,22,39,0.22);--glass-border:rgba(0,181,248,0.25);--btn-text:#001627}
+[data-theme="light"]{--bg:#d6ecf8;--bg2:#c2e0f4;--text:#001627;--text-muted:#2e4a64;--border:rgba(0,22,39,0.18);--glass-bg:rgba(255,255,255,0.5);--glass-bg-soft:rgba(255,255,255,0.32);--glass-border:rgba(0,22,39,0.22);--btn-text:#001627}
+*,*::before,*::after{margin:0;padding:0;box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font-family:'Inter',sans-serif;font-size:16px;line-height:1.6;overflow-x:hidden;transition:background .5s,color .5s}
+h1,h2,h3,h4,h5,h6{font-family:'Space Grotesk',sans-serif}
+a{color:inherit;text-decoration:none}
+img{display:block;max-width:100%}
+button{font-family:inherit}
+input,textarea,select{font-family:inherit}
+.btn-font{font-family:'Manrope',sans-serif;font-weight:700;letter-spacing:.5px}
+#bg-canvas{position:fixed;inset:0;width:100%;height:100%;z-index:0;pointer-events:none}
+.glass{background:var(--glass-bg);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border:1px solid var(--glass-border);border-radius:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 32px rgba(0,8,15,.15)}
+[data-theme="light"] .glass{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 8px 28px rgba(0,22,39,.08)}
+.glass-sm{background:var(--glass-bg-soft);backdrop-filter:blur(16px) saturate(170%);-webkit-backdrop-filter:blur(16px) saturate(170%);border:1px solid var(--glass-border);border-radius:12px;box-shadow:inset 0 1px 0 rgba(255,255,255,.06)}
+.glass-xl{background:var(--glass-bg);backdrop-filter:blur(34px) saturate(200%);-webkit-backdrop-filter:blur(34px) saturate(200%);border:1px solid var(--glass-border);border-radius:28px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 20px 60px rgba(0,8,15,.25)}
+[data-theme="light"] .glass-xl{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 20px 50px rgba(0,22,39,.1)}
+.shiny{background:linear-gradient(120deg,var(--text) 20%,var(--cyan) 40%,var(--text) 60%);background-size:200% auto;-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;animation:shinePan 4s linear infinite}
+@keyframes shinePan{from{background-position:200% center}to{background-position:-200% center}}
+section{position:relative;z-index:1}
+.section-label{font-family:'Manrope',sans-serif;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--cyan);font-weight:700;margin-bottom:14px;display:inline-block}
+[data-theme="light"] .section-label{color:#005c91}
+.section-title{font-size:clamp(32px,5vw,60px);font-weight:800;line-height:1.05;color:var(--text);margin-bottom:16px;letter-spacing:-.01em}
+.section-sub{font-size:16px;color:var(--text-muted);max-width:560px;line-height:1.7}
+.navbar{position:fixed;top:0;left:0;right:0;z-index:1000;display:flex;align-items:center;justify-content:space-between;padding:0 40px;height:72px;transition:height .3s,padding .3s;background:transparent}
+.navbar.scrolled{height:64px}
+.navbar-logo{height:38px;display:flex;align-items:center}
+.navbar-logo img{height:100%;width:auto;object-fit:contain;filter:invert(1)}
+[data-theme="light"] .navbar-logo img{filter:invert(0)}
+.nav-links{display:flex;align-items:center;gap:36px;list-style:none}
+.nav-links a,.nav-dropdown-btn{font-family:'Manrope',sans-serif;font-size:13px;font-weight:600;letter-spacing:.3px;color:var(--text);opacity:.82;transition:opacity .2s,color .2s;position:relative;background:none;border:none;display:flex;align-items:center;gap:6px}
+.nav-links a::after{content:'';position:absolute;bottom:-4px;left:0;width:0;height:1px;background:var(--cyan);transition:width .3s}
+.nav-links a:hover,.nav-dropdown-btn:hover{opacity:1;color:var(--cyan)}
+.nav-links a:hover::after{width:100%}
+.nav-dropdown{position:relative;padding-bottom:18px;margin-bottom:-18px}
+.nav-dropdown-menu{position:absolute;top:calc(100% + 4px);left:50%;transform:translateX(-50%) translateY(-8px);min-width:300px;padding:14px;background:var(--glass-bg);backdrop-filter:blur(28px) saturate(180%);-webkit-backdrop-filter:blur(28px) saturate(180%);border:1px solid var(--glass-border);border-radius:18px;opacity:0;visibility:hidden;transition:opacity .25s,transform .25s,visibility .25s;z-index:200;box-shadow:0 20px 50px rgba(0,8,15,.4)}
+.nav-dropdown.open .nav-dropdown-menu,.nav-dropdown:hover .nav-dropdown-menu{opacity:1;visibility:visible;pointer-events:all;transform:translateX(-50%) translateY(0)}
+.nav-dropdown-menu a{display:block;padding:11px 16px;font-size:13px;font-family:'Manrope',sans-serif;font-weight:500;border-radius:10px;transition:background .2s,color .2s;opacity:.85;color:var(--text)}
+.nav-dropdown-menu a::after{display:none}
+.nav-dropdown-menu a:hover{background:rgba(0,181,248,.15);opacity:1;color:var(--cyan)}
+.nav-controls{display:flex;align-items:center;gap:12px}
+.btn-nav-cta{padding:11px 22px;background:rgba(0,181,248,.14);backdrop-filter:blur(16px) saturate(180%);-webkit-backdrop-filter:blur(16px) saturate(180%);color:var(--cyan);font-family:'Manrope',sans-serif;font-weight:700;font-size:12px;letter-spacing:.6px;border:1px solid rgba(0,181,248,.45);border-radius:999px;transition:transform .2s,box-shadow .2s,background .2s,border-color .2s;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 14px rgba(0,181,248,.18)}
+[data-theme="light"] .btn-nav-cta{color:#005c91;border-color:rgba(0,92,145,.45);background:rgba(0,181,248,.16)}
+.btn-nav-cta:hover{transform:translateY(-1px);background:rgba(0,181,248,.26);border-color:rgba(0,181,248,.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 8px 24px rgba(0,181,248,.35)}
+.mode-toggle{width:40px;height:40px;background:var(--glass-bg);backdrop-filter:blur(14px) saturate(180%);-webkit-backdrop-filter:blur(14px) saturate(180%);border:1px solid var(--glass-border);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+.mode-toggle:hover{border-color:var(--cyan);background:rgba(0,181,248,.12)}
+.mode-toggle svg{width:15px;height:15px;stroke:var(--text);fill:none}
+.mode-toggle .icon-moon{display:none}
+[data-theme="light"] .mode-toggle .icon-sun{display:none}
+[data-theme="light"] .mode-toggle .icon-moon{display:block}
+.lang-select{background:var(--glass-bg);backdrop-filter:blur(14px) saturate(180%);-webkit-backdrop-filter:blur(14px) saturate(180%);border:1px solid var(--glass-border);border-radius:999px;color:var(--text);font-family:'Manrope',sans-serif;font-size:11px;font-weight:700;letter-spacing:1px;padding:8px 14px;outline:none;transition:border-color .2s,background .2s}
+.lang-select:hover,.lang-select:focus{border-color:var(--cyan);background:rgba(0,181,248,.1)}
+.lang-select option{background:var(--navy);color:#fff}
+#hero{height:100vh;position:relative;display:flex;align-items:center;justify-content:center;overflow:hidden;clip-path:polygon(0 0,100% 0,100% 94%,0 100%)}
+.hero-videos{position:absolute;inset:0;z-index:0}
+.hero-videos video{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity 1.4s ease}
+.hero-videos video.active{opacity:.4}
+[data-theme="light"] .hero-videos video.active{opacity:.22}
+.hero-overlay{position:absolute;inset:0;background:radial-gradient(ellipse at center,transparent 0%,rgba(0,8,15,.4) 70%,rgba(0,8,15,.9) 100%);z-index:1}
+[data-theme="light"] .hero-overlay{background:radial-gradient(ellipse at center,transparent 0%,rgba(214,236,248,.4) 70%,rgba(214,236,248,.9) 100%)}
+.hero-content{position:relative;z-index:2;text-align:center;display:flex;flex-direction:column;align-items:center;gap:42px}
+.hero-icon{width:140px;height:140px;object-fit:contain;animation:heroFloat 6s ease-in-out infinite;filter:invert(1) drop-shadow(0 0 40px rgba(0,181,248,.55))}
+[data-theme="light"] .hero-icon{filter:invert(0) drop-shadow(0 0 30px rgba(0,92,145,.35))}
+@keyframes heroFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(-14px)}}
+.hero-tag{font-family:'Manrope',sans-serif;font-size:12px;letter-spacing:5px;text-transform:uppercase;color:var(--cyan);font-weight:700;padding:9px 22px;background:rgba(0,181,248,.12);backdrop-filter:blur(14px) saturate(180%);-webkit-backdrop-filter:blur(14px) saturate(180%);border:1px solid rgba(0,181,248,.3);border-radius:999px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 18px rgba(0,8,15,.3)}
+[data-theme="light"] .hero-tag{color:#003e63;background:rgba(255,255,255,.4);border-color:rgba(0,92,145,.35);box-shadow:inset 0 1px 0 rgba(255,255,255,.5),0 4px 18px rgba(0,22,39,.1)}
+.hero-ctas{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+.btn-primary{padding:15px 36px;background:rgba(0,181,248,.14);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);color:var(--cyan);font-family:'Manrope',sans-serif;font-weight:800;font-size:13px;letter-spacing:1px;border:1px solid rgba(0,181,248,.45);border-radius:999px;transition:transform .25s,box-shadow .25s,background .25s,border-color .25s;position:relative;overflow:hidden;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 6px 24px rgba(0,181,248,.18)}
+[data-theme="light"] .btn-primary{color:#005c91;background:rgba(0,181,248,.16);border-color:rgba(0,92,145,.45)}
+.btn-primary::before{content:'';position:absolute;inset:0;background:linear-gradient(120deg,transparent 30%,rgba(255,255,255,.25) 50%,transparent 70%);transform:translateX(-100%);transition:transform .7s;pointer-events:none}
+.btn-primary:hover{transform:translateY(-2px);background:rgba(0,181,248,.26);border-color:rgba(0,181,248,.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),0 12px 36px rgba(0,181,248,.4)}
+.btn-primary:hover::before{transform:translateX(100%)}
+.btn-outline{padding:14px 36px;background:rgba(255,255,255,.04);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);color:var(--text);font-family:'Manrope',sans-serif;font-weight:700;font-size:13px;letter-spacing:1px;border:1px solid var(--glass-border);border-radius:999px;transition:.25s;box-shadow:inset 0 1px 0 rgba(255,255,255,.08)}
+[data-theme="light"] .btn-outline{background:rgba(255,255,255,.18)}
+.btn-outline:hover{border-color:var(--cyan);color:var(--cyan);transform:translateY(-2px);background:rgba(0,181,248,.1)}
+.hero-scroll{position:absolute;bottom:42px;left:50%;transform:translateX(-50%);z-index:2;display:flex;flex-direction:column;align-items:center;gap:10px;opacity:.5}
+.hero-scroll span{font-size:10px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted)}
+.scroll-line{width:1px;height:44px;background:linear-gradient(to bottom,var(--cyan),transparent);position:relative;overflow:hidden}
+.scroll-line::after{content:'';position:absolute;left:0;top:-40%;width:100%;height:40%;background:var(--cyan);animation:scrollDown 2s ease-in-out infinite}
+@keyframes scrollDown{0%{top:-40%}100%{top:100%}}
+#servicos-wrap{position:relative}
+.services-intro{padding:120px 40px 60px;text-align:center;position:relative;z-index:2}
+.services-pin{position:sticky;top:0;height:100vh;overflow:hidden;display:flex;align-items:center}
+#servicos-scroll{height:600vh;position:relative}
+.services-track{display:flex;gap:24px;padding:0 8vw;will-change:transform}
+.service-card{flex:0 0 340px;padding:38px 30px;cursor:pointer;transition:transform .35s,box-shadow .35s,border-color .35s,background .35s;position:relative;overflow:hidden;min-height:380px;display:flex;flex-direction:column;justify-content:space-between;background:var(--glass-bg);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border:1px solid var(--glass-border);border-radius:22px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 10px 30px rgba(0,8,15,.18)}
+[data-theme="light"] .service-card{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 10px 30px rgba(0,22,39,.08)}
+.service-card::before{content:'';position:absolute;inset:0;border-radius:20px;opacity:0;background:linear-gradient(135deg,rgba(0,181,248,.12),transparent 60%);transition:opacity .35s;pointer-events:none}
+.service-card:hover{transform:translateY(-8px);border-color:rgba(0,181,248,.45);box-shadow:0 20px 60px rgba(0,0,0,.3)}
+.service-card:hover::before{opacity:1}
+.service-num{font-size:11px;letter-spacing:3px;color:var(--cyan);opacity:.6;margin-bottom:18px;font-family:'Space Grotesk',sans-serif;font-weight:600}
+.service-card h3{font-size:21px;font-weight:700;margin-bottom:14px;line-height:1.3}
+.service-card p{font-size:13.5px;color:var(--text-muted);line-height:1.65}
+.service-price{font-family:'Manrope',sans-serif;font-size:12px;color:var(--cyan);font-weight:700;letter-spacing:.3px;margin-top:18px;display:block}
+[data-theme="light"] .service-price{color:#005c91}
+.service-card-footer{margin-top:24px;display:flex;align-items:center;justify-content:space-between}
+.btn-card-expand{width:38px;height:38px;background:rgba(0,181,248,.12);border:1px solid rgba(0,181,248,.25);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:background .2s,transform .2s}
+.btn-card-expand:hover{background:rgba(0,181,248,.25);transform:scale(1.1)}
+.btn-card-expand svg{width:14px;height:14px;stroke:var(--cyan);fill:none}
+.services-progress{position:absolute;bottom:60px;left:50%;transform:translateX(-50%);width:200px;height:2px;background:rgba(0,181,248,.15);border-radius:999px;overflow:hidden;z-index:3}
+.services-progress-bar{height:100%;background:var(--cyan);width:0%;transition:width .15s}
+.modal-overlay{position:fixed;inset:0;background:rgba(0,8,15,.82);backdrop-filter:blur(10px);z-index:2000;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
+.modal-overlay.open{opacity:1;pointer-events:all}
+.modal-box{max-width:580px;width:90%;padding:50px 44px;max-height:85vh;overflow-y:auto;transform:scale(.92) translateY(20px);transition:transform .35s;position:relative}
+.modal-overlay.open .modal-box{transform:scale(1) translateY(0)}
+.modal-close{position:absolute;top:20px;right:20px;width:38px;height:38px;border:1px solid var(--glass-border);border-radius:50%;background:none;display:flex;align-items:center;justify-content:center;transition:border-color .2s,transform .2s}
+.modal-close:hover{border-color:var(--cyan);transform:rotate(90deg)}
+.modal-close svg{width:14px;height:14px;stroke:var(--text);fill:none}
+.modal-tag{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--cyan);margin-bottom:16px;display:block}
+.modal-box h2{font-size:28px;font-weight:800;margin-bottom:22px;line-height:1.2}
+.modal-items{list-style:none;display:flex;flex-direction:column;gap:14px;margin-bottom:28px}
+.modal-items li{display:flex;align-items:flex-start;gap:12px;font-size:14px;color:var(--text-muted);line-height:1.6}
+.modal-items li::before{content:'';flex-shrink:0;width:6px;height:6px;background:var(--cyan);border-radius:50%;margin-top:8px}
+.modal-price-badge{display:inline-block;padding:10px 22px;background:rgba(0,181,248,.12);border:1px solid rgba(0,181,248,.3);border-radius:999px;font-size:12.5px;font-weight:600;color:var(--cyan)}
+#processo{position:relative}
+.processo-header{text-align:center;padding:120px 40px 60px;position:relative;z-index:2}
+.processo-stack{position:relative}
+.processo-step{min-height:100vh;display:flex;align-items:center;justify-content:center;position:sticky;top:0;padding:0 40px}
+.processo-step-num{position:absolute;font-size:clamp(160px,28vw,300px);font-weight:900;color:var(--cyan);opacity:.05;font-family:'Space Grotesk',sans-serif;left:50%;top:50%;transform:translate(-50%,-50%);pointer-events:none;user-select:none;line-height:1;letter-spacing:-.05em}
+.processo-progress{position:absolute;left:60px;top:0;bottom:0;width:1px;background:rgba(0,181,248,.1)}
+.processo-progress-fill{position:absolute;left:0;top:0;width:100%;background:var(--cyan);height:0%;transition:height .8s ease}
+.processo-card{position:relative;z-index:2;padding:50px 54px;max-width:620px;width:90%;transition:transform .4s}
+.step-tag{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--cyan);margin-bottom:18px;display:block}
+.processo-card h3{font-size:clamp(28px,4vw,42px);font-weight:800;margin-bottom:18px;line-height:1.15}
+.processo-card p{font-size:15px;color:var(--text-muted);line-height:1.75}
+#portfolio{padding:120px 0 60px;overflow:hidden}
+.portfolio-header{text-align:center;padding:0 40px;margin-bottom:48px}
+.portfolio-tabs{display:flex;gap:8px;justify-content:center;margin-bottom:48px;padding:0 40px;flex-wrap:wrap}
+.portfolio-tab{padding:10px 22px;border-radius:999px;font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;letter-spacing:.4px;transition:.25s;background:var(--glass-bg-soft);backdrop-filter:blur(14px) saturate(170%);-webkit-backdrop-filter:blur(14px) saturate(170%);border:1px solid var(--glass-border);color:var(--text-muted)}
+.portfolio-tab:hover{color:var(--cyan);border-color:rgba(0,181,248,.4)}
+.portfolio-tab.active{background:rgba(0,181,248,.2);border-color:rgba(0,181,248,.55);color:var(--cyan);font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 4px 12px rgba(0,181,248,.2)}
+[data-theme="light"] .portfolio-tab.active{color:#005c91;border-color:rgba(0,92,145,.5)}
+.portfolio-group{display:none;padding:20px 40px 40px}
+.portfolio-group.active{display:block;animation:fadeIn .5s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(20px)}to{opacity:1;transform:translateY(0)}}
+.portfolio-scroll-track{display:flex;gap:20px;overflow-x:auto;scroll-snap-type:x mandatory;padding-bottom:20px;scrollbar-width:none;-ms-overflow-style:none}
+.portfolio-scroll-track::-webkit-scrollbar{display:none}
+.portfolio-item{flex:0 0 auto;scroll-snap-align:start;border-radius:18px;overflow:hidden;transition:transform .3s,box-shadow .3s;position:relative;border:1px solid var(--glass-border)}
+.portfolio-item:hover{transform:translateY(-4px);box-shadow:0 18px 48px rgba(0,0,0,.4)}
+.portfolio-item.wide{width:420px;height:300px}
+.portfolio-item.portrait{width:260px;height:380px}
+.portfolio-item.square{width:340px;height:340px}
+.portfolio-item img,.portfolio-item video{width:100%;height:100%;object-fit:cover;transition:transform .5s}
+.portfolio-item:hover img,.portfolio-item:hover video{transform:scale(1.06)}
+.web-mockup{background:#0a0e16}
+.browser-frame{width:100%;height:100%;display:flex;flex-direction:column;background:#0a0e16;border-radius:18px;overflow:hidden}
+.browser-bar{display:flex;align-items:center;gap:6px;padding:9px 14px;background:#1a1f2c;border-bottom:1px solid rgba(255,255,255,.06);position:relative;flex-shrink:0}
+.browser-bar span{width:10px;height:10px;border-radius:50%;background:rgba(255,255,255,.15);flex-shrink:0}
+.browser-bar span:first-child{background:#ff5f57}
+.browser-bar span:nth-child(2){background:#febc2e}
+.browser-bar span:nth-child(3){background:#28c840}
+.browser-url{margin:0 auto;font-family:'Manrope',sans-serif;font-size:10.5px;color:#888;background:#0a0e16;padding:3px 14px;border-radius:6px;letter-spacing:.2px}
+.browser-frame iframe{flex:1;width:100%;border:0;background:#fff;pointer-events:none;transform:scale(.5);transform-origin:top left;width:200%;height:200%}
+.portfolio-item-overlay{position:absolute;inset:0;background:linear-gradient(to top,rgba(0,8,15,.92) 0%,transparent 55%);opacity:0;transition:opacity .35s;display:flex;flex-direction:column;justify-content:flex-end;padding:24px}
+.portfolio-item:hover .portfolio-item-overlay{opacity:1}
+.portfolio-item-overlay h4{font-size:18px;font-weight:700;color:#fff;margin-bottom:4px}
+.portfolio-item-overlay span{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--cyan)}
+#testemunhos{padding:140px 40px;position:relative}
+.test-header{text-align:center;margin-bottom:60px}
+.test-cards-wrapper{display:grid;grid-template-columns:repeat(3,1fr);gap:24px;max-width:1180px;margin:0 auto}
+.test-card{padding:38px 32px;min-height:300px;display:flex;flex-direction:column;justify-content:space-between;transition:border-color .35s,transform .35s,background .35s;background:var(--glass-bg);backdrop-filter:blur(22px) saturate(180%);-webkit-backdrop-filter:blur(22px) saturate(180%);border:1px solid var(--glass-border);border-radius:20px;box-shadow:inset 0 1px 0 rgba(255,255,255,.08),0 8px 30px rgba(0,8,15,.18)}
+[data-theme="light"] .test-card{box-shadow:inset 0 1px 0 rgba(255,255,255,.6),0 8px 30px rgba(0,22,39,.08)}
+.test-logo{width:auto;max-width:120px;max-height:36px;object-fit:contain;display:block;margin-bottom:4px;opacity:.95}
+.test-logo-text{font-family:'Space Grotesk',sans-serif;font-weight:800;font-size:18px;letter-spacing:2px;color:var(--cyan);text-transform:uppercase}
+.test-card:hover{border-color:rgba(0,181,248,.4);transform:translateY(-4px)}
+.test-quote-mark{font-family:'Space Grotesk',sans-serif;font-size:64px;line-height:.5;color:var(--cyan);opacity:.4;margin-bottom:16px}
+.test-quote{font-size:15px;line-height:1.7;color:var(--text);transition:opacity .35s;margin-bottom:24px;flex:1}
+.test-footer{display:flex;align-items:flex-end;justify-content:space-between;transition:opacity .35s}
+.test-author{display:flex;flex-direction:column;gap:6px;align-items:flex-start}
+.test-logo-wrap{display:flex;align-items:center;height:36px}
+.test-logo-wrap img.test-logo{max-height:32px;max-width:140px;width:auto;height:auto;object-fit:contain}
+.test-name{font-weight:600;font-size:13px;font-family:'Manrope',sans-serif;color:var(--text-muted)}
+.test-stars{display:flex;gap:3px;flex-shrink:0}
+.test-stars svg{width:13px;height:13px;fill:var(--cyan)}
+.test-stars svg.empty{fill:none;stroke:var(--cyan);opacity:.3}
+.test-card.fading .test-quote,.test-card.fading .test-footer{opacity:0}
+.test-dots{display:flex;gap:8px;justify-content:center;margin-top:40px}
+.test-dot{width:7px;height:7px;border-radius:50%;background:rgba(0,181,248,.25);transition:background .25s,width .25s}
+.test-dot.active{background:var(--cyan);width:24px;border-radius:99px}
+#calculadora{padding:140px 40px;position:relative}
+.calc-header{text-align:center;margin-bottom:60px}
+.calc-box{max-width:860px;margin:0 auto;padding:52px 56px;position:relative}
+.calc-row{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:16px;margin-bottom:32px}
+.calc-currency-group{display:flex;gap:10px}
+.calc-currency-btn{padding:9px 22px;border-radius:999px;border:1px solid var(--glass-border);background:var(--glass-bg-soft);backdrop-filter:blur(14px) saturate(170%);-webkit-backdrop-filter:blur(14px) saturate(170%);color:var(--text-muted);font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;letter-spacing:.4px;transition:.25s}
+.calc-currency-btn:hover{color:var(--cyan);border-color:rgba(0,181,248,.4)}
+.calc-currency-btn.active{background:rgba(0,181,248,.2);border-color:rgba(0,181,248,.55);color:var(--cyan);font-weight:700;box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 4px 12px rgba(0,181,248,.2)}
+[data-theme="light"] .calc-currency-btn.active{color:#005c91;border-color:rgba(0,92,145,.5)}
+.calc-label-mini{font-size:11px;letter-spacing:3px;text-transform:uppercase;color:var(--text-muted);opacity:.6;margin-bottom:12px;display:block}
+.calc-services-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:32px}
+.calc-service-item{padding:18px 20px;border-radius:14px;border:1px solid var(--glass-border);transition:.25s;user-select:none;background:var(--glass-bg-soft);backdrop-filter:blur(14px) saturate(170%);-webkit-backdrop-filter:blur(14px) saturate(170%);cursor:pointer}
+.calc-service-item:hover{border-color:rgba(0,181,248,.4);background:var(--glass-bg)}
+.calc-service-item.selected{border-color:var(--cyan);background:rgba(0,181,248,.12);box-shadow:0 0 0 1px rgba(0,181,248,.3),0 6px 20px rgba(0,181,248,.15)}
+.calc-service-header{display:flex;align-items:flex-start;gap:12px;font-size:13.5px;font-weight:600}
+.calc-check{width:18px;height:18px;border:1.5px solid var(--glass-border);border-radius:5px;flex-shrink:0;margin-top:2px;display:flex;align-items:center;justify-content:center;transition:.2s}
+.calc-service-item.selected .calc-check{background:var(--cyan);border-color:var(--cyan)}
+.calc-service-item.selected .calc-check::after{content:'';width:4px;height:8px;border-right:2px solid #001627;border-bottom:2px solid #001627;transform:rotate(45deg) translate(-1px,-1px)}
+.calc-service-price{font-size:11px;color:var(--cyan);margin-top:6px;margin-left:30px;opacity:.85;letter-spacing:.3px;font-family:'Manrope',sans-serif;font-weight:600}
+[data-theme="light"] .calc-service-price{color:#005c91}
+.calc-maint{display:flex;align-items:center;gap:9px;margin-top:14px;margin-left:30px;padding:8px 12px;border-radius:10px;border:1px dashed var(--glass-border);transition:.2s;cursor:pointer;user-select:none}
+.calc-maint:hover{border-color:rgba(0,181,248,.4);background:rgba(0,181,248,.05)}
+.calc-maint.on{border-style:solid;border-color:var(--cyan);background:rgba(0,181,248,.1)}
+.calc-maint-check{width:14px;height:14px;border:1.5px solid var(--glass-border);border-radius:4px;flex-shrink:0;display:flex;align-items:center;justify-content:center;transition:.2s}
+.calc-maint.on .calc-maint-check{background:var(--cyan);border-color:var(--cyan)}
+.calc-maint.on .calc-maint-check::after{content:'';width:4px;height:7px;border-right:2px solid #001627;border-bottom:2px solid #001627;transform:rotate(45deg) translate(-1px,-1px)}
+.calc-maint-label{font-size:11.5px;font-family:'Manrope',sans-serif;font-weight:600;color:var(--text-muted);letter-spacing:.2px}
+.calc-maint.on .calc-maint-label{color:var(--text)}
+.calc-maint-price{margin-left:auto;font-size:10.5px;color:var(--cyan);font-family:'Manrope',sans-serif;font-weight:700;opacity:.85}
+[data-theme="light"] .calc-maint-price{color:#005c91}
+.calc-line{display:flex;justify-content:space-between;align-items:baseline;width:100%;padding:6px 0;gap:16px}
+.calc-line + .calc-line{border-top:1px dashed var(--glass-border);margin-top:8px;padding-top:14px}
+.calc-line-label{font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;color:var(--text-muted)}
+.calc-line-amount{font-family:'Space Grotesk',sans-serif;font-size:clamp(22px,3.4vw,32px);font-weight:800;color:var(--cyan);line-height:1.1;text-shadow:0 0 22px rgba(0,181,248,.25);text-align:right}
+.calc-line-amount small{font-size:.5em;font-weight:600;color:var(--text-muted);margin-left:4px;letter-spacing:.5px}
+.calc-result{padding:28px 32px;border-radius:20px;border:1px solid rgba(0,181,248,.25);background:rgba(0,181,248,.04);min-height:120px;display:flex;flex-direction:column;align-items:stretch;justify-content:center;gap:0;margin-top:28px}
+.calc-result:has(.calc-result-placeholder){text-align:center;align-items:center;padding:36px}
+.calc-result-amount{font-size:clamp(36px,5.5vw,58px);font-weight:800;font-family:'Space Grotesk',sans-serif;color:var(--cyan);line-height:1;transition:all .5s;text-shadow:0 0 30px rgba(0,181,248,.3)}
+.calc-result-label{font-size:13px;color:var(--text-muted);letter-spacing:.5px}
+.calc-result-placeholder{font-size:14px;color:var(--text-muted);opacity:.5;font-style:italic}
+.calc-note{text-align:center;margin-top:18px;font-size:11.5px;color:var(--text-muted);opacity:.55;letter-spacing:.3px}
+#stats{padding:140px 40px;position:relative;text-align:center}
+.stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:60px;max-width:980px;margin:0 auto}
+.stat-item{display:flex;flex-direction:column;align-items:center;gap:12px}
+.stat-num{font-family:'Space Grotesk',sans-serif;font-weight:900;color:var(--cyan);line-height:1;display:block;font-size:8px;transition:font-size .05s linear}
+.stat-num.done{font-size:clamp(48px,7vw,86px)}
+.stat-prefix,.stat-suffix{color:var(--cyan)}
+.stat-label{font-size:11px;color:var(--text-muted);letter-spacing:3px;text-transform:uppercase;font-weight:500}
+#contacto{padding:140px 40px;position:relative;overflow:hidden}
+.contacto-bg{position:absolute;inset:0;background-image:url('assets/contacto-bg.png');background-size:cover;background-position:center;filter:grayscale(1) brightness(.35);z-index:0}
+.contacto-overlay{position:absolute;inset:0;background:rgba(0,22,39,.7);z-index:1}
+[data-theme="light"] .contacto-overlay{background:rgba(214,236,248,.75)}
+.contacto-header{position:relative;z-index:2;text-align:center;margin-bottom:48px;color:#fff}
+[data-theme="dark"] .contacto-header{color:#fff}
+.form-wrapper{position:relative;z-index:2;max-width:680px;margin:0 auto}
+.form-box{padding:56px 50px;position:relative;overflow:hidden}
+.form-progress{height:3px;background:rgba(0,181,248,.15);border-radius:999px;margin-bottom:42px;overflow:hidden}
+.form-progress-bar{height:100%;background:var(--cyan);border-radius:999px;transition:width .5s ease;width:0%;box-shadow:0 0 10px rgba(0,181,248,.5)}
+.form-q-num{position:absolute;font-size:180px;font-weight:900;color:var(--cyan);opacity:.04;font-family:'Space Grotesk',sans-serif;top:36px;right:48px;line-height:1;pointer-events:none;user-select:none}
+.form-step{display:none}
+.form-step.active{display:block;animation:formFadeIn .4s ease}
+@keyframes formFadeIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
+.form-q-label{font-size:22px;font-weight:700;font-family:'Space Grotesk',sans-serif;margin-bottom:26px;line-height:1.3}
+.form-options{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:24px}
+.form-option{padding:11px 22px;border:1px solid var(--glass-border);border-radius:999px;background:var(--glass-bg-soft);backdrop-filter:blur(12px) saturate(170%);-webkit-backdrop-filter:blur(12px) saturate(170%);color:var(--text-muted);font-family:'Manrope',sans-serif;font-size:13px;font-weight:500;transition:.25s}
+.form-option:hover{border-color:var(--cyan);color:var(--cyan);background:var(--glass-bg)}
+.form-option.selected{border-color:var(--cyan);background:rgba(0,181,248,.18);color:var(--cyan);font-weight:700;box-shadow:0 0 0 1px rgba(0,181,248,.3)}
+.form-textarea{width:100%;padding:16px 18px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:14px;color:var(--text);font-size:14px;resize:vertical;min-height:110px;outline:none;transition:border-color .2s;margin-bottom:16px;line-height:1.6}
+.form-textarea:focus{border-color:var(--cyan)}
+.form-textarea::placeholder{color:var(--text-muted);opacity:.5}
+.form-input{width:100%;padding:14px 18px;background:var(--glass-bg);border:1px solid var(--glass-border);border-radius:12px;color:var(--text);font-size:14px;outline:none;transition:border-color .2s;margin-bottom:14px}
+.form-input:focus{border-color:var(--cyan)}
+.form-input::placeholder{color:var(--text-muted);opacity:.5}
+.form-nav{display:flex;gap:12px;justify-content:space-between;margin-top:16px}
+.form-nav.end{justify-content:flex-end}
+.btn-form-next{padding:13px 32px;background:rgba(0,181,248,.14);backdrop-filter:blur(18px) saturate(180%);-webkit-backdrop-filter:blur(18px) saturate(180%);color:var(--cyan);font-family:'Manrope',sans-serif;font-weight:800;font-size:12px;letter-spacing:.7px;border:1px solid rgba(0,181,248,.45);border-radius:999px;transition:.25s;display:flex;align-items:center;gap:8px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 4px 14px rgba(0,181,248,.18)}
+[data-theme="light"] .btn-form-next{color:#005c91;border-color:rgba(0,92,145,.45);background:rgba(0,181,248,.16)}
+.btn-form-next:disabled{opacity:.35;cursor:not-allowed}
+.btn-form-next:not(:disabled):hover{transform:translateY(-2px);background:rgba(0,181,248,.26);border-color:rgba(0,181,248,.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 10px 28px rgba(0,181,248,.4)}
+.btn-form-back{padding:13px 24px;background:var(--glass-bg-soft);backdrop-filter:blur(14px) saturate(170%);-webkit-backdrop-filter:blur(14px) saturate(170%);color:var(--text-muted);font-family:'Manrope',sans-serif;font-size:12px;font-weight:600;letter-spacing:.5px;border:1px solid var(--glass-border);border-radius:999px;transition:.25s}
+.btn-form-back:hover{border-color:var(--cyan);color:var(--cyan);background:var(--glass-bg)}
+.form-success{text-align:center;display:none;padding:48px 0}
+.form-success.show{display:block;animation:formFadeIn .6s ease}
+.form-success-icon{width:70px;height:70px;margin:0 auto 24px;border-radius:50%;background:rgba(0,181,248,.15);border:2px solid var(--cyan);display:flex;align-items:center;justify-content:center}
+.form-success-icon svg{width:30px;height:30px;stroke:var(--cyan);fill:none}
+.form-success h3{font-size:26px;font-weight:800;margin-bottom:12px}
+.form-success p{color:var(--text-muted);font-size:14px}
+#sobre{padding:140px 80px;position:relative;z-index:1}
+.sobre-top{display:flex;align-items:center;justify-content:space-between;margin-bottom:60px;flex-wrap:wrap;gap:20px}
+.sobre-top-left{display:flex;align-items:center;gap:16px}
+.sobre-star{width:24px;height:24px;color:var(--cyan);animation:spin 9s linear infinite;flex-shrink:0}
+@keyframes spin{to{transform:rotate(360deg)}}
+.sobre-label{font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--text-muted);font-weight:500}
+.sobre-socials{display:flex;gap:12px;align-items:center}
+.sobre-social{width:42px;height:42px;border:1px solid var(--border);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:border-color .25s,transform .25s;opacity:0;transform:translateY(12px)}
+.sobre-social.revealed{opacity:1;transform:translateY(0);transition:opacity .5s,transform .5s,border-color .25s}
+.sobre-social:hover{border-color:var(--cyan);transform:translateY(-3px)}
+.sobre-social svg{width:18px;height:18px;fill:var(--text)}
+.sobre-social:hover svg{fill:var(--cyan)}
+.sobre-social img{width:18px;height:18px;object-fit:contain}
+.sobre-image-wrap{margin-bottom:56px;position:relative}
+.sobre-img-clip{width:100%;height:auto;display:block;filter:drop-shadow(0 24px 60px rgba(0,8,15,.35))}
+.sobre-stats-bar{display:flex;gap:48px;padding:30px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border);margin-bottom:64px;flex-wrap:wrap;justify-content:space-around}
+.sobre-stat{display:flex;flex-direction:column;gap:6px;align-items:center;text-align:center}
+.sobre-stat-num{font-size:32px;font-weight:800;color:var(--cyan);font-family:'Space Grotesk',sans-serif;line-height:1}
+.sobre-stat-label{font-size:11px;letter-spacing:2px;text-transform:uppercase;color:var(--text-muted)}
+.sobre-grid{display:grid;grid-template-columns:2fr 1fr;gap:80px;align-items:start}
+.sobre-manifesto h2{font-size:clamp(30px,4vw,52px);font-weight:800;line-height:1.15;margin-bottom:32px}
+.sobre-manifesto h2 .word{display:inline-block;clip-path:inset(0 100% 0 0);transition:clip-path .7s cubic-bezier(.5,1.4,.5,1);padding-right:8px;will-change:clip-path}
+.sobre-manifesto h2 .word.revealed{clip-path:inset(0 0 0 0)}
+.sobre-para{font-size:15.5px;color:var(--text-muted);line-height:1.85;margin-bottom:22px;opacity:0;transform:translateY(-22px);filter:blur(8px);transition:opacity .7s,transform .7s,filter .7s}
+.sobre-para.revealed{opacity:1;transform:translateY(0);filter:blur(0)}
+.sobre-right{display:flex;flex-direction:column;gap:24px}
+.sobre-brand-img{width:auto;max-width:100%;height:auto;max-height:90px;display:block;object-fit:contain;object-position:left center;opacity:0;transform:translateY(-22px);filter:blur(8px);transition:opacity .7s,transform .7s,filter .7s}
+.sobre-brand-img.revealed{opacity:1;transform:translateY(0);filter:blur(0)}
+[data-theme="light"] .sobre-brand-img{filter:brightness(0) blur(8px)}
+[data-theme="light"] .sobre-brand-img.revealed{filter:brightness(0) blur(0)}
+.sobre-subtitle{font-size:14px;color:var(--text-muted);line-height:1.7;opacity:0;transform:translateY(-22px);filter:blur(8px);transition:opacity .8s .1s,transform .8s .1s,filter .8s .1s}
+.sobre-subtitle.revealed{opacity:1;transform:translateY(0);filter:blur(0)}
+.btn-sobre-cta{padding:14px 32px;background:rgba(0,181,248,.14);backdrop-filter:blur(20px) saturate(180%);-webkit-backdrop-filter:blur(20px) saturate(180%);color:var(--cyan);font-family:'Manrope',sans-serif;font-weight:800;font-size:12px;letter-spacing:1px;border:1px solid rgba(0,181,248,.45);border-radius:999px;opacity:0;transform:translateY(-22px);filter:blur(8px);transition:opacity .9s .2s,transform .9s .2s,filter .9s .2s,box-shadow .2s,background .25s,border-color .25s;align-self:flex-start;margin-top:8px;box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 6px 20px rgba(0,181,248,.2)}
+[data-theme="light"] .btn-sobre-cta{color:#005c91;border-color:rgba(0,92,145,.45);background:rgba(0,181,248,.16)}
+.btn-sobre-cta.revealed{opacity:1;transform:translateY(0);filter:blur(0)}
+.btn-sobre-cta:hover{background:rgba(0,181,248,.26);border-color:rgba(0,181,248,.7);box-shadow:inset 0 1px 0 rgba(255,255,255,.15),0 12px 34px rgba(0,181,248,.4);transform:translateY(-2px)}
+#parceiros{padding:90px 0;position:relative;overflow:hidden;border-top:1px solid var(--border)}
+.parceiros-label{text-align:center;font-size:11px;letter-spacing:4px;text-transform:uppercase;color:var(--text-muted);opacity:.55;margin-bottom:48px;font-weight:500}
+.ticker-wrapper{overflow:hidden;width:100%;position:relative;mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent);-webkit-mask-image:linear-gradient(to right,transparent,#000 12%,#000 88%,transparent)}
+.ticker-track{display:flex;gap:80px;animation:tickerScroll 28s linear infinite;width:max-content;align-items:center}
+.ticker-track:hover{animation-play-state:paused}
+@keyframes tickerScroll{from{transform:translateX(0)}to{transform:translateX(-50%)}}
+.ticker-item{flex-shrink:0;display:flex;align-items:center;gap:14px;opacity:.85;transition:opacity .3s,transform .3s}
+.ticker-item:hover{opacity:1;transform:scale(1.04)}
+.ticker-item img{height:46px;width:auto;object-fit:contain;transition:transform .3s}
+.ticker-item span{font-size:24px;font-weight:800;font-family:'Space Grotesk',sans-serif;letter-spacing:3px;color:var(--text);text-transform:uppercase}
+.ticker-brand-apex span{color:#ff6b35}
+.ticker-brand-cote span{color:#5b8def}
+.ticker-brand-fauna span{color:#3da671}
+.ticker-brand-lumiere span{color:#d4af37}
+.ticker-brand-noctis span{color:#6b46c1}
+.ticker-brand-verde span{color:#2d8659}
+.ticker-brand-werkhaus span{color:#e74c3c}
+.ticker-brand-cryst span{color:#222}
+[data-theme="dark"] .ticker-brand-cryst span{color:#e8e8e8}
+.ticker-brand-twinvault span{color:#d4af37}
+footer{height:auto;min-height:80px;display:flex;align-items:center;justify-content:space-between;padding:24px 60px;border-top:1px solid var(--border);position:relative;z-index:1;gap:24px;flex-wrap:wrap}
+.footer-logo{height:24px;width:auto;opacity:.7}
+.footer-links{display:flex;gap:28px;list-style:none}
+.footer-links a{font-size:12px;color:var(--text-muted);opacity:.65;transition:opacity .2s,color .2s}
+.footer-links a:hover{opacity:1;color:var(--cyan)}
+.footer-copy{font-size:11.5px;color:var(--text-muted);opacity:.45;letter-spacing:.3px}
+.oscar-widget{position:fixed;bottom:24px;right:24px;z-index:3000}
+.oscar-toggle{width:58px;height:58px;background:var(--cyan);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;box-shadow:0 6px 30px rgba(0,181,248,.5);transition:transform .3s,box-shadow .3s;position:relative}
+.oscar-toggle:hover{transform:scale(1.08);box-shadow:0 10px 40px rgba(0,181,248,.65)}
+.oscar-toggle svg{width:24px;height:24px;stroke:#001627;fill:none}
+.oscar-toggle .icon-close{display:none}
+.oscar-widget.open .oscar-toggle .icon-chat{display:none}
+.oscar-widget.open .oscar-toggle .icon-close{display:block}
+.oscar-pulse{position:absolute;inset:-4px;border-radius:50%;border:2px solid rgba(0,181,248,.5);animation:oscarPulse 2.5s ease-out infinite;pointer-events:none}
+@keyframes oscarPulse{0%{transform:scale(1);opacity:.7}100%{transform:scale(1.7);opacity:0}}
+.oscar-chat{position:absolute;bottom:74px;right:0;width:380px;max-height:560px;display:flex;flex-direction:column;opacity:0;pointer-events:none;transform:translateY(24px) scale(.88);transform-origin:bottom right;transition:opacity .35s cubic-bezier(.5,1.6,.5,1),transform .45s cubic-bezier(.5,1.6,.5,1),visibility .35s;visibility:hidden;border-radius:22px;overflow:hidden;background:var(--glass-bg);backdrop-filter:blur(34px) saturate(200%);-webkit-backdrop-filter:blur(34px) saturate(200%);border:1px solid var(--glass-border);box-shadow:inset 0 1px 0 rgba(255,255,255,.1),0 24px 70px rgba(0,8,15,.45),0 0 0 1px rgba(0,181,248,.1)}
+[data-theme="light"] .oscar-chat{box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 24px 60px rgba(0,22,39,.18),0 0 0 1px rgba(0,22,39,.05)}
+.oscar-widget.open .oscar-chat{opacity:1;pointer-events:all;transform:translateY(0) scale(1);visibility:visible}
+.oscar-widget.open .oscar-chat-header,.oscar-widget.open .oscar-messages,.oscar-widget.open .oscar-tags,.oscar-widget.open .oscar-input-row{animation:oscarStaggerIn .5s ease both}
+.oscar-widget.open .oscar-messages{animation-delay:.08s}
+.oscar-widget.open .oscar-tags{animation-delay:.16s}
+.oscar-widget.open .oscar-input-row{animation-delay:.22s}
+@keyframes oscarStaggerIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.oscar-chat-header{padding:18px 20px;border-bottom:1px solid var(--glass-border);display:flex;align-items:center;justify-content:space-between}
+.oscar-chat-title{display:flex;align-items:center;gap:10px}
+.oscar-status-dot{width:8px;height:8px;background:#22c55e;border-radius:50%;animation:statusBlink 2s ease-in-out infinite}
+@keyframes statusBlink{0%,100%{opacity:1}50%{opacity:.4}}
+.oscar-chat-title strong{font-family:'Space Grotesk',sans-serif;font-weight:700;font-size:15px}
+.oscar-chat-title small{font-size:11px;color:var(--text-muted);margin-left:6px}
+.oscar-header-actions{display:flex;gap:6px}
+.oscar-icon-btn{width:30px;height:30px;background:none;border:1px solid var(--glass-border);border-radius:50%;display:flex;align-items:center;justify-content:center;transition:border-color .2s,background .2s}
+.oscar-icon-btn:hover{border-color:var(--cyan);background:rgba(0,181,248,.08)}
+.oscar-icon-btn svg{width:13px;height:13px;stroke:var(--text-muted);fill:none}
+.oscar-icon-btn:hover svg{stroke:var(--cyan)}
+.oscar-messages{flex:1;overflow-y:auto;padding:18px;display:flex;flex-direction:column;gap:12px;min-height:240px;max-height:320px;scrollbar-width:thin;scrollbar-color:rgba(0,181,248,.25) transparent}
+.oscar-msg{max-width:84%;padding:11px 15px;border-radius:14px;font-size:13px;line-height:1.55;animation:msgIn .3s ease}
+@keyframes msgIn{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:translateY(0)}}
+.oscar-msg.bot{background:rgba(0,181,248,.08);border:1px solid rgba(0,181,248,.15);align-self:flex-start;border-radius:4px 14px 14px 14px;color:var(--text)}
+.oscar-msg.user{background:var(--cyan);color:#001627;align-self:flex-end;font-weight:500;border-radius:14px 14px 4px 14px}
+.oscar-typing{display:flex;gap:5px;padding:12px 15px;background:rgba(0,181,248,.08);border:1px solid rgba(0,181,248,.15);border-radius:4px 14px 14px 14px;align-self:flex-start;width:fit-content}
+.oscar-typing span{width:6px;height:6px;background:var(--cyan);border-radius:50%;animation:typingBounce 1.2s ease-in-out infinite}
+.oscar-typing span:nth-child(2){animation-delay:.2s}
+.oscar-typing span:nth-child(3){animation-delay:.4s}
+@keyframes typingBounce{0%,60%,100%{transform:translateY(0)}30%{transform:translateY(-7px)}}
+.oscar-tags{display:flex;gap:6px;padding:0 16px 12px;overflow-x:auto;scrollbar-width:none}
+.oscar-tags::-webkit-scrollbar{display:none}
+.oscar-tag{flex-shrink:0;padding:7px 14px;border:1px solid var(--glass-border);border-radius:999px;font-size:11.5px;color:var(--text-muted);transition:.25s;white-space:nowrap;background:var(--glass-bg-soft);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);font-family:'Manrope',sans-serif;font-weight:600}
+.oscar-tag:hover{border-color:var(--cyan);color:var(--cyan);background:rgba(0,181,248,.1)}
+.oscar-input-row{padding:14px 16px;display:flex;gap:8px;border-top:1px solid var(--glass-border);align-items:flex-end}
+.oscar-textarea{flex:1;background:none;border:none;outline:none;color:var(--text);font-family:'Inter',sans-serif;font-size:13px;resize:none;height:38px;max-height:80px;line-height:1.55;padding:8px 4px}
+.oscar-textarea::placeholder{color:var(--text-muted);opacity:.5}
+.oscar-send{width:38px;height:38px;background:var(--cyan);border:none;border-radius:50%;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:transform .2s}
+.oscar-send:hover{transform:scale(1.08) rotate(15deg)}
+.oscar-send svg{width:14px;height:14px;stroke:#001627;fill:none}
+.oscar-voice-overlay{position:absolute;inset:0;border-radius:22px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:24px;opacity:0;pointer-events:none;transition:opacity .35s;background:var(--glass-bg);backdrop-filter:blur(30px) saturate(180%);-webkit-backdrop-filter:blur(30px) saturate(180%)}
+.oscar-voice-overlay.active{opacity:1;pointer-events:all}
+@property --siri-a{syntax:'<angle>';inherits:false;initial-value:0deg}
+@property --siri-b{syntax:'<angle>';inherits:false;initial-value:120deg}
+@property --siri-c{syntax:'<angle>';inherits:false;initial-value:240deg}
+.siri-orb{width:140px;height:140px;border-radius:50%;background:conic-gradient(from var(--siri-a),#00b5f8,#0066cc 30%,#00b5f8 60%,#005599 90%,#00b5f8),conic-gradient(from var(--siri-b),#00b5f8 0%,transparent 40%,#0099ee 80%,transparent),conic-gradient(from var(--siri-c),transparent,#00b5f8 50%,transparent);background-blend-mode:screen;animation:siriA 3s linear infinite,siriB 4.5s ease-in-out infinite,siriC 5.5s ease-in-out infinite;filter:blur(3px) brightness(1.3);box-shadow:0 0 70px rgba(0,181,248,.55),0 0 140px rgba(0,181,248,.25),inset 0 0 30px rgba(0,181,248,.3)}
+@keyframes siriA{to{--siri-a:360deg}}
+@keyframes siriB{0%,100%{--siri-b:120deg}50%{--siri-b:480deg}}
+@keyframes siriC{0%,100%{--siri-c:240deg}50%{--siri-c:-120deg}}
+.voice-label{font-size:11px;color:var(--text-muted);letter-spacing:3px;text-transform:uppercase;font-weight:600}
+.btn-voice-close{padding:10px 26px;background:none;border:1px solid var(--glass-border);border-radius:999px;color:var(--text-muted);font-size:11px;letter-spacing:1.5px;text-transform:uppercase;transition:.25s}
+.btn-voice-close:hover{border-color:var(--cyan);color:var(--cyan)}
+.reveal{opacity:0;transform:translateY(30px);transition:opacity .8s ease,transform .8s ease}
+.reveal.revealed{opacity:1;transform:translateY(0)}
+.reveal-d1{transition-delay:.1s}
+.reveal-d2{transition-delay:.2s}
+.reveal-d3{transition-delay:.3s}
+@media (max-width:1024px){.sobre-grid{grid-template-columns:1fr;gap:48px}.stats-grid{grid-template-columns:repeat(2,1fr);gap:48px}.test-cards-wrapper{grid-template-columns:1fr;max-width:480px}}
+@media (max-width:768px){.navbar{padding:0 20px}.nav-links{display:none}.nav-controls{gap:8px}.btn-nav-cta{padding:8px 16px;font-size:10px}.hero-icon{width:90px;height:90px}.services-track{padding:0 5vw;gap:16px}.service-card{flex:0 0 280px;padding:32px 24px;min-height:340px}.calc-services-grid{grid-template-columns:1fr}.calc-box,.form-box{padding:36px 28px}#sobre{padding:100px 32px}.processo-card{padding:36px 32px}.modal-box{padding:36px 28px}footer{padding:24px 28px;flex-direction:column;text-align:center;gap:14px}.oscar-chat{width:calc(100vw - 48px);max-width:360px}}
+@media (max-width:480px){.hero-ctas{flex-direction:column;width:100%;max-width:280px}.btn-primary,.btn-outline{width:100%}.portfolio-tabs{justify-content:flex-start;overflow-x:auto;flex-wrap:nowrap;padding-bottom:8px}.portfolio-item.wide{width:300px;height:220px}.portfolio-item.portrait{width:210px;height:300px}}
+</style>
+</head>
+<body data-theme="dark">
+<canvas id="bg-canvas"></canvas>
+
+<nav class="navbar" id="navbar">
+  <a href="#hero" class="navbar-logo" aria-label="CLVSN">
+    <img src="assets/logo-icon-black.png" alt="CLVSN">
+  </a>
+  <ul class="nav-links">
+    <li><a href="#sobre" data-t="nav.sobre">Sobre</a></li>
+    <li class="nav-dropdown" id="navServicosDropdown">
+      <button class="nav-dropdown-btn" type="button"><span data-t="nav.servicos">Serviços</span>
+        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </button>
+      <div class="nav-dropdown-menu glass">
+        <a href="#servicos" data-pack="1">Brand Foundation & Estratégia</a>
+        <a href="#servicos" data-pack="2">Brand Scaling & Crescimento</a>
+        <a href="#servicos" data-pack="3">Social Media & Performance</a>
+        <a href="#servicos" data-pack="4">Web Design & Digital Experience</a>
+        <a href="#servicos" data-pack="5">Conteúdo Criativo & Produção</a>
+        <a href="#servicos" data-pack="6">IPGA — Info Product Growth</a>
+        <a href="#servicos" data-pack="7">Automação & Sistemas de Gestão</a>
+        <a href="#servicos" data-pack="8">Consultorias & Mentorias</a>
+      </div>
+    </li>
+    <li><a href="#portfolio" data-t="nav.portfolio">Portfolio</a></li>
+    <li><a href="#calculadora" data-t="nav.calc">Calculadora</a></li>
+  </ul>
+  <div class="nav-controls">
+    <select class="lang-select" id="langSelect" aria-label="Language">
+      <option value="pt">PT</option>
+      <option value="en">EN</option>
+      <option value="es">ES</option>
+    </select>
+    <button class="mode-toggle" id="modeToggle" aria-label="Mode">
+      <svg class="icon-sun" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="4"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/><line x1="4.93" y1="4.93" x2="6.7" y2="6.7"/><line x1="17.3" y1="17.3" x2="19.07" y2="19.07"/><line x1="4.93" y1="19.07" x2="6.7" y2="17.3"/><line x1="17.3" y1="6.7" x2="19.07" y2="4.93"/></svg>
+      <svg class="icon-moon" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z" fill="currentColor"/></svg>
+    </button>
+    <button class="btn-nav-cta" onclick="scrollToSection('contacto')" data-t="nav.cta">Solicitar Diagnóstico</button>
+  </div>
+</nav>
+
+<div class="modal-overlay" id="serviceModal">
+  <div class="glass-xl modal-box">
+    <button class="modal-close" onclick="closeModal()" aria-label="Fechar">
+      <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+    </button>
+    <span class="modal-tag" id="modalTag">PACK</span>
+    <h2 id="modalTitle"></h2>
+    <ul class="modal-items" id="modalItems"></ul>
+    <div class="modal-price-badge" id="modalPrice"></div>
+  </div>
+</div>
+
+<section id="hero">
+  <div class="hero-videos">
+    <video id="hero-vid-a" autoplay muted loop playsinline class="active"><source src="assets/hero-a.mp4" type="video/mp4"></video>
+    <video id="hero-vid-b" autoplay muted loop playsinline><source src="assets/hero-b.mp4" type="video/mp4"></video>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-content">
+    <img class="hero-icon" src="assets/logo-icon-black.png" alt="CLVSN">
+    <div class="hero-tag" data-t="hero.tag">Brand Scaling para Marcas de Moda</div>
+    <div class="hero-ctas">
+      <button class="btn-primary" onclick="scrollToSection('contacto')" data-t="hero.cta1">Solicitar Diagnóstico</button>
+      <button class="btn-outline" onclick="scrollToSection('calculadora')" data-t="hero.cta2">Simular Preços</button>
+    </div>
+  </div>
+  <div class="hero-scroll">
+    <span data-t="hero.scroll">Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div id="servicos-wrap">
+  <div class="services-intro">
+    <span class="section-label" data-t="serv.label">O Que Fazemos</span>
+    <h2 class="section-title reveal" data-t="serv.title">Pacotes pensados para escalar a tua marca</h2>
+    <p class="section-sub reveal reveal-d1" style="margin:0 auto" data-t="serv.sub">Oito pacotes de serviço modulares — desde o lançamento ao crescimento contínuo. Cada um adaptável ao teu momento.</p>
+  </div>
+  <div id="servicos-scroll">
+    <section id="servicos" class="services-pin">
+      <div class="services-track" id="servicesTrack">
+        <div class="glass service-card glow-card" data-pack="1">
+          <div>
+            <div class="service-num">01 / 08</div>
+            <h3 data-t="pack1.title">Brand Foundation & Estratégia</h3>
+            <p data-t="pack1.desc">Construir a base sólida da marca: identidade visual, naming, estratégia de mercado e posicionamento.</p>
+          </div>
+          <div class="service-card-footer">
+            <span class="service-price">800€ — 1.500€</span>
+            <button class="btn-card-expand" aria-label="Ver pack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+        <div class="glass service-card glow-card" data-pack="2">
+          <div>
+            <div class="service-num">02 / 08</div>
+            <h3 data-t="pack2.title">Brand Scaling & Crescimento</h3>
+            <p data-t="pack2.desc">Levar marcas existentes ao próximo nível com mentoria estratégica e expansão direcionada.</p>
+          </div>
+          <div class="service-card-footer">
+            <span class="service-price">400€ — 900€/mês</span>
+            <button class="btn-card-expand" aria-label="Ver pack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+        <div class="glass service-card glow-card" data-pack="3">
+          <div>
+            <div class="service-num">03 / 08</div>
+            <h3 data-t="pack3.title">Social Media & Performance</h3>
+            <p data-t="pack3.desc">Gestão completa de redes sociais, conteúdo orgânico, ads e analytics para resultados mensuráveis.</p>
+          </div>
+          <div class="service-card-footer">
+            <span class="service-price">350€ — 800€/mês</span>
+            <button class="btn-card-expand" aria-label="Ver pack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+        <div class="glass service-card glow-card" data-pack="4">
+          <div>
+            <div class="service-num">04 / 08</div>
+            <h3 data-t="pack4.title">Web Design & Digital Experience</h3>
+            <p data-t="pack4.desc">Websites únicos, e-commerce e landing pages que convertem. Design e desenvolvimento à medida.</p>
+          </div>
+          <div class="service-card-footer">
+            <span class="service-price">1.000€ — 2.500€</span>
+            <button class="btn-card-expand" aria-label="Ver pack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+        <div class="glass service-card glow-card" data-pack="5">
+          <div>
+            <div class="service-num">05 / 08</div>
+            <h3 data-t="pack5.title">Conteúdo Criativo & Produção</h3>
+            <p data-t="pack5.desc">Fotografia, vídeo, motion design e produção visual completa para a tua marca.</p>
+          </div>
+          <div class="service-card-footer">
+            <span class="service-price">300€ — 1.000€/mês</span>
+            <button class="btn-card-expand" aria-label="Ver pack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+        <div class="glass service-card glow-card" data-pack="6">
+          <div>
+            <div class="service-num">06 / 08</div>
+            <h3 data-t="pack6.title">IPGA — Info Product Growth</h3>
+            <p data-t="pack6.desc">Lançamento e escala de info produtos com funis automatizados e estratégia de growth.</p>
+          </div>
+          <div class="service-card-footer">
+            <span class="service-price">500€ — 1.500€</span>
+            <button class="btn-card-expand" aria-label="Ver pack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+        <div class="glass service-card glow-card" data-pack="7">
+          <div>
+            <div class="service-num">07 / 08</div>
+            <h3 data-t="pack7.title">Automação & Sistemas de Gestão</h3>
+            <p data-t="pack7.desc">Automatizar workflows, CRM, comunicação e operações para libertar tempo e escalar.</p>
+          </div>
+          <div class="service-card-footer">
+            <span class="service-price">400€ — 1.200€/mês</span>
+            <button class="btn-card-expand" aria-label="Ver pack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+        <div class="glass service-card glow-card" data-pack="8">
+          <div>
+            <div class="service-num">08 / 08</div>
+            <h3 data-t="pack8.title">Consultorias & Mentorias</h3>
+            <p data-t="pack8.desc">Sessões individuais para desbloquear desafios estratégicos e tomar decisões certas.</p>
+          </div>
+          <div class="service-card-footer">
+            <span class="service-price">100€ — 500€/sessão</span>
+            <button class="btn-card-expand" aria-label="Ver pack"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round"><polyline points="9 18 15 12 9 6"/></svg></button>
+          </div>
+        </div>
+      </div>
+      <div class="services-progress"><div class="services-progress-bar" id="servicesProgressBar"></div></div>
+    </section>
+  </div>
+</div>
+
+<section id="processo">
+  <div class="processo-header">
+    <span class="section-label" data-t="proc.label">Como Trabalhamos</span>
+    <h2 class="section-title reveal" data-t="proc.title">Cinco passos, zero suposições</h2>
+    <p class="section-sub reveal reveal-d1" style="margin:0 auto" data-t="proc.sub">Um processo claro do diagnóstico ao lançamento — sem surpresas, sem fricção.</p>
+  </div>
+  <div class="processo-stack">
+    <div class="processo-progress"><div class="processo-progress-fill" id="processoProgressFill"></div></div>
+    <div class="processo-step">
+      <div class="processo-step-num">01</div>
+      <div class="glass-xl processo-card">
+        <span class="step-tag" data-t="step1.tag">Passo 1</span>
+        <h3 data-t="step1.title">Diagnóstico</h3>
+        <p data-t="step1.desc">Análise profunda da marca, mercado, concorrência e objetivos. Identificamos o ponto de partida e o destino antes de qualquer execução.</p>
+      </div>
+    </div>
+    <div class="processo-step">
+      <div class="processo-step-num">02</div>
+      <div class="glass-xl processo-card">
+        <span class="step-tag" data-t="step2.tag">Passo 2</span>
+        <h3 data-t="step2.title">Estratégia</h3>
+        <p data-t="step2.desc">Pack recomendado, plano de ação detalhado, timelines realistas e KPIs definidos. Tu sabes exatamente o que vai acontecer.</p>
+      </div>
+    </div>
+    <div class="processo-step">
+      <div class="processo-step-num">03</div>
+      <div class="glass-xl processo-card">
+        <span class="step-tag" data-t="step3.tag">Passo 3</span>
+        <h3 data-t="step3.title">Produção</h3>
+        <p data-t="step3.desc">Execução total — design, conteúdo, campanhas, desenvolvimento web, automações. A equipa CLVSN põe tudo a andar.</p>
+      </div>
+    </div>
+    <div class="processo-step">
+      <div class="processo-step-num">04</div>
+      <div class="glass-xl processo-card">
+        <span class="step-tag" data-t="step4.tag">Passo 4</span>
+        <h3 data-t="step4.title">Revisão</h3>
+        <p data-t="step4.desc">Feedback do cliente, ajustes finos, aprovação. Iteramos até estar perfeito — não entregamos por entregar.</p>
+      </div>
+    </div>
+    <div class="processo-step">
+      <div class="processo-step-num">05</div>
+      <div class="glass-xl processo-card">
+        <span class="step-tag" data-t="step5.tag">Passo 5</span>
+        <h3 data-t="step5.title">Lançamento</h3>
+        <p data-t="step5.desc">Entrega final, go-live e acompanhamento contínuo. Continuamos contigo enquanto a marca cresce.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section id="portfolio">
+  <div class="portfolio-header">
+    <span class="section-label" data-t="port.label">Trabalho</span>
+    <h2 class="section-title reveal" data-t="port.title">Marcas que confiaram na visão</h2>
+    <p class="section-sub reveal reveal-d1" style="margin:0 auto" data-t="port.sub">Cinco áreas de execução. Projetos reais com marcas reais. Cada um construído de raiz.</p>
+  </div>
+  <div class="portfolio-tabs" id="portfolioTabs">
+    <button class="portfolio-tab active" data-group="branding" data-t="port.t1">Branding</button>
+    <button class="portfolio-tab" data-group="social" data-t="port.t2">Social Media</button>
+    <button class="portfolio-tab" data-group="web" data-t="port.t3">Web & Digital</button>
+    <button class="portfolio-tab" data-group="content" data-t="port.t4">Conteúdo</button>
+    <button class="portfolio-tab" data-group="strategy" data-t="port.t5">Estratégia</button>
+  </div>
+  <div class="portfolio-group active" data-group="branding">
+    <div class="portfolio-scroll-track">
+      <a href="portfolio/apex.html" class="portfolio-item wide"><img src="assets/portfolio/apex/01-shoot.jpg" alt="Apex" loading="lazy"><div class="portfolio-item-overlay"><h4>Apex</h4><span data-t="port.cat.brand">Identidade · Estratégia</span></div></a>
+      <a href="portfolio/cote.html" class="portfolio-item portrait"><img src="assets/portfolio/cote/01-coastal.jpg" alt="Cote" loading="lazy"><div class="portfolio-item-overlay"><h4>Cote</h4><span data-t="port.cat.brand">Identidade · Estratégia</span></div></a>
+      <a href="portfolio/fauna.html" class="portfolio-item square"><img src="assets/portfolio/fauna/01-botanical.jpg" alt="Fauna" loading="lazy"><div class="portfolio-item-overlay"><h4>Fauna</h4><span data-t="port.cat.brand">Identidade · Estratégia</span></div></a>
+      <a href="portfolio/lumiere.html" class="portfolio-item wide"><img src="assets/portfolio/lumiere/01-luxury.jpg" alt="Lumière" loading="lazy"><div class="portfolio-item-overlay"><h4>Lumière</h4><span data-t="port.cat.brand">Identidade · Estratégia</span></div></a>
+      <a href="portfolio/twinvault.html" class="portfolio-item portrait"><img src="assets/portfolio/twinvault/01-premium.jpg" alt="TwinVault" loading="lazy"><div class="portfolio-item-overlay"><h4>TwinVault</h4><span data-t="port.cat.brand">Identidade · Estratégia</span></div></a>
+    </div>
+  </div>
+  <div class="portfolio-group" data-group="social">
+    <div class="portfolio-scroll-track">
+      <div class="portfolio-item portrait"><video src="assets/portfolio/videos/1.mp4" muted loop playsinline autoplay></video><div class="portfolio-item-overlay"><h4>Reels Campaign</h4><span>TikTok · Instagram</span></div></div>
+      <div class="portfolio-item portrait"><video src="assets/portfolio/videos/2.mp4" muted loop playsinline autoplay></video><div class="portfolio-item-overlay"><h4>Brand Reel</h4><span>Instagram</span></div></div>
+      <div class="portfolio-item portrait"><video src="assets/portfolio/videos/3.mp4" muted loop playsinline autoplay></video><div class="portfolio-item-overlay"><h4>Lifestyle Edit</h4><span>TikTok</span></div></div>
+      <div class="portfolio-item portrait"><video src="assets/portfolio/videos/4.mp4" muted loop playsinline autoplay></video><div class="portfolio-item-overlay"><h4>Drop Teaser</h4><span>Reels</span></div></div>
+      <a href="portfolio/verde.html" class="portfolio-item square"><img src="assets/portfolio/verde/01-eco.jpg" alt="Verde" loading="lazy"><div class="portfolio-item-overlay"><h4>Verde</h4><span>Social Strategy</span></div></a>
+      <a href="portfolio/noctis.html" class="portfolio-item wide"><img src="assets/portfolio/noctis/01-dark.jpg" alt="Noctis" loading="lazy"><div class="portfolio-item-overlay"><h4>Noctis</h4><span>Social Strategy</span></div></a>
+    </div>
+  </div>
+  <div class="portfolio-group" data-group="web">
+    <div class="portfolio-scroll-track">
+      <a href="portfolio/werkhaus.html" class="portfolio-item wide web-mockup" data-brand="WERKHAUS" data-url="werkhaus.co" data-color="#e74c3c"><div class="browser-frame"><div class="browser-bar"><span></span><span></span><span></span><div class="browser-url">werkhaus.co</div></div><iframe src="portfolio/werkhaus.html" scrolling="no" loading="lazy"></iframe></div><div class="portfolio-item-overlay"><h4>Werkhaus</h4><span data-t="port.cat.web">Website · E-commerce</span></div></a>
+      <a href="portfolio/twinvault.html" class="portfolio-item wide web-mockup" data-brand="TWINVAULT" data-url="twinvault.co" data-color="#d4af37"><div class="browser-frame"><div class="browser-bar"><span></span><span></span><span></span><div class="browser-url">twinvault.co</div></div><iframe src="portfolio/twinvault.html" scrolling="no" loading="lazy"></iframe></div><div class="portfolio-item-overlay"><h4>TwinVault</h4><span data-t="port.cat.web">Website · Brand Site</span></div></a>
+      <a href="portfolio/lumiere.html" class="portfolio-item wide web-mockup" data-brand="LUMIÈRE" data-url="lumiere.co" data-color="#d4af37"><div class="browser-frame"><div class="browser-bar"><span></span><span></span><span></span><div class="browser-url">lumiere.co</div></div><iframe src="portfolio/lumiere.html" scrolling="no" loading="lazy"></iframe></div><div class="portfolio-item-overlay"><h4>Lumière</h4><span data-t="port.cat.web">Landing Page</span></div></a>
+      <a href="portfolio/apex.html" class="portfolio-item wide web-mockup" data-brand="APEX" data-url="apex.store" data-color="#ff6b35"><div class="browser-frame"><div class="browser-bar"><span></span><span></span><span></span><div class="browser-url">apex.store</div></div><iframe src="portfolio/apex.html" scrolling="no" loading="lazy"></iframe></div><div class="portfolio-item-overlay"><h4>Apex Store</h4><span data-t="port.cat.web">Shopify</span></div></a>
+      <a href="portfolio/cote.html" class="portfolio-item wide web-mockup" data-brand="CÔTE" data-url="cote.com" data-color="#5b8def"><div class="browser-frame"><div class="browser-bar"><span></span><span></span><span></span><div class="browser-url">cote.com</div></div><iframe src="portfolio/cote.html" scrolling="no" loading="lazy"></iframe></div><div class="portfolio-item-overlay"><h4>Côte</h4><span data-t="port.cat.web">Website</span></div></a>
+    </div>
+  </div>
+  <div class="portfolio-group" data-group="content">
+    <div class="portfolio-scroll-track">
+      <div class="portfolio-item portrait"><img src="assets/photoshoots/ps-ami-paris-lookbook.png" alt="Lookbook" loading="lazy"><div class="portfolio-item-overlay"><h4>Ami Paris Lookbook</h4><span>Photoshoot</span></div></div>
+      <div class="portfolio-item portrait"><img src="assets/photoshoots/ps-luxury-white-editorial.png" alt="Editorial" loading="lazy"><div class="portfolio-item-overlay"><h4>Luxury White Editorial</h4><span>Photoshoot</span></div></div>
+      <div class="portfolio-item portrait"><img src="assets/photoshoots/ps-london-street-woman.png" alt="Street" loading="lazy"><div class="portfolio-item-overlay"><h4>London Street</h4><span>Photoshoot</span></div></div>
+      <div class="portfolio-item portrait"><img src="assets/photoshoots/ps-studio-orange-suit.png" alt="Studio" loading="lazy"><div class="portfolio-item-overlay"><h4>Studio Orange</h4><span>Photoshoot</span></div></div>
+      <div class="portfolio-item portrait"><img src="assets/photoshoots/ps-luxury-suit-moto.png" alt="Luxury" loading="lazy"><div class="portfolio-item-overlay"><h4>Luxury Suit Moto</h4><span>Photoshoot</span></div></div>
+      <div class="portfolio-item portrait"><img src="assets/photoshoots/ps-menswear-polo-duo.png" alt="Menswear" loading="lazy"><div class="portfolio-item-overlay"><h4>Menswear Duo</h4><span>Photoshoot</span></div></div>
+      <div class="portfolio-item portrait"><img src="assets/photoshoots/ps-verc-hoodie-stairs-night.png" alt="Hoodie" loading="lazy"><div class="portfolio-item-overlay"><h4>Verc Night</h4><span>Photoshoot</span></div></div>
+      <div class="portfolio-item portrait"><img src="assets/photoshoots/ps-street-worst-behavior.png" alt="Street" loading="lazy"><div class="portfolio-item-overlay"><h4>Worst Behavior</h4><span>Photoshoot</span></div></div>
+    </div>
+  </div>
+  <div class="portfolio-group" data-group="strategy">
+    <div class="portfolio-scroll-track">
+      <div class="portfolio-item wide"><img src="assets/portfolio/dashboards/analytics-1.jpg" alt="Dashboard" loading="lazy"><div class="portfolio-item-overlay"><h4>Growth Dashboard</h4><span>Cryst · Analytics</span></div></div>
+      <div class="portfolio-item wide"><img src="assets/portfolio/dashboards/analytics-2.jpg" alt="Dashboard" loading="lazy"><div class="portfolio-item-overlay"><h4>Performance Report</h4><span>TwinVault · Ads</span></div></div>
+      <div class="portfolio-item wide"><img src="assets/portfolio/dashboards/analytics-3.jpg" alt="Dashboard" loading="lazy"><div class="portfolio-item-overlay"><h4>Brand Audit</h4><span>Strategy Doc</span></div></div>
+      <div class="portfolio-item wide"><img src="assets/portfolio/dashboards/analytics-4.jpg" alt="Dashboard" loading="lazy"><div class="portfolio-item-overlay"><h4>Funil de Conversão</h4><span>IPGA Strategy</span></div></div>
+      <div class="portfolio-item wide"><img src="assets/portfolio/dashboards/social-media-results.jpg" alt="Dashboard" loading="lazy"><div class="portfolio-item-overlay"><h4>Social Media Results</h4><span>Werkhaus · Growth Plan</span></div></div>
+    </div>
+  </div>
+</section>
+
+<section id="testemunhos">
+  <div class="test-header">
+    <span class="section-label" data-t="test.label">Clientes</span>
+    <h2 class="section-title reveal" data-t="test.title">O que dizem sobre o nosso trabalho</h2>
+  </div>
+  <div class="test-cards-wrapper" id="testCards">
+    <div class="glass test-card">
+      <div>
+        <div class="test-quote-mark">"</div>
+        <p class="test-quote"></p>
+      </div>
+      <div class="test-footer">
+        <div class="test-author"><span class="test-name"></span><span class="test-company"></span></div>
+        <div class="test-stars"></div>
+      </div>
+    </div>
+    <div class="glass test-card">
+      <div>
+        <div class="test-quote-mark">"</div>
+        <p class="test-quote"></p>
+      </div>
+      <div class="test-footer">
+        <div class="test-author"><span class="test-name"></span><span class="test-company"></span></div>
+        <div class="test-stars"></div>
+      </div>
+    </div>
+    <div class="glass test-card">
+      <div>
+        <div class="test-quote-mark">"</div>
+        <p class="test-quote"></p>
+      </div>
+      <div class="test-footer">
+        <div class="test-author"><span class="test-name"></span><span class="test-company"></span></div>
+        <div class="test-stars"></div>
+      </div>
+    </div>
+  </div>
+  <div class="test-dots" id="testDots"></div>
+</section>
+
+<section id="calculadora">
+  <div class="calc-header">
+    <span class="section-label" data-t="calc.label">Investimento</span>
+    <h2 class="section-title reveal" data-t="calc.title">Solicitar Orçamento</h2>
+    <p class="section-sub reveal reveal-d1" style="margin:0 auto" data-t="calc.sub">Seleciona os serviços, escolhe a moeda e descobre o valor de investimento estimado.</p>
+  </div>
+  <div class="glass-xl calc-box">
+    <div class="calc-row">
+      <div>
+        <span class="calc-label-mini" data-t="calc.currency">Moeda</span>
+        <div class="calc-currency-group" id="calcCurrencyGroup">
+          <button class="calc-currency-btn active" data-curr="€">€ EUR</button>
+          <button class="calc-currency-btn" data-curr="$">$ USD</button>
+        </div>
+      </div>
+    </div>
+    <span class="calc-label-mini" data-t="calc.services">Serviços</span>
+    <div class="calc-services-grid" id="calcServicesGrid"></div>
+    <div class="calc-result" id="calcResult">
+      <span class="calc-result-placeholder" data-t="calc.placeholder">Seleciona pelo menos um serviço para ver o valor</span>
+    </div>
+    <p class="calc-note" data-t="calc.note">* Os valores apresentados são estimativas e podem variar consoante o âmbito do projeto.</p>
+  </div>
+</section>
+
+<section id="stats">
+  <span class="section-label" data-t="stats.label">Números</span>
+  <h2 class="section-title reveal" data-t="stats.title">O impacto em números</h2>
+  <p class="section-sub reveal reveal-d1" style="margin:0 auto 60px" data-t="stats.sub">Pequena equipa, grande dedicação. Cada projeto entregue com a mesma atenção.</p>
+  <div class="stats-grid" id="statsGrid">
+    <div class="stat-item">
+      <span class="stat-num" data-target="9" data-start-size="8">0</span>
+      <span class="stat-label" data-t="stats.s1">Clientes</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="15" data-prefix="+" data-start-size="8">0</span>
+      <span class="stat-label" data-t="stats.s2">Projetos</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="2025" data-start-size="8">0</span>
+      <span class="stat-label" data-t="stats.s3">Ano fundação</span>
+    </div>
+    <div class="stat-item">
+      <span class="stat-num" data-target="100" data-suffix="%" data-start-size="8">0</span>
+      <span class="stat-label" data-t="stats.s4">Satisfação</span>
+    </div>
+  </div>
+</section>
+
+<section id="contacto">
+  <div class="contacto-bg"></div>
+  <div class="contacto-overlay"></div>
+  <div class="contacto-header">
+    <span class="section-label" data-t="form.label">Contacto</span>
+    <h2 class="section-title reveal" data-t="form.title">Vamos construir juntos</h2>
+    <p class="section-sub reveal reveal-d1" style="margin:0 auto" data-t="form.sub">Conta-nos sobre o teu projeto. Algumas perguntas rápidas e respondemos em até 24h.</p>
+  </div>
+  <div class="form-wrapper">
+    <div class="glass-xl form-box">
+      <div class="form-q-num" id="formQNum">01</div>
+      <div class="form-progress"><div class="form-progress-bar" id="formProgressBar"></div></div>
+      <form id="contactForm" onsubmit="return false">
+        <div class="form-step active" data-step="0">
+          <div class="form-q-label" data-t="form.q0">Como podemos ajudar-te?</div>
+          <div class="form-options" data-name="branch" data-single="true">
+            <button type="button" class="form-option" data-value="A" data-t="form.q0a">Começar marca do zero</button>
+            <button type="button" class="form-option" data-value="B" data-t="form.q0b">Melhorar marca existente</button>
+            <button type="button" class="form-option" data-value="C" data-t="form.q0c">Crescer marca consolidada</button>
+            <button type="button" class="form-option" data-value="D" data-t="form.q0d">Outro</button>
+          </div>
+          <div class="form-nav end"><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="A1">
+          <div class="form-q-label" data-t="form.A1">Qual é o nicho da tua marca?</div>
+          <div class="form-options" data-name="A_niche" data-single="true">
+            <button type="button" class="form-option" data-value="moda">Moda</button>
+            <button type="button" class="form-option" data-value="lifestyle">Lifestyle</button>
+            <button type="button" class="form-option" data-value="desporto">Desporto</button>
+            <button type="button" class="form-option" data-value="outro">Outro</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="A2">
+          <div class="form-q-label" data-t="form.A2">Já tens nome ou logótipo pensado?</div>
+          <div class="form-options" data-name="A_brand" data-single="true">
+            <button type="button" class="form-option" data-value="sim">Sim</button>
+            <button type="button" class="form-option" data-value="nao">Não</button>
+            <button type="button" class="form-option" data-value="dev">Em desenvolvimento</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="A3">
+          <div class="form-q-label" data-t="form.A3">Em que plataformas queres estar?</div>
+          <div class="form-options" data-name="A_plat">
+            <button type="button" class="form-option" data-value="ig">Instagram</button>
+            <button type="button" class="form-option" data-value="tt">TikTok</button>
+            <button type="button" class="form-option" data-value="web">Website</button>
+            <button type="button" class="form-option" data-value="yt">YouTube</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="A4">
+          <div class="form-q-label" data-t="form.A4">Orçamento aproximado?</div>
+          <div class="form-options" data-name="A_budget" data-single="true">
+            <button type="button" class="form-option" data-value="<500">&lt; 500€</button>
+            <button type="button" class="form-option" data-value="500-1500">500€ — 1.500€</button>
+            <button type="button" class="form-option" data-value="1500-3000">1.500€ — 3.000€</button>
+            <button type="button" class="form-option" data-value="3000+">3.000€+</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="B1">
+          <div class="form-q-label" data-t="form.B1">Qual é o maior problema da tua marca?</div>
+          <div class="form-options" data-name="B_problem" data-single="true">
+            <button type="button" class="form-option" data-value="id">Identidade visual fraca</button>
+            <button type="button" class="form-option" data-value="vis">Pouca visibilidade</button>
+            <button type="button" class="form-option" data-value="strat">Sem estratégia clara</button>
+            <button type="button" class="form-option" data-value="sales">Baixas vendas</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="B2">
+          <div class="form-q-label" data-t="form.B2">Há quanto tempo tens a marca?</div>
+          <div class="form-options" data-name="B_age" data-single="true">
+            <button type="button" class="form-option" data-value="<1">&lt; 1 ano</button>
+            <button type="button" class="form-option" data-value="1-3">1 — 3 anos</button>
+            <button type="button" class="form-option" data-value="3+">3+ anos</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="B3">
+          <div class="form-q-label" data-t="form.B3">Já tens website?</div>
+          <div class="form-options" data-name="B_web" data-single="true">
+            <button type="button" class="form-option" data-value="sim">Sim</button>
+            <button type="button" class="form-option" data-value="nao">Não</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="B4">
+          <div class="form-q-label" data-t="form.B4">Orçamento mensal para marketing?</div>
+          <div class="form-options" data-name="B_budget" data-single="true">
+            <button type="button" class="form-option" data-value="<300">&lt; 300€</button>
+            <button type="button" class="form-option" data-value="300-800">300€ — 800€</button>
+            <button type="button" class="form-option" data-value="800-2000">800€ — 2.000€</button>
+            <button type="button" class="form-option" data-value="2000+">2.000€+</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="C1">
+          <div class="form-q-label" data-t="form.C1">Qual é o objetivo principal?</div>
+          <div class="form-options" data-name="C_goal" data-single="true">
+            <button type="button" class="form-option" data-value="followers">Mais seguidores</button>
+            <button type="button" class="form-option" data-value="sales">Mais vendas</button>
+            <button type="button" class="form-option" data-value="intl">Expansão internacional</button>
+            <button type="button" class="form-option" data-value="collab">Colaborações</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="C2">
+          <div class="form-q-label" data-t="form.C2">Em que canais queres crescer?</div>
+          <div class="form-options" data-name="C_chan">
+            <button type="button" class="form-option" data-value="ig">Instagram</button>
+            <button type="button" class="form-option" data-value="tt">TikTok</button>
+            <button type="button" class="form-option" data-value="seo">Website / SEO</button>
+            <button type="button" class="form-option" data-value="email">Email Marketing</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="C3">
+          <div class="form-q-label" data-t="form.C3">Já trabalhas com alguma agência?</div>
+          <div class="form-options" data-name="C_agency" data-single="true">
+            <button type="button" class="form-option" data-value="sim">Sim</button>
+            <button type="button" class="form-option" data-value="nao">Não</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="C4">
+          <div class="form-q-label" data-t="form.C4">Orçamento mensal?</div>
+          <div class="form-options" data-name="C_budget" data-single="true">
+            <button type="button" class="form-option" data-value="<500">&lt; 500€</button>
+            <button type="button" class="form-option" data-value="500-1500">500€ — 1.500€</button>
+            <button type="button" class="form-option" data-value="1500-3000">1.500€ — 3.000€</button>
+            <button type="button" class="form-option" data-value="3000+">3.000€+</button>
+          </div>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" disabled data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="D1">
+          <div class="form-q-label" data-t="form.D1">Descreve a tua situação:</div>
+          <textarea class="form-textarea" id="branchDFree" placeholder="Conta-nos um pouco sobre o teu projeto..." data-t-ph="form.D1ph"></textarea>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" data-t="form.next">Continuar</button></div>
+        </div>
+        <div class="form-step" data-step="FINAL">
+          <div class="form-q-label" data-t="form.final">Algo mais que queiras acrescentar?</div>
+          <textarea class="form-textarea" id="finalMessage" placeholder="Mensagem (opcional)" data-t-ph="form.finalph"></textarea>
+          <input type="text" class="form-input" id="finalName" placeholder="Nome" data-t-ph="form.name" required>
+          <input type="email" class="form-input" id="finalEmail" placeholder="Email" data-t-ph="form.email" required>
+          <div class="form-nav"><button type="button" class="btn-form-back" data-t="form.back">Voltar</button><button type="button" class="btn-form-next" id="formSubmit" data-t="form.send">Enviar</button></div>
+        </div>
+        <div class="form-success" id="formSuccess">
+          <div class="form-success-icon"><svg viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="5 13 10 18 19 7"/></svg></div>
+          <h3 data-t="form.successTitle">Mensagem enviada</h3>
+          <p data-t="form.successText">Obrigado. Vamos rever a tua situação e responder em até 24h.</p>
+        </div>
+      </form>
+    </div>
+  </div>
+</section>
+
+<section id="sobre">
+  <div class="sobre-top">
+    <div class="sobre-top-left">
+      <svg class="sobre-star" viewBox="0 0 24 24" fill="currentColor"><path d="M12 1 L13.5 9 L22 10 L15 15 L17 23 L12 18 L7 23 L9 15 L2 10 L10.5 9 Z"/></svg>
+      <span class="sobre-label" data-t="sobre.label">Quem Somos</span>
+    </div>
+    <div class="sobre-socials">
+      <a href="https://www.tiktok.com/@clothvision_" target="_blank" class="sobre-social" aria-label="TikTok"><img src="assets/logo-tiktok.png" alt="TikTok" onerror="this.style.display='none';this.parentNode.innerHTML+='<svg viewBox=\'0 0 24 24\' fill=\'currentColor\'><path d=\'M12.5 2v11.5a2.5 2.5 0 1 1-2.5-2.5h.5V8a5 5 0 1 0 5 5V8.5a6 6 0 0 0 3 .8V6a4.5 4.5 0 0 1-3-4.5h-3z\'/></svg>'"></a>
+      <a href="https://www.instagram.com/_cloth.vision/" target="_blank" class="sobre-social" aria-label="Instagram"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 2.16c3.2 0 3.58.01 4.85.07 1.17.05 1.8.25 2.23.41.56.22.96.48 1.38.9.42.42.68.82.9 1.38.16.42.36 1.06.41 2.23.06 1.27.07 1.65.07 4.85s-.01 3.58-.07 4.85c-.05 1.17-.25 1.8-.41 2.23-.22.56-.48.96-.9 1.38-.42.42-.82.68-1.38.9-.42.16-1.06.36-2.23.41-1.27.06-1.65.07-4.85.07s-3.58-.01-4.85-.07c-1.17-.05-1.8-.25-2.23-.41-.56-.22-.96-.48-1.38-.9-.42-.42-.68-.82-.9-1.38-.16-.42-.36-1.06-.41-2.23C2.17 15.58 2.16 15.2 2.16 12s.01-3.58.07-4.85c.05-1.17.25-1.8.41-2.23.22-.56.48-.96.9-1.38.42-.42.82-.68 1.38-.9.42-.16 1.06-.36 2.23-.41C8.42 2.17 8.8 2.16 12 2.16zM12 0C8.74 0 8.33.01 7.05.07 5.78.13 4.9.33 4.14.63c-.79.31-1.46.72-2.13 1.39C1.34 2.68.93 3.35.62 4.14.32 4.9.12 5.78.06 7.05.01 8.33 0 8.74 0 12s.01 3.67.07 4.95c.06 1.27.26 2.15.56 2.91.31.79.72 1.46 1.39 2.13.67.67 1.34 1.08 2.13 1.39.76.3 1.64.5 2.91.56C8.33 23.99 8.74 24 12 24s3.67-.01 4.95-.07c1.27-.06 2.15-.26 2.91-.56.79-.31 1.46-.72 2.13-1.39.67-.67 1.08-1.34 1.39-2.13.3-.76.5-1.64.56-2.91.06-1.28.07-1.69.07-4.95s-.01-3.67-.07-4.95c-.06-1.27-.26-2.15-.56-2.91-.31-.79-.72-1.46-1.39-2.13C21.32 1.34 20.65.93 19.86.62 19.1.32 18.22.12 16.95.06 15.67.01 15.26 0 12 0zm0 5.84A6.16 6.16 0 1 0 18.16 12 6.16 6.16 0 0 0 12 5.84zM12 16a4 4 0 1 1 4-4 4 4 0 0 1-4 4zm6.41-11.85a1.44 1.44 0 1 0 1.44 1.44 1.44 1.44 0 0 0-1.44-1.44z"/></svg></a>
+      <a href="https://www.youtube.com/@ClothVision" target="_blank" class="sobre-social" aria-label="YouTube"><svg viewBox="0 0 24 24" fill="currentColor"><path d="M23.5 6.2a3 3 0 0 0-2.1-2.1C19.5 3.5 12 3.5 12 3.5s-7.5 0-9.4.6A3 3 0 0 0 .5 6.2C0 8.1 0 12 0 12s0 3.9.5 5.8a3 3 0 0 0 2.1 2.1c1.9.6 9.4.6 9.4.6s7.5 0 9.4-.6a3 3 0 0 0 2.1-2.1c.5-1.9.5-5.8.5-5.8s0-3.9-.5-5.8zM9.6 15.6V8.4l6.2 3.6-6.2 3.6z"/></svg></a>
+      <a href="mailto:ccloth.vision@gmail.com" class="sobre-social" aria-label="Email"><img src="assets/logo-gmail.png" alt="Email" onerror="this.style.display='none';this.parentNode.innerHTML+='<svg viewBox=\'0 0 24 24\' fill=\'currentColor\'><path d=\'M20 4H4a2 2 0 0 0-2 2v12a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2zm0 4-8 5-8-5V6l8 5 8-5v2z\'/></svg>'"></a>
+    </div>
+  </div>
+  <div class="sobre-image-wrap">
+    <svg class="sobre-img-clip" viewBox="0 0 1200 520" preserveAspectRatio="xMidYMid slice" style="width:100%;height:auto">
+      <defs>
+        <clipPath id="sobreClip">
+          <path d="M0 80 Q0 0 90 0 L820 0 Q900 0 940 60 L1040 200 Q1090 270 1170 290 Q1200 298 1200 340 L1200 460 Q1200 520 1130 520 L240 520 Q160 520 130 460 L40 280 Q0 200 0 140 Z"/>
+        </clipPath>
+      </defs>
+      <image href="assets/predio.png" x="0" y="-40" width="1200" height="640" clip-path="url(#sobreClip)" preserveAspectRatio="xMidYMin slice"/>
+    </svg>
+  </div>
+  <div class="sobre-stats-bar">
+    <div class="sobre-stat"><span class="sobre-stat-num">2025</span><span class="sobre-stat-label" data-t="sobre.s1">Fundação</span></div>
+    <div class="sobre-stat"><span class="sobre-stat-num">9+</span><span class="sobre-stat-label" data-t="sobre.s2">Marcas</span></div>
+    <div class="sobre-stat"><span class="sobre-stat-num">15+</span><span class="sobre-stat-label" data-t="sobre.s3">Projetos</span></div>
+    <div class="sobre-stat"><span class="sobre-stat-num">100%</span><span class="sobre-stat-label" data-t="sobre.s4">Dedicação</span></div>
+  </div>
+  <div class="sobre-grid">
+    <div class="sobre-manifesto">
+      <h2 id="sobreHeadline" data-t="sobre.head">Construímos marcas com visão. Crescemos com elas.</h2>
+      <p class="sobre-para" data-t="sobre.p1">A CLVSN nasceu da convicção que as marcas de moda emergentes merecem mais do que templates e fórmulas — merecem estratégia real, execução obsessiva e uma equipa que se importa.</p>
+      <p class="sobre-para" data-t="sobre.p2">Desde 2025 que ajudamos marcas a sair do papel e a escalar com método. Diagnóstico → estratégia → execução → crescimento. Sem ruído, sem promessas vazias.</p>
+      <p class="sobre-para" data-t="sobre.p3">O nosso compromisso é simples: trabalhamos contigo como se a marca fosse nossa. Porque, de certa forma, passa a ser.</p>
+    </div>
+    <div class="sobre-right">
+      <img class="sobre-brand-img" src="assets/logo-wordmark-white.png" alt="CLVSN">
+      <div class="sobre-subtitle" data-t="sobre.tag">Cloth Vision — Brand Scaling para marcas de moda emergentes, nacionais e internacionais.</div>
+      <button class="btn-sobre-cta" onclick="scrollToSection('contacto')" data-t="sobre.cta">Trabalhar Connosco</button>
+    </div>
+  </div>
+</section>
+
+<section id="parceiros">
+  <div class="parceiros-label" data-t="part.label">Marcas que confiam</div>
+  <div class="ticker-wrapper">
+    <div class="ticker-track" id="tickerTrack">
+      <div class="ticker-item ticker-brand-twinvault"><img src="assets/logo-twinvault.png" alt="TwinVault" onerror="this.style.display='none'"><span>TWIN VAULT</span></div>
+      <div class="ticker-item ticker-brand-cryst"><img src="assets/logo-cryst.png" alt="Cryst" onerror="this.style.display='none'"><span>CRYST</span></div>
+      <div class="ticker-item ticker-brand-apex"><img src="assets/logo-apex.svg" alt="Apex" onerror="this.style.display='none'"><span>APEX</span></div>
+      <div class="ticker-item ticker-brand-cote"><img src="assets/logo-cote.svg" alt="Cote" onerror="this.style.display='none'"><span>COTE</span></div>
+      <div class="ticker-item ticker-brand-fauna"><img src="assets/logo-fauna.svg" alt="Fauna" onerror="this.style.display='none'"><span>FAUNA</span></div>
+      <div class="ticker-item ticker-brand-lumiere"><img src="assets/logo-lumiere.svg" alt="Lumière" onerror="this.style.display='none'"><span>LUMIÈRE</span></div>
+      <div class="ticker-item ticker-brand-noctis"><img src="assets/logo-noctis.svg" alt="Noctis" onerror="this.style.display='none'"><span>NOCTIS</span></div>
+      <div class="ticker-item ticker-brand-verde"><img src="assets/logo-verde.svg" alt="Verde" onerror="this.style.display='none'"><span>VERDE</span></div>
+      <div class="ticker-item ticker-brand-werkhaus"><img src="assets/logo-werkhaus.svg" alt="Werkhaus" onerror="this.style.display='none'"><span>WERKHAUS</span></div>
+    </div>
+  </div>
+</section>
+
+<footer>
+  <a href="#hero" class="navbar-logo footer-logo" aria-label="CLVSN">
+    <img src="assets/logo-icon-black.png" alt="CLVSN">
+  </a>
+  <ul class="footer-links">
+    <li><a href="#sobre" data-t="nav.sobre">Sobre</a></li>
+    <li><a href="#servicos" data-t="nav.servicos">Serviços</a></li>
+    <li><a href="#portfolio" data-t="nav.portfolio">Portfolio</a></li>
+    <li><a href="#calculadora" data-t="nav.calc">Calculadora</a></li>
+    <li><a href="#contacto" data-t="nav.cta">Contacto</a></li>
+  </ul>
+  <span class="footer-copy">© 2025 CLVSN · Cloth Vision</span>
+</footer>
+
+<div class="oscar-widget" id="oscarWidget">
+  <button class="oscar-toggle" id="oscarToggle" aria-label="Abrir Oscar">
+    <div class="oscar-pulse"></div>
+    <svg class="icon-chat" viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    <svg class="icon-close" viewBox="0 0 24 24" stroke-width="2.5" stroke-linecap="round"><line x1="6" y1="6" x2="18" y2="18"/><line x1="18" y1="6" x2="6" y2="18"/></svg>
+  </button>
+  <div class="glass-xl oscar-chat" id="oscarChat">
+    <div class="oscar-chat-header">
+      <div class="oscar-chat-title">
+        <div class="oscar-status-dot"></div>
+        <strong>Oscar</strong>
+        <small data-t="oscar.status">CLVSN Assistant</small>
+      </div>
+      <div class="oscar-header-actions">
+        <button class="oscar-icon-btn" id="oscarVoiceBtn" aria-label="Voz">
+          <svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="9" y="2" width="6" height="13" rx="3"/><path d="M19 10a7 7 0 0 1-14 0"/><line x1="12" y1="19" x2="12" y2="22"/></svg>
+        </button>
+      </div>
+    </div>
+    <div class="oscar-messages" id="oscarMessages"></div>
+    <div class="oscar-tags" id="oscarTags">
+      <button class="oscar-tag" data-msg="Quero saber mais sobre os serviços" data-t="oscar.t1">Serviços</button>
+      <button class="oscar-tag" data-msg="Quanto custa começar?" data-t="oscar.t2">Orçamento</button>
+      <button class="oscar-tag" data-msg="Como funciona o processo?" data-t="oscar.t3">Processo</button>
+      <button class="oscar-tag" data-msg="Quero falar com alguém" data-t="oscar.t4">Contacto</button>
+    </div>
+    <div class="oscar-input-row">
+      <textarea class="oscar-textarea" id="oscarInput" placeholder="Pergunta-me algo..." rows="1" data-t-ph="oscar.placeholder"></textarea>
+      <button class="oscar-send" id="oscarSend" aria-label="Enviar"><svg viewBox="0 0 24 24" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
+    </div>
+    <div class="oscar-voice-overlay" id="oscarVoice">
+      <div class="siri-orb"></div>
+      <div class="voice-label" data-t="oscar.listening">A ouvir...</div>
+      <button class="btn-voice-close" id="voiceClose" data-t="oscar.stop">Parar</button>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+<script>
+(function(){emailjs.init('cGsneOWR8SFHPTGVL')})();
+
+const TRANSLATIONS = {
+  pt:{
+    'nav.sobre':'Sobre','nav.servicos':'Serviços','nav.portfolio':'Portfolio','nav.calc':'Calculadora','nav.cta':'Solicitar Diagnóstico',
+    'hero.tag':'Brand Scaling para Marcas de Moda','hero.cta1':'Solicitar Diagnóstico','hero.cta2':'Simular Preços','hero.scroll':'Scroll',
+    'serv.label':'O Que Fazemos','serv.title':'Pacotes pensados para escalar a tua marca','serv.sub':'Oito pacotes de serviço modulares — desde o lançamento ao crescimento contínuo. Cada um adaptável ao teu momento.',
+    'pack1.title':'Brand Foundation & Estratégia','pack1.desc':'Construir a base sólida da marca: identidade visual, naming, estratégia de mercado e posicionamento.',
+    'pack2.title':'Brand Scaling & Crescimento','pack2.desc':'Levar marcas existentes ao próximo nível com mentoria estratégica e expansão direcionada.',
+    'pack3.title':'Social Media & Performance','pack3.desc':'Gestão completa de redes sociais, conteúdo orgânico, ads e analytics para resultados mensuráveis.',
+    'pack4.title':'Web Design & Digital Experience','pack4.desc':'Websites únicos, e-commerce e landing pages que convertem. Design e desenvolvimento à medida.',
+    'pack5.title':'Conteúdo Criativo & Produção','pack5.desc':'Fotografia, vídeo, motion design e produção visual completa para a tua marca.',
+    'pack6.title':'IPGA — Info Product Growth','pack6.desc':'Lançamento e escala de info produtos com funis automatizados e estratégia de growth.',
+    'pack7.title':'Automação & Sistemas de Gestão','pack7.desc':'Automatizar workflows, CRM, comunicação e operações para libertar tempo e escalar.',
+    'pack8.title':'Consultorias & Mentorias','pack8.desc':'Sessões individuais para desbloquear desafios estratégicos e tomar decisões certas.',
+    'proc.label':'Como Trabalhamos','proc.title':'Cinco passos, zero suposições','proc.sub':'Um processo claro do diagnóstico ao lançamento — sem surpresas, sem fricção.',
+    'step1.tag':'Passo 1','step1.title':'Diagnóstico','step1.desc':'Análise profunda da marca, mercado, concorrência e objetivos. Identificamos o ponto de partida e o destino antes de qualquer execução.',
+    'step2.tag':'Passo 2','step2.title':'Estratégia','step2.desc':'Pack recomendado, plano de ação detalhado, timelines realistas e KPIs definidos. Tu sabes exatamente o que vai acontecer.',
+    'step3.tag':'Passo 3','step3.title':'Produção','step3.desc':'Execução total — design, conteúdo, campanhas, desenvolvimento web, automações. A equipa CLVSN põe tudo a andar.',
+    'step4.tag':'Passo 4','step4.title':'Revisão','step4.desc':'Feedback do cliente, ajustes finos, aprovação. Iteramos até estar perfeito — não entregamos por entregar.',
+    'step5.tag':'Passo 5','step5.title':'Lançamento','step5.desc':'Entrega final, go-live e acompanhamento contínuo. Continuamos contigo enquanto a marca cresce.',
+    'port.label':'Trabalho','port.title':'Marcas que confiaram na visão','port.sub':'Cinco áreas de execução. Projetos reais com marcas reais. Cada um construído de raiz.',
+    'port.t1':'Branding','port.t2':'Social Media','port.t3':'Web & Digital','port.t4':'Conteúdo','port.t5':'Estratégia','port.cat.brand':'Identidade · Estratégia','port.cat.web':'Website',
+    'test.label':'Clientes','test.title':'O que dizem sobre o nosso trabalho',
+    'calc.label':'Investimento','calc.title':'Solicitar Orçamento','calc.sub':'Seleciona os serviços, escolhe a moeda e descobre o valor de investimento estimado.','calc.currency':'Moeda','calc.services':'Serviços','calc.placeholder':'Seleciona pelo menos um serviço para ver o valor','calc.note':'* Os valores apresentados são estimativas e podem variar consoante o âmbito do projeto.','calc.from':'A partir de','calc.upTo':'até',
+    'stats.label':'Números','stats.title':'O impacto em números','stats.sub':'Pequena equipa, grande dedicação. Cada projeto entregue com a mesma atenção.','stats.s1':'Clientes','stats.s2':'Projetos','stats.s3':'Ano fundação','stats.s4':'Satisfação',
+    'form.label':'Contacto','form.title':'Vamos construir juntos','form.sub':'Conta-nos sobre o teu projeto. Algumas perguntas rápidas e respondemos em até 24h.',
+    'form.q0':'Como podemos ajudar-te?','form.q0a':'Começar marca do zero','form.q0b':'Melhorar marca existente','form.q0c':'Crescer marca consolidada','form.q0d':'Outro',
+    'form.A1':'Qual é o nicho da tua marca?','form.A2':'Já tens nome ou logótipo pensado?','form.A3':'Em que plataformas queres estar?','form.A4':'Orçamento aproximado?',
+    'form.B1':'Qual é o maior problema da tua marca?','form.B2':'Há quanto tempo tens a marca?','form.B3':'Já tens website?','form.B4':'Orçamento mensal para marketing?',
+    'form.C1':'Qual é o objetivo principal?','form.C2':'Em que canais queres crescer?','form.C3':'Já trabalhas com alguma agência?','form.C4':'Orçamento mensal?',
+    'form.D1':'Descreve a tua situação:','form.D1ph':'Conta-nos um pouco sobre o teu projeto...',
+    'form.final':'Algo mais que queiras acrescentar?','form.finalph':'Mensagem (opcional)','form.name':'Nome','form.email':'Email','form.next':'Continuar','form.back':'Voltar','form.send':'Enviar','form.successTitle':'Mensagem enviada','form.successText':'Obrigado. Vamos rever a tua situação e responder em até 24h.',
+    'sobre.label':'Quem Somos','sobre.head':'Construímos marcas com visão. Crescemos com elas.','sobre.p1':'A CLVSN nasceu da convicção que as marcas de moda emergentes merecem mais do que templates e fórmulas — merecem estratégia real, execução obsessiva e uma equipa que se importa.','sobre.p2':'Desde 2025 que ajudamos marcas a sair do papel e a escalar com método. Diagnóstico → estratégia → execução → crescimento. Sem ruído, sem promessas vazias.','sobre.p3':'O nosso compromisso é simples: trabalhamos contigo como se a marca fosse nossa. Porque, de certa forma, passa a ser.','sobre.tag':'Cloth Vision — Brand Scaling para marcas de moda emergentes, nacionais e internacionais.','sobre.cta':'Trabalhar Connosco','sobre.s1':'Fundação','sobre.s2':'Marcas','sobre.s3':'Projetos','sobre.s4':'Dedicação',
+    'part.label':'Marcas que confiam',
+    'oscar.status':'CLVSN Assistant','oscar.placeholder':'Pergunta-me algo...','oscar.t1':'Serviços','oscar.t2':'Orçamento','oscar.t3':'Processo','oscar.t4':'Contacto','oscar.greeting':'Olá! Sou o Oscar, assistente da CLVSN. Em que posso ajudar?','oscar.listening':'A ouvir...','oscar.stop':'Parar','oscar.error':'Desculpa, houve um erro. Tenta de novo ou contacta-nos diretamente em ccloth.vision@gmail.com'
+  },
+  en:{
+    'nav.sobre':'About','nav.servicos':'Services','nav.portfolio':'Portfolio','nav.calc':'Calculator','nav.cta':'Request Diagnosis',
+    'hero.tag':'Brand Scaling for Fashion Brands','hero.cta1':'Request Diagnosis','hero.cta2':'Estimate Prices','hero.scroll':'Scroll',
+    'serv.label':'What We Do','serv.title':'Service packs designed to scale your brand','serv.sub':'Eight modular service packs — from launch to continuous growth. Each adapted to your moment.',
+    'pack1.title':'Brand Foundation & Strategy','pack1.desc':'Build a solid brand base: visual identity, naming, market strategy and positioning.',
+    'pack2.title':'Brand Scaling & Growth','pack2.desc':'Take existing brands to the next level with strategic mentoring and directed expansion.',
+    'pack3.title':'Social Media & Performance','pack3.desc':'Complete management of social media, organic content, ads and analytics for measurable results.',
+    'pack4.title':'Web Design & Digital Experience','pack4.desc':'Unique websites, e-commerce and landing pages that convert. Custom design and development.',
+    'pack5.title':'Creative Content & Production','pack5.desc':'Photography, video, motion design and full visual production for your brand.',
+    'pack6.title':'IPGA — Info Product Growth','pack6.desc':'Launch and scale info products with automated funnels and growth strategy.',
+    'pack7.title':'Automation & Management Systems','pack7.desc':'Automate workflows, CRM, communications and operations to free time and scale.',
+    'pack8.title':'Consulting & Mentorship','pack8.desc':'Individual sessions to unblock strategic challenges and make the right decisions.',
+    'proc.label':'How We Work','proc.title':'Five steps, zero guesswork','proc.sub':'A clear process from diagnosis to launch — no surprises, no friction.',
+    'step1.tag':'Step 1','step1.title':'Diagnosis','step1.desc':'Deep analysis of brand, market, competition and goals. We identify the starting point and destination before any execution.',
+    'step2.tag':'Step 2','step2.title':'Strategy','step2.desc':'Recommended pack, detailed action plan, realistic timelines and defined KPIs. You know exactly what will happen.',
+    'step3.tag':'Step 3','step3.title':'Production','step3.desc':'Total execution — design, content, campaigns, web development, automations. The CLVSN team gets everything running.',
+    'step4.tag':'Step 4','step4.title':'Review','step4.desc':'Client feedback, fine adjustments, approval. We iterate until it is perfect — we don\'t deliver for the sake of delivering.',
+    'step5.tag':'Step 5','step5.title':'Launch','step5.desc':'Final delivery, go-live and continuous monitoring. We continue with you as the brand grows.',
+    'port.label':'Work','port.title':'Brands that trusted the vision','port.sub':'Five execution areas. Real projects with real brands. Each built from scratch.',
+    'port.t1':'Branding','port.t2':'Social Media','port.t3':'Web & Digital','port.t4':'Content','port.t5':'Strategy','port.cat.brand':'Identity · Strategy','port.cat.web':'Website',
+    'test.label':'Clients','test.title':'What they say about our work',
+    'calc.label':'Investment','calc.title':'Request Quote','calc.sub':'Select the services, choose the currency and discover the estimated investment.','calc.currency':'Currency','calc.services':'Services','calc.placeholder':'Select at least one service to see the value','calc.note':'* The values shown are estimates and may vary depending on the project scope.','calc.from':'From','calc.upTo':'up to',
+    'stats.label':'Numbers','stats.title':'The impact in numbers','stats.sub':'Small team, big dedication. Every project delivered with the same attention.','stats.s1':'Clients','stats.s2':'Projects','stats.s3':'Founded','stats.s4':'Satisfaction',
+    'form.label':'Contact','form.title':'Let\'s build together','form.sub':'Tell us about your project. A few quick questions and we reply within 24h.',
+    'form.q0':'How can we help you?','form.q0a':'Start a brand from scratch','form.q0b':'Improve existing brand','form.q0c':'Grow established brand','form.q0d':'Other',
+    'form.A1':'What is your brand niche?','form.A2':'Do you have a name or logo in mind?','form.A3':'Which platforms do you want to be on?','form.A4':'Approximate budget?',
+    'form.B1':'What is the biggest problem of your brand?','form.B2':'How long have you had the brand?','form.B3':'Do you have a website?','form.B4':'Monthly marketing budget?',
+    'form.C1':'What is the main goal?','form.C2':'Which channels do you want to grow?','form.C3':'Do you work with an agency?','form.C4':'Monthly budget?',
+    'form.D1':'Describe your situation:','form.D1ph':'Tell us a bit about your project...',
+    'form.final':'Anything else you\'d like to add?','form.finalph':'Message (optional)','form.name':'Name','form.email':'Email','form.next':'Continue','form.back':'Back','form.send':'Send','form.successTitle':'Message sent','form.successText':'Thank you. We will review your situation and respond within 24h.',
+    'sobre.label':'About Us','sobre.head':'We build brands with vision. We grow with them.','sobre.p1':'CLVSN was born from the conviction that emerging fashion brands deserve more than templates and formulas — they deserve real strategy, obsessive execution and a team that cares.','sobre.p2':'Since 2025 we have been helping brands get off the ground and scale with method. Diagnosis → strategy → execution → growth. No noise, no empty promises.','sobre.p3':'Our commitment is simple: we work with you as if the brand were ours. Because in a way, it is.','sobre.tag':'Cloth Vision — Brand Scaling for emerging fashion brands, national and international.','sobre.cta':'Work With Us','sobre.s1':'Founded','sobre.s2':'Brands','sobre.s3':'Projects','sobre.s4':'Dedication',
+    'part.label':'Trusted by',
+    'oscar.status':'CLVSN Assistant','oscar.placeholder':'Ask me something...','oscar.t1':'Services','oscar.t2':'Budget','oscar.t3':'Process','oscar.t4':'Contact','oscar.greeting':'Hi! I\'m Oscar, CLVSN\'s assistant. How can I help?','oscar.listening':'Listening...','oscar.stop':'Stop','oscar.error':'Sorry, there was an error. Try again or contact us directly at ccloth.vision@gmail.com'
+  },
+  es:{
+    'nav.sobre':'Sobre','nav.servicos':'Servicios','nav.portfolio':'Portafolio','nav.calc':'Calculadora','nav.cta':'Solicitar Diagnóstico',
+    'hero.tag':'Brand Scaling para Marcas de Moda','hero.cta1':'Solicitar Diagnóstico','hero.cta2':'Estimar Precios','hero.scroll':'Scroll',
+    'serv.label':'Lo Que Hacemos','serv.title':'Paquetes pensados para escalar tu marca','serv.sub':'Ocho paquetes modulares — desde el lanzamiento al crecimiento continuo. Cada uno adaptado a tu momento.',
+    'pack1.title':'Brand Foundation & Estrategia','pack1.desc':'Construir la base sólida de la marca: identidad visual, naming, estrategia de mercado y posicionamiento.',
+    'pack2.title':'Brand Scaling & Crecimiento','pack2.desc':'Llevar marcas existentes al siguiente nivel con mentoría estratégica y expansión dirigida.',
+    'pack3.title':'Social Media & Performance','pack3.desc':'Gestión completa de redes sociales, contenido orgánico, ads y analytics para resultados medibles.',
+    'pack4.title':'Web Design & Experiencia Digital','pack4.desc':'Sitios web únicos, e-commerce y landing pages que convierten. Diseño y desarrollo a medida.',
+    'pack5.title':'Contenido Creativo & Producción','pack5.desc':'Fotografía, vídeo, motion design y producción visual completa para tu marca.',
+    'pack6.title':'IPGA — Info Product Growth','pack6.desc':'Lanzamiento y escala de info productos con embudos automatizados y estrategia de growth.',
+    'pack7.title':'Automatización & Sistemas de Gestión','pack7.desc':'Automatizar workflows, CRM, comunicación y operaciones para liberar tiempo y escalar.',
+    'pack8.title':'Consultorías & Mentorías','pack8.desc':'Sesiones individuales para desbloquear desafíos estratégicos y tomar las decisiones correctas.',
+    'proc.label':'Cómo Trabajamos','proc.title':'Cinco pasos, cero suposiciones','proc.sub':'Un proceso claro del diagnóstico al lanzamiento — sin sorpresas, sin fricciones.',
+    'step1.tag':'Paso 1','step1.title':'Diagnóstico','step1.desc':'Análisis profundo de la marca, mercado, competencia y objetivos. Identificamos el punto de partida y el destino antes de cualquier ejecución.',
+    'step2.tag':'Paso 2','step2.title':'Estrategia','step2.desc':'Pack recomendado, plan de acción detallado, timelines realistas y KPIs definidos. Sabes exactamente qué va a pasar.',
+    'step3.tag':'Paso 3','step3.title':'Producción','step3.desc':'Ejecución total — diseño, contenido, campañas, desarrollo web, automatizaciones. El equipo CLVSN lo pone todo en marcha.',
+    'step4.tag':'Paso 4','step4.title':'Revisión','step4.desc':'Feedback del cliente, ajustes finos, aprobación. Iteramos hasta que esté perfecto.',
+    'step5.tag':'Paso 5','step5.title':'Lanzamiento','step5.desc':'Entrega final, go-live y acompañamiento continuo. Seguimos contigo mientras la marca crece.',
+    'port.label':'Trabajo','port.title':'Marcas que confiaron en la visión','port.sub':'Cinco áreas de ejecución. Proyectos reales con marcas reales. Cada uno construido desde cero.',
+    'port.t1':'Branding','port.t2':'Social Media','port.t3':'Web & Digital','port.t4':'Contenido','port.t5':'Estrategia','port.cat.brand':'Identidad · Estrategia','port.cat.web':'Sitio Web',
+    'test.label':'Clientes','test.title':'Lo que dicen de nuestro trabajo',
+    'calc.label':'Inversión','calc.title':'Solicitar Presupuesto','calc.sub':'Selecciona los servicios, elige la moneda y descubre el valor de inversión estimado.','calc.currency':'Moneda','calc.services':'Servicios','calc.placeholder':'Selecciona al menos un servicio para ver el valor','calc.note':'* Los valores son estimaciones y pueden variar según el alcance del proyecto.','calc.from':'Desde','calc.upTo':'hasta',
+    'stats.label':'Números','stats.title':'El impacto en números','stats.sub':'Equipo pequeño, gran dedicación. Cada proyecto entregado con la misma atención.','stats.s1':'Clientes','stats.s2':'Proyectos','stats.s3':'Fundación','stats.s4':'Satisfacción',
+    'form.label':'Contacto','form.title':'Construyamos juntos','form.sub':'Cuéntanos sobre tu proyecto. Algunas preguntas rápidas y respondemos en 24h.',
+    'form.q0':'¿Cómo podemos ayudarte?','form.q0a':'Empezar marca desde cero','form.q0b':'Mejorar marca existente','form.q0c':'Crecer marca consolidada','form.q0d':'Otro',
+    'form.A1':'¿Cuál es el nicho de tu marca?','form.A2':'¿Ya tienes nombre o logo pensado?','form.A3':'¿En qué plataformas quieres estar?','form.A4':'¿Presupuesto aproximado?',
+    'form.B1':'¿Cuál es el mayor problema de tu marca?','form.B2':'¿Hace cuánto tienes la marca?','form.B3':'¿Ya tienes sitio web?','form.B4':'¿Presupuesto mensual para marketing?',
+    'form.C1':'¿Cuál es el objetivo principal?','form.C2':'¿En qué canales quieres crecer?','form.C3':'¿Trabajas con alguna agencia?','form.C4':'¿Presupuesto mensual?',
+    'form.D1':'Describe tu situación:','form.D1ph':'Cuéntanos un poco sobre tu proyecto...',
+    'form.final':'¿Algo más que quieras añadir?','form.finalph':'Mensaje (opcional)','form.name':'Nombre','form.email':'Email','form.next':'Continuar','form.back':'Volver','form.send':'Enviar','form.successTitle':'Mensaje enviado','form.successText':'Gracias. Revisaremos tu situación y responderemos en 24h.',
+    'sobre.label':'Quiénes Somos','sobre.head':'Construimos marcas con visión. Crecemos con ellas.','sobre.p1':'CLVSN nació de la convicción de que las marcas de moda emergentes merecen más que plantillas y fórmulas — merecen estrategia real, ejecución obsesiva y un equipo que se preocupa.','sobre.p2':'Desde 2025 ayudamos a marcas a despegar y escalar con método. Diagnóstico → estrategia → ejecución → crecimiento. Sin ruido, sin promesas vacías.','sobre.p3':'Nuestro compromiso es simple: trabajamos contigo como si la marca fuera nuestra. Porque, de cierta manera, lo es.','sobre.tag':'Cloth Vision — Brand Scaling para marcas de moda emergentes, nacionales e internacionales.','sobre.cta':'Trabajar Con Nosotros','sobre.s1':'Fundación','sobre.s2':'Marcas','sobre.s3':'Proyectos','sobre.s4':'Dedicación',
+    'part.label':'Marcas que confían',
+    'oscar.status':'CLVSN Assistant','oscar.placeholder':'Pregúntame algo...','oscar.t1':'Servicios','oscar.t2':'Presupuesto','oscar.t3':'Proceso','oscar.t4':'Contacto','oscar.greeting':'¡Hola! Soy Oscar, asistente de CLVSN. ¿En qué puedo ayudar?','oscar.listening':'Escuchando...','oscar.stop':'Detener','oscar.error':'Lo siento, hubo un error. Inténtalo de nuevo o contáctanos en ccloth.vision@gmail.com'
+  }
+};
+
+const SERVICE_PACKS = {
+  1:{title:'Brand Foundation & Estratégia',price:'A partir de 800€ — até 1.500€',items:['Estratégia de marca completa','Naming e tagline','Identidade visual (logo, paleta, tipografia)','Brand book em PDF','Aplicações iniciais (cartões, redes)','Pesquisa de mercado e concorrência']},
+  2:{title:'Brand Scaling & Crescimento',price:'A partir de 400€ — até 900€/mês',items:['Auditoria estratégica mensal','Mentoria 1-a-1 (2 sessões/mês)','Plano de crescimento trimestral','Análise de performance','Recomendações de pivot','Acompanhamento contínuo']},
+  3:{title:'Social Media & Performance',price:'A partir de 350€ — até 800€/mês',items:['Gestão completa Instagram + TikTok','15-20 posts/mês + 4-8 reels','Calendário editorial mensal','Community management','Gestão de campanhas pagas','Relatórios mensais detalhados']},
+  4:{title:'Web Design & Digital Experience',price:'A partir de 1.000€ — até 2.500€',items:['Website custom (até 10 páginas)','Mobile-first responsive design','SEO técnico on-page','Integração analytics','E-commerce (Shopify/custom)','Manutenção opcional 100-200€/mês']},
+  5:{title:'Conteúdo Criativo & Produção',price:'A partir de 300€ — até 1.000€/mês',items:['Photoshoot mensal (4-6 looks)','Vídeos curtos para redes (8-12/mês)','Motion design e animações','Edição completa','Cenários e direção criativa','Licença de uso comercial']},
+  6:{title:'IPGA — Info Product Growth & Automation',price:'A partir de 500€ — até 1.500€',items:['Estratégia de info produto','Funil de vendas completo','Email marketing automatizado','Landing pages otimizadas','Setup de plataformas (Kajabi, etc.)','Manutenção opcional 100-200€/mês']},
+  7:{title:'Automação & Sistemas de Gestão',price:'A partir de 400€ — até 1.200€/mês',items:['Auditoria de processos','Setup CRM (Notion/Airtable/HubSpot)','Automações Zapier / Make','Dashboards de gestão','Workflows de cliente','Formação da equipa']},
+  8:{title:'Consultorias & Mentorias Estratégicas',price:'A partir de 100€ — até 500€/sessão',items:['Sessão 60-90 min via call','Análise prévia da marca','Documento de recomendações','Plano de ação concreto','Follow-up por email','Pacotes de 3-6 sessões']}
+};
+
+const CALC_SERVICES = [
+  {key:'pack1',label:'Brand Foundation & Estratégia',min:800,max:1500,unit:'one'},
+  {key:'pack2',label:'Brand Scaling & Crescimento',min:400,max:900,unit:'mo'},
+  {key:'pack3',label:'Social Media & Performance',min:350,max:800,unit:'mo'},
+  {key:'pack4',label:'Web Design & Digital Experience',min:1000,max:2500,unit:'one',maintenance:true},
+  {key:'pack5',label:'Conteúdo Criativo & Produção',min:300,max:1000,unit:'mo'},
+  {key:'pack6',label:'IPGA — Info Product Growth',min:500,max:1500,unit:'one',maintenance:true},
+  {key:'pack7',label:'Automação & Sistemas de Gestão',min:400,max:1200,unit:'mo',maintenance:true},
+  {key:'pack8',label:'Consultorias & Mentorias',min:100,max:500,unit:'session'}
+];
+const MAINTENANCE_MIN = 50;
+const MAINTENANCE_MAX = 300;
+const USD_RATE = 1.1;
+const calcMaintenance = new Set();
+function convertPrice(eur){ return currentCurrency === '$' ? Math.round(eur * USD_RATE) : eur; }
+
+const TESTIMONIAL_SETS = [
+  [
+    {quote:'Trabalhar com a CLVSN transformou completamente a nossa presença digital. Em 3 meses triplicámos o engagement nas redes.',name:'João Alves',logo:'assets/logo-twinvault.png',brand:'TWIN VAULT',stars:5},
+    {quote:'A identidade visual que desenvolveram para a Cryst superou todas as expectativas. Profissionais, rápidos e criativos.',name:'Ana Rodrigues',logo:'assets/logo-cryst.png',brand:'CRYST',stars:5},
+    {quote:'A estratégia de conteúdo da CLVSN deu-nos uma voz clara no mercado. Recomendo a qualquer marca emergente.',name:'Maria Santos',logo:'assets/logo-apex.svg',brand:'APEX',stars:5}
+  ],
+  [
+    {quote:'Do zero ao mercado em 6 semanas. A equipa da CLVSN entregou um trabalho impecável e cumpriu todos os prazos.',name:'Pedro Costa',logo:'assets/logo-verde.svg',brand:'VERDE',stars:5},
+    {quote:'O website que criaram aumentou as conversões em 140%. ROI imediato e clientes a chegar pela primeira vez via SEO.',name:'Sofia Martins',logo:'assets/logo-werkhaus.svg',brand:'WERKHAUS',stars:5},
+    {quote:'Nunca pensei que uma agência pequena pudesse ter este nível de execução. Atenção ao detalhe absurda.',name:'Rui Ferreira',logo:'assets/logo-noctis.svg',brand:'NOCTIS',stars:4}
+  ],
+  [
+    {quote:'A CLVSN percebe o mundo da moda como ninguém. Resultados reais, não promessas vazias. Sempre disponíveis.',name:'Catarina Lima',logo:'assets/logo-lumiere.svg',brand:'LUMIÈRE',stars:5},
+    {quote:'Gestão de redes sociais impecável. Crescemos de 200 para 8.000 seguidores em 4 meses com conteúdo de qualidade.',name:'Bruno Almeida',logo:'assets/logo-fauna.svg',brand:'FAUNA',stars:5},
+    {quote:'O pack de automação poupou-nos 12h por semana de trabalho manual. Investimento mais rentável que fizemos.',name:'Inês Carvalho',logo:'assets/logo-cote.svg',brand:'COTE',stars:5}
+  ]
+];
+
+const OSCAR_SYSTEM = `És o Oscar, assistente virtual oficial da CLVSN (Cloth Vision), uma agência de marketing digital focada em brand scaling para marcas de moda emergentes, fundada em 2025 por Rodrigo Constantino.
+
+CONTEXTO COMPLETO:
+- Domínio: clothvision.co
+- Email: ccloth.vision@gmail.com
+- Redes: TikTok @clothvision_ · Instagram @_cloth.vision · YouTube @ClothVision
+- Clientes atuais: Cryst, TwinVault
+- 8 pacotes de serviço: 1) Brand Foundation & Estratégia (800-1500€), 2) Brand Scaling (400-900€/mês), 3) Social Media & Performance (350-800€/mês), 4) Web Design (1000-2500€), 5) Conteúdo Criativo (300-1000€/mês), 6) IPGA Info Products (500-1500€), 7) Automação (400-1200€/mês), 8) Consultorias (100-500€/sessão)
+- Processo: Diagnóstico → Estratégia → Produção → Revisão → Lançamento
+
+REGRAS:
+- Responde em português europeu, tom profissional mas próximo
+- Respostas curtas e diretas (max 3-4 frases)
+- Se perguntarem orçamento, sugere a calculadora ou pede contexto
+- Se quiserem falar com alguém, indica o formulário de contacto
+- Nunca inventes serviços ou preços fora desta lista
+- Trata o utilizador por "tu"`;
+
+let currentLang = 'pt';
+let currentCurrency = '€';
+let currentTestSet = 0;
+let formData = {};
+let formHistory = ['0'];
+let calcSelected = new Set();
+
+function $(s,el=document){return el.querySelector(s)}
+function $$(s,el=document){return Array.from(el.querySelectorAll(s))}
+
+function setLang(lang){
+  currentLang = lang;
+  document.documentElement.lang = lang;
+  $$('[data-t]').forEach(el => { const k=el.dataset.t; if(TRANSLATIONS[lang][k]) el.textContent = TRANSLATIONS[lang][k]; });
+  $$('[data-t-ph]').forEach(el => { const k=el.dataset.tPh; if(TRANSLATIONS[lang][k]) el.placeholder = TRANSLATIONS[lang][k]; });
+  if(typeof renderTestimonial === 'function') renderTestimonial();
+  if(typeof renderCalcResult === 'function') renderCalcResult();
+}
+
+function scrollToSection(id){
+  const el = document.getElementById(id);
+  if(el) el.scrollIntoView({behavior:'smooth',block:'start'});
+}
+
+function tr(key){return TRANSLATIONS[currentLang][key] || key}
+
+const canvas = $('#bg-canvas');
+const ctx = canvas.getContext('2d');
+let W=0, H=0;
+let mouseX=0, mouseY=0, smoothMouseX=0, smoothMouseY=0;
+let beams=[], microBeams=[];
+const BEAM_COUNT=34, MICRO_COUNT=22;
+
+function resizeCanvas(){
+  const dpr = window.devicePixelRatio || 1;
+  W = window.innerWidth; H = window.innerHeight;
+  canvas.width = W*dpr; canvas.height = H*dpr;
+  canvas.style.width = W+'px'; canvas.style.height = H+'px';
+  ctx.setTransform(1,0,0,1,0,0);
+  ctx.scale(dpr,dpr);
+  mouseX = smoothMouseX = W/2; mouseY = smoothMouseY = H/2;
+}
+
+class Beam{
+  constructor(initial,micro=false){this.micro=micro;this.reset(initial)}
+  reset(initial){
+    this.x = Math.random()*W*1.5 - W*0.25;
+    this.y = initial ? Math.random()*H*2.5 - H*0.5 : H + 400;
+    this.width = this.micro ? 8+Math.random()*22 : 60+Math.random()*120;
+    this.length = this.micro ? H*1.6 : H*2.6;
+    this.angle = (-34 + Math.random()*14) * Math.PI/180;
+    this.speed = this.micro ? 0.55+Math.random()*1.1 : 0.28+Math.random()*0.62;
+    this.opacity = this.micro ? 0.07+Math.random()*0.11 : 0.12+Math.random()*0.18;
+    this.hue = 185 + Math.random()*22;
+    this.pulse = Math.random()*Math.PI*2;
+    this.pulseSpeed = 0.010 + Math.random()*0.018;
+    this.waveAmp = this.micro ? 4+Math.random()*9 : 15+Math.random()*26;
+    this.wavePhase = Math.random()*Math.PI*2;
+    this.waveSpeed = 0.003 + Math.random()*0.007;
+    this.mouseStrength = 0.012 + Math.random()*0.022;
+  }
+  update(){
+    this.y -= this.speed;
+    this.pulse += this.pulseSpeed;
+    this.wavePhase += this.waveSpeed;
+    if(this.y + this.length < -300) this.reset(false);
+  }
+  draw(isLight){
+    const pulse = 0.72 + Math.sin(this.pulse)*0.28;
+    let op = this.opacity * pulse;
+    if(isLight) op = this.micro ? op*0.75 : op*0.85;
+    const waveX = Math.sin(this.wavePhase)*this.waveAmp + Math.sin(this.wavePhase*1.9 + 0.8)*this.waveAmp*0.35;
+    const mDx = (smoothMouseX - W/2)/W;
+    const mDy = (smoothMouseY - H/2)/H;
+    const mox = mDx * this.mouseStrength * W * 0.55;
+    const moy = mDy * this.mouseStrength * H * 0.25;
+    const sat = isLight ? 88 : 100;
+    const lum = isLight ? 32 : 60;
+    ctx.save();
+    ctx.translate(this.x + waveX + mox, this.y + moy);
+    ctx.rotate(this.angle);
+    const g = ctx.createLinearGradient(0,0,0,this.length);
+    g.addColorStop(0, `hsla(${this.hue},${sat}%,${lum}%,0)`);
+    g.addColorStop(0.07, `hsla(${this.hue},${sat}%,${lum}%,${op*0.35})`);
+    g.addColorStop(0.30, `hsla(${this.hue},${sat}%,${lum}%,${op})`);
+    g.addColorStop(0.70, `hsla(${this.hue},${sat}%,${lum}%,${op})`);
+    g.addColorStop(0.93, `hsla(${this.hue},${sat}%,${lum}%,${op*0.35})`);
+    g.addColorStop(1, `hsla(${this.hue},${sat}%,${lum}%,0)`);
+    ctx.fillStyle = g;
+    ctx.fillRect(-this.width/2, 0, this.width, this.length);
+    ctx.restore();
+  }
+}
+
+function initBeams(){
+  beams = Array.from({length:BEAM_COUNT}, () => new Beam(true,false));
+  microBeams = Array.from({length:MICRO_COUNT}, () => new Beam(true,true));
+}
+
+function animateBg(){
+  smoothMouseX += (mouseX - smoothMouseX)*0.05;
+  smoothMouseY += (mouseY - smoothMouseY)*0.05;
+  ctx.clearRect(0,0,W,H);
+  const isLight = document.body.dataset.theme === 'light';
+  ctx.filter = 'blur(40px)';
+  beams.forEach(b => { b.update(); b.draw(isLight); });
+  ctx.filter = 'blur(14px)';
+  microBeams.forEach(b => { b.update(); b.draw(isLight); });
+  ctx.filter = 'blur(95px)';
+  const ao = isLight ? 0.18 : 0.22;
+  const gB = ctx.createRadialGradient(W*0.5, H, 0, W*0.5, H, W*0.75);
+  gB.addColorStop(0, `rgba(0,181,248,${ao})`);
+  gB.addColorStop(0.5, `rgba(0,50,100,${ao*0.4})`);
+  gB.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = gB; ctx.fillRect(0,0,W,H);
+  const gT = ctx.createRadialGradient(W*0.08, 0, 0, W*0.08, 0, W*0.55);
+  gT.addColorStop(0, `rgba(0,181,248,${ao*0.7})`);
+  gT.addColorStop(0.6, `rgba(0,22,60,${ao*0.2})`);
+  gT.addColorStop(1, 'rgba(0,0,0,0)');
+  ctx.fillStyle = gT; ctx.fillRect(0,0,W,H);
+  ctx.filter = 'none';
+  requestAnimationFrame(animateBg);
+}
+
+document.addEventListener('mousemove', e => {
+  mouseX = e.clientX; mouseY = e.clientY;
+});
+
+const navbar = $('#navbar');
+window.addEventListener('scroll', () => {
+  if(window.scrollY > 80) navbar.classList.add('scrolled');
+  else navbar.classList.remove('scrolled');
+});
+
+const navServicosDropdown = $('#navServicosDropdown');
+if(navServicosDropdown){
+  const ddBtn = navServicosDropdown.querySelector('.nav-dropdown-btn');
+  ddBtn.addEventListener('click', e => {
+    e.stopPropagation();
+    navServicosDropdown.classList.toggle('open');
+  });
+  document.addEventListener('click', e => {
+    if(!navServicosDropdown.contains(e.target)) navServicosDropdown.classList.remove('open');
+  });
+  navServicosDropdown.querySelectorAll('a[data-pack]').forEach(a => {
+    a.addEventListener('click', () => navServicosDropdown.classList.remove('open'));
+  });
+}
+
+const modeToggle = $('#modeToggle');
+modeToggle.addEventListener('click', () => {
+  const cur = document.body.dataset.theme;
+  const next = cur === 'dark' ? 'light' : 'dark';
+  document.body.dataset.theme = next;
+  document.documentElement.dataset.theme = next;
+  localStorage.setItem('clvsn-theme', next);
+});
+const savedTheme = localStorage.getItem('clvsn-theme');
+if(savedTheme){ document.body.dataset.theme = savedTheme; document.documentElement.dataset.theme = savedTheme; }
+
+const langSelect = $('#langSelect');
+langSelect.addEventListener('change', e => { setLang(e.target.value); localStorage.setItem('clvsn-lang', e.target.value); });
+const savedLang = localStorage.getItem('clvsn-lang');
+if(savedLang){ langSelect.value = savedLang; }
+
+const heroVidA = $('#hero-vid-a');
+const heroVidB = $('#hero-vid-b');
+let heroActive = 'a';
+setInterval(() => {
+  if(heroActive === 'a'){ heroVidA.classList.remove('active'); heroVidB.classList.add('active'); heroActive = 'b'; }
+  else { heroVidB.classList.remove('active'); heroVidA.classList.add('active'); heroActive = 'a'; }
+}, 7000);
+
+const revealObserver = new IntersectionObserver(entries => {
+  entries.forEach(en => { if(en.isIntersecting){ en.target.classList.add('revealed'); revealObserver.unobserve(en.target); } });
+}, {threshold: 0.15, rootMargin: '0px 0px -8% 0px'});
+$$('.reveal').forEach(el => revealObserver.observe(el));
+
+$$('.glow-card').forEach(card => {
+  card.addEventListener('mousemove', e => {
+    const r = card.getBoundingClientRect();
+    card.style.setProperty('--gx', (e.clientX - r.left)+'px');
+    card.style.setProperty('--gy', (e.clientY - r.top)+'px');
+  });
+});
+
+const servicesScroll = $('#servicos-scroll');
+const servicesTrack = $('#servicesTrack');
+const servicesProgressBar = $('#servicesProgressBar');
+function updateServicesCarousel(){
+  if(!servicesScroll || !servicesTrack) return;
+  const rect = servicesScroll.getBoundingClientRect();
+  const total = servicesScroll.offsetHeight - window.innerHeight;
+  if(rect.top <= 0 && rect.bottom >= window.innerHeight){
+    const progress = Math.max(0, Math.min(1, Math.abs(rect.top)/total));
+    const maxScroll = servicesTrack.scrollWidth - window.innerWidth + 60;
+    servicesTrack.style.transform = `translateX(-${progress * maxScroll}px)`;
+    servicesProgressBar.style.width = (progress*100)+'%';
+  }
+}
+window.addEventListener('scroll', updateServicesCarousel);
+
+const modalOverlay = $('#serviceModal');
+const modalTitle = $('#modalTitle');
+const modalItems = $('#modalItems');
+const modalPrice = $('#modalPrice');
+const modalTag = $('#modalTag');
+
+function openModal(packId){
+  const pack = SERVICE_PACKS[packId];
+  if(!pack) return;
+  modalTag.textContent = 'PACK 0' + packId;
+  modalTitle.textContent = pack.title;
+  modalItems.innerHTML = pack.items.map(it => `<li>${it}</li>`).join('');
+  modalPrice.textContent = pack.price;
+  modalOverlay.classList.add('open');
+  document.body.style.overflow = 'hidden';
+}
+function closeModal(){
+  modalOverlay.classList.remove('open');
+  document.body.style.overflow = '';
+}
+$$('.service-card').forEach(card => {
+  card.addEventListener('click', () => openModal(card.dataset.pack));
+});
+modalOverlay.addEventListener('click', e => { if(e.target === modalOverlay) closeModal(); });
+window.closeModal = closeModal;
+$$('.nav-dropdown-menu a[data-pack]').forEach(a => {
+  a.addEventListener('click', e => { e.preventDefault(); openModal(a.dataset.pack); });
+});
+
+const processoStack = $('.processo-stack');
+const processoFill = $('#processoProgressFill');
+const processoSteps = $$('.processo-step');
+window.addEventListener('scroll', () => {
+  if(!processoStack) return;
+  const rect = processoStack.getBoundingClientRect();
+  const total = processoStack.offsetHeight - window.innerHeight;
+  if(rect.top <= 0 && rect.bottom >= 0){
+    const progress = Math.max(0, Math.min(1, Math.abs(rect.top)/total));
+    processoFill.style.height = (progress*100)+'%';
+  }
+});
+
+const portfolioTabs = $$('.portfolio-tab');
+const portfolioGroups = $$('.portfolio-group');
+portfolioTabs.forEach(tab => {
+  tab.addEventListener('click', () => {
+    const group = tab.dataset.group;
+    portfolioTabs.forEach(t => t.classList.toggle('active', t === tab));
+    portfolioGroups.forEach(g => g.classList.toggle('active', g.dataset.group === group));
+  });
+});
+$$('.portfolio-scroll-track').forEach(track => {
+  let isDown=false,startX,scrollLeft;
+  track.addEventListener('pointerdown', e => { isDown=true; startX=e.pageX-track.offsetLeft; scrollLeft=track.scrollLeft; });
+  track.addEventListener('pointerleave', () => { isDown=false; });
+  track.addEventListener('pointerup', () => { isDown=false; });
+  track.addEventListener('pointermove', e => { if(!isDown) return; e.preventDefault(); const x=e.pageX-track.offsetLeft; track.scrollLeft = scrollLeft - (x - startX)*1.4; });
+});
+
+const testCards = $$('#testCards .test-card');
+const testDotsContainer = $('#testDots');
+TESTIMONIAL_SETS.forEach((_, i) => {
+  const dot = document.createElement('div');
+  dot.className = 'test-dot' + (i===0?' active':'');
+  dot.dataset.idx = i;
+  dot.addEventListener('click', () => setTestSet(i));
+  testDotsContainer.appendChild(dot);
+});
+function renderTestimonial(){
+  const set = TESTIMONIAL_SETS[currentTestSet];
+  testCards.forEach((card, i) => {
+    const t = set[i];
+    if(!t) return;
+    card.querySelector('.test-quote').textContent = t.quote;
+    card.querySelector('.test-name').textContent = t.name;
+    const author = card.querySelector('.test-author');
+    let logoEl = author.querySelector('.test-logo-wrap');
+    if(!logoEl){
+      logoEl = document.createElement('div');
+      logoEl.className = 'test-logo-wrap';
+      author.insertBefore(logoEl, author.firstChild);
+    }
+    logoEl.innerHTML = t.logo ? `<img class="test-logo" src="${t.logo}" alt="${t.brand}" onerror="this.outerHTML='<span class=\\'test-logo-text\\'>${t.brand}</span>'">` : `<span class="test-logo-text">${t.brand}</span>`;
+    const oldCompany = card.querySelector('.test-company');
+    if(oldCompany) oldCompany.remove();
+    const starsEl = card.querySelector('.test-stars');
+    starsEl.innerHTML = '';
+    for(let s=1; s<=5; s++){
+      const starSvg = document.createElementNS('http://www.w3.org/2000/svg','svg');
+      starSvg.setAttribute('viewBox','0 0 24 24');
+      starSvg.setAttribute('stroke-width','1.5');
+      if(s > t.stars) starSvg.classList.add('empty');
+      starSvg.innerHTML = '<polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/>';
+      starsEl.appendChild(starSvg);
+    }
+  });
+}
+function setTestSet(idx){
+  testCards.forEach(c => c.classList.add('fading'));
+  setTimeout(() => {
+    currentTestSet = idx;
+    renderTestimonial();
+    $$('.test-dot').forEach((d,i) => d.classList.toggle('active', i === idx));
+    setTimeout(() => testCards.forEach(c => c.classList.remove('fading')), 50);
+  }, 350);
+}
+renderTestimonial();
+let lastTestScroll = 0;
+const testSection = $('#testemunhos');
+window.addEventListener('scroll', () => {
+  if(!testSection) return;
+  const rect = testSection.getBoundingClientRect();
+  if(rect.top <= window.innerHeight*0.5 && rect.bottom >= window.innerHeight*0.5){
+    const now = Date.now();
+    if(now - lastTestScroll < 1000) return;
+    const progress = Math.max(0, Math.min(1, (window.innerHeight*0.5 - rect.top)/rect.height));
+    const idx = Math.min(TESTIMONIAL_SETS.length-1, Math.floor(progress * TESTIMONIAL_SETS.length));
+    if(idx !== currentTestSet){ setTestSet(idx); lastTestScroll = now; }
+  }
+});
+
+const calcGrid = $('#calcServicesGrid');
+function renderCalcGrid(){
+  calcGrid.innerHTML = '';
+  CALC_SERVICES.forEach(s => {
+    const item = document.createElement('div');
+    item.className = 'calc-service-item';
+    if(calcSelected.has(s.key)) item.classList.add('selected');
+    const unit = s.unit === 'mo' ? '/mês' : s.unit === 'session' ? '/sessão' : '';
+    const minP = convertPrice(s.min);
+    const maxP = convertPrice(s.max);
+    const maintMin = convertPrice(MAINTENANCE_MIN);
+    const maintMax = convertPrice(MAINTENANCE_MAX);
+    const maintHtml = s.maintenance ? `
+      <label class="calc-maint" data-key="${s.key}">
+        <span class="calc-maint-check"></span>
+        <span class="calc-maint-label">Manutenção mensal</span>
+        <span class="calc-maint-price">${currentCurrency}${maintMin}–${currentCurrency}${maintMax}/mês</span>
+      </label>` : '';
+    item.innerHTML = `<div class="calc-service-header"><div class="calc-check"></div><span>${s.label}</span></div><div class="calc-service-price">${currentCurrency}${minP.toLocaleString('pt-PT')}–${currentCurrency}${maxP.toLocaleString('pt-PT')}${unit}</div>${maintHtml}`;
+    item.addEventListener('click', e => {
+      if(e.target.closest('.calc-maint')) return;
+      if(calcSelected.has(s.key)){ calcSelected.delete(s.key); calcMaintenance.delete(s.key); }
+      else calcSelected.add(s.key);
+      item.classList.toggle('selected');
+      const maintBox = item.querySelector('.calc-maint');
+      if(maintBox && !calcSelected.has(s.key)) maintBox.classList.remove('on');
+      renderCalcResult();
+    });
+    const maintEl = item.querySelector('.calc-maint');
+    if(maintEl){
+      if(calcMaintenance.has(s.key)) maintEl.classList.add('on');
+      maintEl.addEventListener('click', e => {
+        e.stopPropagation();
+        if(!calcSelected.has(s.key)){
+          calcSelected.add(s.key);
+          item.classList.add('selected');
+        }
+        if(calcMaintenance.has(s.key)){ calcMaintenance.delete(s.key); maintEl.classList.remove('on'); }
+        else { calcMaintenance.add(s.key); maintEl.classList.add('on'); }
+        renderCalcResult();
+      });
+    }
+    calcGrid.appendChild(item);
+  });
+}
+function renderCalcResult(){
+  const resultEl = $('#calcResult');
+  if(calcSelected.size === 0){
+    resultEl.innerHTML = `<span class="calc-result-placeholder">${tr('calc.placeholder')}</span>`;
+    return;
+  }
+  let minTotal = 0, maxTotal = 0;
+  let minMonthly = 0, maxMonthly = 0;
+  CALC_SERVICES.forEach(s => {
+    if(!calcSelected.has(s.key)) return;
+    if(s.unit === 'mo'){ minMonthly += s.min; maxMonthly += s.max; }
+    else { minTotal += s.min; maxTotal += s.max; }
+  });
+  let minMaint = 0, maxMaint = 0;
+  calcMaintenance.forEach(k => {
+    if(calcSelected.has(k)){ minMaint += MAINTENANCE_MIN; maxMaint += MAINTENANCE_MAX; }
+  });
+  minMonthly += minMaint; maxMonthly += maxMaint;
+  const fmt = n => currentCurrency + convertPrice(n).toLocaleString('pt-PT');
+  const blocks = [];
+  if(minTotal > 0 || maxTotal > 0)
+    blocks.push(`<div class="calc-line"><span class="calc-line-label">${currentLang==='en'?'One-time':currentLang==='es'?'Pago único':'Investimento inicial'}</span><span class="calc-line-amount">${fmt(minTotal)} — ${fmt(maxTotal)}</span></div>`);
+  if(minMonthly > 0 || maxMonthly > 0)
+    blocks.push(`<div class="calc-line"><span class="calc-line-label">${currentLang==='en'?'Monthly':currentLang==='es'?'Mensual':'Mensalidade'}</span><span class="calc-line-amount">${fmt(minMonthly)} — ${fmt(maxMonthly)}<small>/mês</small></span></div>`);
+  resultEl.innerHTML = blocks.join('');
+}
+$$('.calc-currency-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    $$('.calc-currency-btn').forEach(b => b.classList.toggle('active', b === btn));
+    currentCurrency = btn.dataset.curr;
+    renderCalcGrid();
+    renderCalcResult();
+  });
+});
+renderCalcGrid();
+
+const statsObserver = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if(en.isIntersecting){ animateStats(); statsObserver.unobserve(en.target); }
+  });
+}, {threshold: 0.35});
+const statsSection = $('#stats');
+if(statsSection) statsObserver.observe(statsSection);
+
+function animateStats(){
+  $$('.stat-num').forEach(el => {
+    const target = parseInt(el.dataset.target);
+    const prefix = el.dataset.prefix || '';
+    const suffix = el.dataset.suffix || '';
+    const startSize = parseFloat(el.dataset.startSize) || 8;
+    const finalSize = 72;
+    const duration = 1800;
+    const startTime = performance.now();
+    function step(now){
+      let p = (now - startTime)/duration;
+      if(p >= 1) p = 1;
+      const eased = p < 0.85 ? p/0.85 : 1 + Math.sin((p-0.85)/0.15 * Math.PI) * 0.06 * (1-p);
+      const cur = Math.round(target * Math.min(1, eased));
+      const size = startSize + (finalSize - startSize) * Math.min(1, eased);
+      el.textContent = prefix + cur.toLocaleString('pt-PT') + suffix;
+      el.style.fontSize = size + 'px';
+      if(p < 1) requestAnimationFrame(step);
+      else { el.classList.add('done'); el.style.fontSize = ''; }
+    }
+    requestAnimationFrame(step);
+  });
+}
+
+const formSteps = $$('.form-step');
+const formProgressBar = $('#formProgressBar');
+const formQNumEl = $('#formQNum');
+const formSuccessEl = $('#formSuccess');
+const FORM_FLOWS = {
+  A: ['0','A1','A2','A3','A4','FINAL'],
+  B: ['0','B1','B2','B3','B4','FINAL'],
+  C: ['0','C1','C2','C3','C4','FINAL'],
+  D: ['0','D1','FINAL']
+};
+function currentFlow(){
+  const b = formData.branch;
+  return b ? FORM_FLOWS[b] : FORM_FLOWS.A;
+}
+function showFormStep(stepKey){
+  formSteps.forEach(s => s.classList.toggle('active', s.dataset.step === stepKey));
+  const flow = currentFlow();
+  const idx = flow.indexOf(stepKey);
+  const total = flow.length;
+  if(idx >= 0){
+    const num = idx + 1;
+    formQNumEl.textContent = String(num).padStart(2,'0');
+    formProgressBar.style.width = (num/total*100)+'%';
+  }
+  formHistory.push(stepKey);
+  updateFormNextButtons();
+}
+function updateFormNextButtons(){
+  formSteps.forEach(step => {
+    const active = step.classList.contains('active');
+    if(!active) return;
+    const optsGroup = step.querySelector('.form-options');
+    const next = step.querySelector('.btn-form-next');
+    if(!next) return;
+    if(step.dataset.step === 'D1' || step.dataset.step === 'FINAL'){ next.disabled = false; return; }
+    if(optsGroup){
+      const hasSelected = optsGroup.querySelector('.form-option.selected');
+      next.disabled = !hasSelected;
+    }
+  });
+}
+$$('.form-options').forEach(group => {
+  const single = group.dataset.single === 'true';
+  const name = group.dataset.name;
+  group.addEventListener('click', e => {
+    const opt = e.target.closest('.form-option');
+    if(!opt) return;
+    if(single){
+      group.querySelectorAll('.form-option').forEach(o => o.classList.toggle('selected', o === opt));
+      formData[name] = opt.dataset.value;
+    } else {
+      opt.classList.toggle('selected');
+      const vals = Array.from(group.querySelectorAll('.form-option.selected')).map(o => o.dataset.value);
+      formData[name] = vals;
+    }
+    updateFormNextButtons();
+  });
+});
+$$('.btn-form-next').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const step = btn.closest('.form-step');
+    const key = step.dataset.step;
+    if(btn.id === 'formSubmit'){ submitForm(); return; }
+    if(key === '0'){
+      const branch = formData.branch || 'A';
+      showFormStep(branch + '1');
+    } else if(key === 'D1'){
+      formData.D_text = $('#branchDFree').value || '';
+      showFormStep('FINAL');
+    } else {
+      const flow = currentFlow();
+      const idx = flow.indexOf(key);
+      const nextKey = flow[idx + 1];
+      if(nextKey) showFormStep(nextKey);
+    }
+  });
+});
+$$('.btn-form-back').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if(formHistory.length > 1){
+      formHistory.pop();
+      const prev = formHistory.pop();
+      showFormStep(prev);
+    }
+  });
+});
+
+async function submitForm(){
+  const name = $('#finalName').value.trim();
+  const email = $('#finalEmail').value.trim();
+  const msg = $('#finalMessage').value.trim();
+  if(!name || !email){ alert('Por favor preenche nome e email.'); return; }
+  if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)){ alert('Email inválido.'); return; }
+  const submitBtn = $('#formSubmit');
+  submitBtn.disabled = true;
+  submitBtn.textContent = '...';
+  const summary = buildFormSummary();
+  const fullMessage = msg + '\n\n— DIAGNÓSTICO —\n' + summary;
+  try{
+    await emailjs.send('service_u5ythrd','template_gyx3ma8',{
+      from_name: name,
+      from_email: email,
+      reply_to: email,
+      to_email: 'ccloth.vision@gmail.com',
+      to_name: 'CLVSN',
+      subject: 'Novo pedido de diagnóstico — ' + name,
+      message: fullMessage,
+      nome: name,
+      email: email,
+      mensagem: fullMessage,
+      name: name,
+      branch: formData.branch || '-',
+      idioma: currentLang
+    });
+    formSteps.forEach(s => s.classList.remove('active'));
+    formSuccessEl.classList.add('show');
+    formProgressBar.style.width = '100%';
+  } catch(err){
+    console.error('EmailJS error:', err);
+    const detail = err && err.text ? err.text : (err && err.message ? err.message : 'erro desconhecido');
+    alert('Erro ao enviar (' + detail + '). Tenta novamente ou contacta-nos em ccloth.vision@gmail.com');
+    submitBtn.disabled = false;
+    submitBtn.textContent = tr('form.send');
+  }
+}
+function buildFormSummary(){
+  const lines = [];
+  lines.push('— Ramo: ' + (formData.branch || '-'));
+  Object.entries(formData).forEach(([k,v]) => {
+    if(k === 'branch') return;
+    lines.push(`  ${k}: ${Array.isArray(v)?v.join(', '):v}`);
+  });
+  return lines.join('\n');
+}
+
+const sobreSection = $('#sobre');
+const sobreHeadline = $('#sobreHeadline');
+if(sobreHeadline){
+  const text = sobreHeadline.textContent.trim();
+  sobreHeadline.innerHTML = text.split(' ').map(w => `<span class="word">${w}</span>`).join(' ');
+}
+const sobreObserver = new IntersectionObserver(entries => {
+  entries.forEach(en => {
+    if(!en.isIntersecting) return;
+    const words = sobreHeadline.querySelectorAll('.word');
+    words.forEach((w,i) => setTimeout(() => w.classList.add('revealed'), i*90));
+    $$('.sobre-para').forEach((p,i) => setTimeout(() => p.classList.add('revealed'), 300 + i*220));
+    $$('.sobre-brand-img,.sobre-subtitle,.btn-sobre-cta').forEach((el,i) => setTimeout(() => el.classList.add('revealed'), 500 + i*150));
+    $$('.sobre-social').forEach((s,i) => setTimeout(() => s.classList.add('revealed'), 700 + i*100));
+    sobreObserver.disconnect();
+  });
+}, {threshold: 0.2});
+if(sobreSection) sobreObserver.observe(sobreSection);
+
+const oscarWidget = $('#oscarWidget');
+const oscarToggle = $('#oscarToggle');
+const oscarMessages = $('#oscarMessages');
+const oscarInput = $('#oscarInput');
+const oscarSend = $('#oscarSend');
+const oscarVoiceBtn = $('#oscarVoiceBtn');
+const oscarVoice = $('#oscarVoice');
+const voiceClose = $('#voiceClose');
+const oscarTags = $$('.oscar-tag');
+let oscarHistory = [];
+let oscarOpened = false;
+
+oscarToggle.addEventListener('click', () => {
+  oscarWidget.classList.toggle('open');
+  if(!oscarOpened){
+    oscarOpened = true;
+    setTimeout(() => oscarAddMessage('bot', tr('oscar.greeting')), 400);
+  }
+});
+
+function oscarAddMessage(role, text){
+  const msg = document.createElement('div');
+  msg.className = 'oscar-msg ' + role;
+  msg.textContent = text;
+  oscarMessages.appendChild(msg);
+  oscarMessages.scrollTop = oscarMessages.scrollHeight;
+  oscarHistory.push({role: role === 'bot' ? 'assistant' : 'user', content: text});
+}
+function oscarShowTyping(){
+  const t = document.createElement('div');
+  t.className = 'oscar-typing';
+  t.id = 'oscarTyping';
+  t.innerHTML = '<span></span><span></span><span></span>';
+  oscarMessages.appendChild(t);
+  oscarMessages.scrollTop = oscarMessages.scrollHeight;
+}
+function oscarHideTyping(){
+  const t = $('#oscarTyping');
+  if(t) t.remove();
+}
+
+async function oscarSendMessage(text){
+  if(!text || !text.trim()) return;
+  text = text.trim();
+  oscarAddMessage('user', text);
+  oscarInput.value = '';
+  oscarShowTyping();
+  try{
+    const res = await fetch('/api/chat', {
+      method: 'POST',
+      headers: {'Content-Type':'application/json'},
+      body: JSON.stringify({system: OSCAR_SYSTEM, messages: oscarHistory.slice(-10)})
+    });
+    oscarHideTyping();
+    if(!res.ok) throw new Error('API error');
+    const data = await res.json();
+    oscarAddMessage('bot', data.reply || data.message || tr('oscar.error'));
+  } catch(err){
+    oscarHideTyping();
+    const fallback = oscarFallbackReply(text);
+    oscarAddMessage('bot', fallback);
+  }
+}
+function oscarFallbackReply(text){
+  const t = text.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g,'');
+
+  // Brand Foundation
+  if(/(brand[- ]?foundation|fundac|comecar|começar|do zero|nova marca|criar marca|lancar marca|launch brand)/.test(t))
+    return 'O pack Brand Foundation (800€-1.500€, one-time) inclui estratégia de marca completa, naming, identidade visual (logo, paleta, tipografia), brand book em PDF e aplicações iniciais. É o ponto de partida ideal para marcas que estão a nascer. Queres avançar para um diagnóstico?';
+
+  // Scaling
+  if(/(scaling|escalar|crescer|brand scaling|crescimento|growth|escala)/.test(t))
+    return 'Brand Scaling (400€-900€/mês) é para marcas existentes que querem expandir. Inclui auditoria estratégica mensal, mentoria 1-a-1 (2 sessões/mês), plano de crescimento trimestral e análise de performance. Resultado: marca posicionada para o próximo nível.';
+
+  // Social media
+  if(/(social|instagram|tiktok|redes sociais|reels|posts|content social)/.test(t))
+    return 'Social Media & Performance (350€-800€/mês): gestão completa Instagram+TikTok, 15-20 posts + 4-8 reels por mês, calendário editorial, community management, ads pagos e relatórios mensais. Ideal para marcas que querem presença consistente e mensurável.';
+
+  // Web
+  if(/(website|site|web|landing|e-?commerce|shopify|loja online)/.test(t))
+    return 'Web Design & Digital Experience (1.000€-2.500€): website custom até 10 páginas, mobile-first, SEO técnico, integração analytics, e-commerce (Shopify/custom) e manutenção opcional. Criamos sites únicos que convertem — design e desenvolvimento à medida.';
+
+  // Conteúdo
+  if(/(conteudo|fotograf|video|photoshoot|producao|motion|edicao)/.test(t))
+    return 'Conteúdo Criativo & Produção (300€-1.000€/mês): photoshoot mensal (4-6 looks), 8-12 vídeos curtos para redes, motion design, edição completa, direção criativa e licença comercial. Tens conteúdo profissional todos os meses.';
+
+  // IPGA
+  if(/(ipga|info[- ]?product|funil|funnel|info produto|email marketing)/.test(t))
+    return 'IPGA — Info Product Growth (500€-1.500€): estratégia de info produto, funil de vendas completo, email marketing automatizado, landing pages otimizadas e setup de plataformas (Kajabi, etc.). Para quem quer escalar produtos digitais.';
+
+  // Automação
+  if(/(automac|automation|crm|workflow|notion|airtable|zapier|make)/.test(t))
+    return 'Automação & Sistemas de Gestão (400€-1.200€/mês): auditoria de processos, setup CRM (Notion/Airtable/HubSpot), automações Zapier/Make, dashboards de gestão e formação de equipa. Libertas horas todas as semanas.';
+
+  // Consultoria
+  if(/(consultor|mentor|sessao|session|conselho|advice)/.test(t))
+    return 'Consultorias & Mentorias (100€-500€/sessão): sessão 60-90 min via call, análise prévia da marca, documento de recomendações e plano de ação concreto. Pacotes de 3-6 sessões disponíveis para acompanhamento contínuo.';
+
+  // Preço geral
+  if(/(preco|orcamento|custo|valor|price|quanto|investimento|budget)/.test(t))
+    return 'Os preços variam por pack: one-time entre 100€-2.500€, retainers mensais entre 300€-1.200€. Usa a calculadora aqui no site para uma estimativa exacta consoante os serviços que precisas, ou preenche o formulário de diagnóstico que respondemos com proposta personalizada em 24h.';
+
+  // Contacto
+  if(/(contacto|contact|falar|email|telef|whatsapp|chamada|call|marcar)/.test(t))
+    return 'Podes contactar-nos por: email ccloth.vision@gmail.com, formulário de diagnóstico aqui no site (resposta em 24h), ou redes sociais (@_cloth.vision no Instagram, @clothvision_ no TikTok). Preferes que tipo de canal?';
+
+  // Processo
+  if(/(processo|process|metodo|como funciona|how it works|etapas|passos)/.test(t))
+    return 'Trabalhamos em 5 passos: 1) Diagnóstico (análise marca/mercado), 2) Estratégia (pack e plano), 3) Produção (execução total), 4) Revisão (feedback e ajustes), 5) Lançamento (entrega + acompanhamento). Cada fase é validada contigo antes de avançar.';
+
+  // Tempo / prazo
+  if(/(quanto tempo|prazo|deadline|demora|quando|when)/.test(t))
+    return 'Depende do pack: identidade visual completa em 3-4 semanas, website em 4-6 semanas, retainers mensais começam após 7 dias do contrato. Damos sempre timeline realista no diagnóstico inicial — sem promessas vazias.';
+
+  // Quem / sobre
+  if(/(quem|sobre|about|fundador|equipa|team|cloth vision|clvsn|historia)/.test(t))
+    return 'A CLVSN (Cloth Vision) nasceu em 2025, fundada por Rodrigo Constantino. Somos especialistas em brand scaling para marcas de moda emergentes — nacionais e internacionais. Pequena equipa, atenção obsessiva ao detalhe. Já trabalhámos com Cryst, TwinVault e outros 7+ projetos.';
+
+  // Nichos
+  if(/(moda|fashion|streetwear|luxo|lifestyle|desporto|sport)/.test(t))
+    return 'Trabalhamos sobretudo com marcas de moda, lifestyle e streetwear — mas qualquer marca emergente com visão pode ser cliente. Foco principal: marcas que vendem produto físico ou digital e precisam de presença forte. Em que área se enquadra a tua marca?';
+
+  // Cumprimentos
+  if(/^(ola|olá|hello|hi|hey|boa|bom dia|boa tarde|boa noite)/.test(t))
+    return 'Olá! Sou o Oscar, assistente da CLVSN. Posso ajudar-te com informação sobre os nossos 8 packs de serviço, preços, processo, ou agendar um diagnóstico. Em que posso ajudar?';
+
+  // Obrigado
+  if(/(obrigad|thanks|thank you|gracias)/.test(t))
+    return 'De nada! Se precisares de mais alguma coisa, estou aqui. Para avançar com um projeto, preenche o formulário de diagnóstico ou contacta ccloth.vision@gmail.com.';
+
+  // Default genérico mas útil
+  return 'Posso ajudar com: serviços (8 packs disponíveis), preços, processo de trabalho, contacto ou agendar diagnóstico. Podes também perguntar sobre uma área específica — branding, social media, web, conteúdo, automação, ou consultoria. O que te interessa mais?';
+}
+oscarSend.addEventListener('click', () => oscarSendMessage(oscarInput.value));
+oscarInput.addEventListener('keydown', e => {
+  if(e.key === 'Enter' && !e.shiftKey){ e.preventDefault(); oscarSendMessage(oscarInput.value); }
+});
+oscarTags.forEach(tag => tag.addEventListener('click', () => oscarSendMessage(tag.dataset.msg)));
+oscarVoiceBtn.addEventListener('click', () => oscarVoice.classList.add('active'));
+voiceClose.addEventListener('click', () => oscarVoice.classList.remove('active'));
+
+window.addEventListener('resize', resizeCanvas);
+resizeCanvas();
+initBeams();
+animateBg();
+setLang(savedLang || 'pt');
+
+window.scrollToSection = scrollToSection;
+</script>
+</body>
+</html>
+
+
+
+
+
