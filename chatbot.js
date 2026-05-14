@@ -63,16 +63,20 @@
     document.getElementById('chatInput').value = '';
 
     try {
+      // 'cache: no-store' obriga a API a dar sempre uma resposta nova
       const res = await fetch(API_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ messages: [{ role: 'user', content: text }] })
+        body: JSON.stringify({ messages: [{ role: 'user', content: text }] }),
+        cache: 'no-store' 
       });
+      
       const data = await res.json();
       const bDiv = document.createElement('div');
       bDiv.className = 'msg bot';
       bDiv.innerHTML = `<div class="msg-bubble">${data.reply || 'Erro na resposta.'}</div>`;
       msgs.appendChild(bDiv);
+      
       if (isVoiceInput && data.reply) {
         const ut = new SpeechSynthesisUtterance(data.reply);
         ut.lang = 'pt-PT';
@@ -87,7 +91,30 @@
     msgs.scrollTop = msgs.scrollHeight;
   }
 
-  btn.onclick = () => panel.classList.toggle('open');
+  btn.onclick = () => {
+    panel.classList.toggle('open');
+    // Adiciona saudação inicial apenas se o chat estiver vazio
+    if(document.getElementById('chatMessages').children.length === 0) {
+       const msgs = document.getElementById('chatMessages');
+       const welcome = document.createElement('div');
+       welcome.className = 'msg bot';
+       welcome.innerHTML = `<div class="msg-bubble">Olá! Sou o Oscar, assistente da CLVSN. Em que posso ajudar?</div>`;
+       msgs.appendChild(welcome);
+    }
+  };
+  
   document.getElementById('chatClose').onclick = () => panel.classList.remove('open');
-  document.getElementById('chatSend').onclick = () => { isVoiceInput = false; sendMsg(document.getElementById('chatInput').value); };
+  
+  document.getElementById('chatSend').onclick = () => { 
+    isVoiceInput = false; 
+    sendMsg(document.getElementById('chatInput').value); 
+  };
+
+  document.getElementById('chatInput').onkeydown = (e) => { 
+    if (e.key === 'Enter' && !e.shiftKey) { 
+      e.preventDefault(); 
+      isVoiceInput = false; 
+      sendMsg(e.target.value); 
+    } 
+  };
 })();
