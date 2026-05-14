@@ -208,13 +208,19 @@
   const micBtn       = document.getElementById('micBtn');
 
   // ── Boas-vindas automáticas ──────────────────────────────────────────────────
+  function mdToHtml(text) {
+    return text
+      .replace(/\*\*(.+?)\*\*/g, '<b>$1</b>')
+      .replace(/\*(.+?)\*/g, '<i>$1</i>')
+      .replace(/\n/g, '<br>');
+  }
+
   function showWelcome() {
     const bDiv = document.createElement('div');
     bDiv.className = 'msg bot';
     bDiv.innerHTML = `<div class="msg-bubble">
-      Olá! Sou o <strong>Oscar</strong>, o assistente de IA da CLVSN.<br><br>
-      Estou aqui para te ajudar a escalar a tua marca de moda — seja a falar de estratégia, serviços ou orçamentos.<br><br>
-      Posso responder por escrito ou por <strong>voz</strong> (clica no microfone). Em que posso ajudar-te hoje?
+      Olá! Sou o <b>Oscar</b>, assistente da CLVSN.<br><br>
+      Fala comigo sobre serviços, orçamentos ou estratégia de marca. Em que posso ajudar?
     </div>`;
     chatMessages.appendChild(bDiv);
     chatMessages.scrollTop = chatMessages.scrollHeight;
@@ -258,7 +264,7 @@
 
       const bDiv = document.createElement('div');
       bDiv.className = 'msg bot';
-      bDiv.innerHTML = `<div class="msg-bubble">${data.reply || 'Erro na resposta.'}</div>`;
+      bDiv.innerHTML = `<div class="msg-bubble">${mdToHtml(data.reply || 'Erro na resposta.')}</div>`;
       chatMessages.appendChild(bDiv);
 
       // TTS desativado — Oscar responde apenas por texto
