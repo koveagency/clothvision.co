@@ -1653,19 +1653,15 @@ async function submitForm(){
   const fullMessage = msg + '\n\n— DIAGNÓSTICO —\n' + summary;
   try{
     await emailjs.send('service_u5ythrd','template_gyx3ma8',{
-      from_name: name,
+      name:       name,
+      from_name:  name,
       from_email: email,
-      reply_to: email,
-      to_email: 'ccloth.vision@gmail.com',
-      to_name: 'CLVSN',
-      subject: 'Novo pedido de diagnóstico — ' + name,
-      message: fullMessage,
-      nome: name,
-      email: email,
-      mensagem: fullMessage,
-      name: name,
-      branch: formData.branch || '-',
-      idioma: currentLang
+      reply_to:   email,
+      to_name:    'CLVSN',
+      to_email:   'ccloth.vision@gmail.com',
+      message:    fullMessage,
+      branch:     formData.branch || '-',
+      idioma:     currentLang
     });
     formSteps.forEach(s => s.classList.remove('active'));
     formSuccessEl.classList.add('show');
@@ -1679,13 +1675,54 @@ async function submitForm(){
   }
 }
 function buildFormSummary(){
+  const FIELD_LABELS = {
+    branch:    'Como podemos ajudar?',
+    A_niche:   'Nicho da marca',
+    A_brand:   'Nome / Logótipo definido?',
+    A_plat:    'Plataformas pretendidas',
+    A_budget:  'Orçamento disponível',
+    B_problem: 'Maior problema da marca',
+    B_age:     'Tempo de existência da marca',
+    B_web:     'Tem website?',
+    B_budget:  'Orçamento mensal para marketing',
+    C_goal:    'Objetivo principal',
+    C_chan:    'Canais de crescimento',
+    C_agency:  'Trabalha com agência?',
+    C_budget:  'Orçamento mensal',
+    D_text:    'Descrição da situação',
+  };
+
+  const VALUE_LABELS = {
+    A: 'Começar marca do zero',
+    B: 'Melhorar marca existente',
+    C: 'Crescer marca consolidada',
+    D: 'Outro',
+    moda: 'Moda', lifestyle: 'Lifestyle', desporto: 'Desporto', outro: 'Outro',
+    sim: 'Sim', nao: 'Não', dev: 'Em desenvolvimento',
+    ig: 'Instagram', tt: 'TikTok', web: 'Website', yt: 'YouTube',
+    seo: 'Website / SEO', email: 'Email Marketing',
+    id: 'Identidade visual fraca', vis: 'Pouca visibilidade',
+    strat: 'Sem estratégia clara', sales: 'Baixas vendas',
+    followers: 'Mais seguidores', intl: 'Expansão internacional', collab: 'Colaborações',
+    '<1': 'Menos de 1 ano', '1-3': '1 a 3 anos', '3+': 'Mais de 3 anos',
+    '<300': 'Menos de 300€', '300-800': '300€ — 800€',
+    '800-2000': '800€ — 2.000€', '2000+': '2.000€+',
+    '<500': 'Menos de 500€', '500-1500': '500€ — 1.500€',
+    '1500-3000': '1.500€ — 3.000€', '3000+': '3.000€+',
+  };
+
+  function readable(val){
+    if(Array.isArray(val)) return val.map(v => VALUE_LABELS[v] || v).join(', ');
+    return VALUE_LABELS[val] || val || '-';
+  }
+
   const lines = [];
-  lines.push('— Ramo: ' + (formData.branch || '-'));
-  Object.entries(formData).forEach(([k,v]) => {
-    if(k === 'branch') return;
-    lines.push(`  ${k}: ${Array.isArray(v)?v.join(', '):v}`);
+  Object.entries(formData).forEach(([k, v]) => {
+    const question = FIELD_LABELS[k] || k;
+    const answer   = readable(v);
+    if(answer && answer !== '-') lines.push(`Pergunta: ${question}\nResposta: ${answer}`);
   });
-  return lines.join('\n');
+  return lines.join('\n\n');
 }
 
 const sobreSection = $('#sobre');
