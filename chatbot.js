@@ -1,4 +1,4 @@
-/* CLVSN Chatbot Widget — Oscar (Vercel + Voz Inteligente) */
+/* CLVSN Chatbot Widget — Oscar (Vercel + Voz Inteligente) - VERSÃO FINAL */
 (function () {
   const API_URL = '/api/chat'; 
   let isVoiceInput = false;
@@ -16,6 +16,11 @@
   .msg.bot .msg-bubble{ background:rgba(0,43,73,.6); color:#f0f4f8; border-bottom-left-radius:4px; align-self: flex-start; }
   .msg.user .msg-bubble{ background:#00b5f8; color:#001627; font-weight:500; border-bottom-right-radius:4px; }
   .msg.user { align-self: flex-end; }
+  
+  .chat-suggestions{ padding:8px 16px; display:flex; gap:8px; flex-wrap:wrap; border-top:1px solid rgba(0,181,248,.04); }
+  .sug-btn{ padding:6px 12px; border-radius:100px; background:rgba(0,181,248,.08); border:1px solid rgba(0,181,248,.12); color:rgba(0,181,248,.8); font-size:11px; cursor:pointer; transition:0.2s; white-space:nowrap; }
+  .sug-btn:hover{ background:rgba(0,181,248,.15); border-color:rgba(0,181,248,.3); }
+
   .chat-input-row{ padding:14px 16px; background:rgba(0,0,0,.3); display:flex;align-items:center;gap:10px; }
   .chat-input{ flex:1;background:rgba(0,43,73,.4);border:1px solid rgba(0,181,248,.1); border-radius:100px;padding:10px 16px; color:#f0f4f8; outline:none; height:40px; resize:none; }
   #micBtn { background:none; border:none; cursor:pointer; padding:5px; display:flex; align-items:center; justify-content:center; }
@@ -43,6 +48,11 @@
       <button id="chatClose" style="background:none;border:none;color:#fff;cursor:pointer;font-size:18px;">✕</button>
     </div>
     <div class="chat-messages" id="chatMessages"></div>
+    <div class="chat-suggestions" id="chatSugs">
+      <button class="sug-btn" onclick="window.sendOscarMsg('Serviços')">Serviços</button>
+      <button class="sug-btn" onclick="window.sendOscarMsg('Orçamento')">Orçamento</button>
+      <button class="sug-btn" onclick="window.sendOscarMsg('Diagnóstico')">Diagnóstico</button>
+    </div>
     <div class="chat-input-row">
       <button id="micBtn" title="Falar">
         <svg viewBox="0 0 24 24"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3z"/><path d="M17 11c0 2.76-2.24 5-5 5s-5-2.24-5-5H5c0 3.53 2.61 6.43 6 6.92V21h2v-3.08c3.39-.49 6-3.39 6-6.92h-2z"/></svg>
@@ -82,6 +92,7 @@
     if (!text.trim()) return;
     addMsg('user', text);
     document.getElementById('chatInput').value = '';
+    document.getElementById('chatSugs').style.display = 'none';
 
     try {
       const res = await fetch(API_URL, {
@@ -98,9 +109,11 @@
         }
       }
     } catch (e) {
-      addMsg('bot', 'Erro de ligação.');
+      addMsg('bot', 'Erro de ligação com a API.');
     }
   }
+
+  window.sendOscarMsg = (text) => { isVoiceInput = false; sendMsg(text); };
 
   function addMsg(role, text) {
     const msgs = document.getElementById('chatMessages');
@@ -111,7 +124,15 @@
     msgs.scrollTop = msgs.scrollHeight;
   }
 
-  btn.onclick = () => panel.classList.toggle('open');
+  let firstOpen = true;
+  btn.onclick = () => {
+    panel.classList.toggle('open');
+    if(firstOpen) {
+        addMsg('bot', 'Olá! Sou o Oscar, assistente da CLVSN. Em que posso ajudar?');
+        firstOpen = false;
+    }
+  };
+  
   document.getElementById('chatClose').onclick = () => panel.classList.remove('open');
   document.getElementById('chatSend').onclick = () => { isVoiceInput = false; sendMsg(document.getElementById('chatInput').value); };
   document.getElementById('chatInput').onkeydown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); isVoiceInput = false; sendMsg(e.target.value); } };
